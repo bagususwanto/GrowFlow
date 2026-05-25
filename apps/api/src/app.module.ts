@@ -10,6 +10,7 @@ import { RolesModule } from './modules/roles/roles.module';
 import { StockModule } from './modules/stock/stock.module';
 import { WarehousesModule } from './modules/warehouses/warehouses.module';
 import { ItemsModule } from './modules/items/items.module';
+import { PartnersModule } from './modules/partners/partners.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 
@@ -28,6 +29,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     StockModule,
     WarehousesModule,
     ItemsModule,
+    PartnersModule,
   ],
   controllers: [AppController],
   providers: [
