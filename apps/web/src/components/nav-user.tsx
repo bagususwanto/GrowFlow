@@ -3,6 +3,7 @@
 import {
   Avatar,
   AvatarFallback,
+  AvatarImage,
 } from "@web/components/ui/avatar"
 import {
   DropdownMenu,
@@ -19,43 +20,33 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@web/components/ui/sidebar"
-import { ChevronsUpDownIcon, LogOutIcon } from "lucide-react"
-import { useAuthStore } from '@web/stores/auth.store'
-import { useRouter } from 'next/navigation'
+import { EllipsisVerticalIcon, CircleUserRoundIcon, CreditCardIcon, BellIcon, LogOutIcon } from "lucide-react"
 
-const ROLE_LABELS: Record<string, string> = {
-  superadmin: 'Super Admin',
-  manager: 'Manager',
-  staff: 'Staff',
-  finance: 'Finance',
-  warehouse: 'Warehouse',
-}
+import { useAuthStore } from "@web/stores/auth.store"
 
-function getInitials(name: string | undefined): string {
-  if (!name) return 'U'
-  return name
-    .split(' ')
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase()
-}
-
-export function NavUser() {
+export function NavUser({
+  user,
+}: {
+  user: {
+    name: string
+    email: string
+    avatar: string
+  }
+}) {
   const { isMobile } = useSidebar()
-  const { user, logout } = useAuthStore()
-  const router = useRouter()
+  const logout = useAuthStore((state) => state.logout)
 
-  if (!user) return null
-
-  const handleLogout = async (): Promise<void> => {
-    await logout()
-    router.push('/login')
-    router.refresh()
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .filter(Boolean)
+      .map((n) => n[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "GF"
   }
 
   const initials = getInitials(user.name)
-  const roleLabel = ROLE_LABELS[user.role] ?? user.role
 
   return (
     <SidebarMenu>
@@ -66,19 +57,20 @@ export function NavUser() {
               <SidebarMenuButton size="lg" className="aria-expanded:bg-muted" />
             }
           >
-            <Avatar className="h-8 w-8">
-              <AvatarFallback className="bg-primary text-primary-foreground font-bold text-xs">
-                {initials}
-              </AvatarFallback>
+            <Avatar className="size-8 rounded-lg">
+              {user.avatar && <AvatarImage src={user.avatar} alt={user.name} />}
+              <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-semibold">{user.name}</span>
-              <span className="truncate text-xs text-muted-foreground">{roleLabel}</span>
+              <span className="truncate font-medium">{user.name}</span>
+              <span className="truncate text-xs text-foreground/70">
+                {user.email}
+              </span>
             </div>
-            <ChevronsUpDownIcon className="ml-auto size-4" />
+            <EllipsisVerticalIcon className="ml-auto size-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="min-w-56 rounded-lg"
+            className="min-w-56"
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
@@ -86,21 +78,41 @@ export function NavUser() {
             <DropdownMenuGroup>
               <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-primary text-primary-foreground font-bold text-xs">
-                      {initials}
-                    </AvatarFallback>
+                  <Avatar className="size-8 rounded-lg">
+                    {user.avatar && <AvatarImage src={user.avatar} alt={user.name} />}
+                    <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">{user.name}</span>
-                    <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+                    <span className="truncate font-medium">{user.name}</span>
+                    <span className="truncate text-xs text-muted-foreground">
+                      {user.email}
+                    </span>
                   </div>
                 </div>
               </DropdownMenuLabel>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive cursor-pointer">
-              <LogOutIcon className="mr-2 h-4 w-4" />
+            <DropdownMenuGroup>
+              <DropdownMenuItem>
+                <CircleUserRoundIcon
+                />
+                Account
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <CreditCardIcon
+                />
+                Billing
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <BellIcon
+                />
+                Notifications
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => logout()}>
+              <LogOutIcon
+              />
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>

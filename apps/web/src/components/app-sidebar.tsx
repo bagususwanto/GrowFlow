@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { LayoutDashboard, Boxes, ShoppingCart, DollarSign } from "lucide-react"
 
 import { NavMain } from "@web/components/nav-main"
 import { NavUser } from "@web/components/nav-user"
@@ -10,8 +9,12 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarRail,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
 } from "@web/components/ui/sidebar"
+import { useAuthStore } from "@web/stores/auth.store"
+import { LayoutDashboard, Package, ShoppingCart, FileText, Sprout } from "lucide-react"
 
 const data = {
   navMain: [
@@ -19,52 +22,57 @@ const data = {
       title: "Dashboard",
       url: "/dashboard",
       icon: <LayoutDashboard />,
-      isActive: true,
     },
     {
       title: "Inventory",
       url: "#",
-      icon: <Boxes />,
-      badge: "Soon",
-      disabled: true,
+      icon: <Package />,
     },
     {
-      title: "Purchasing",
+      title: "Purchase",
       url: "#",
       icon: <ShoppingCart />,
-      badge: "Soon",
-      disabled: true,
     },
     {
-      title: "Sales",
+      title: "Sales Order",
       url: "#",
-      icon: <DollarSign />,
-      badge: "Soon",
-      disabled: true,
+      icon: <FileText />,
     },
   ],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const user = useAuthStore((state) => state.user)
+
+  const sidebarUser = {
+    name: user?.name || "GrowFlow User",
+    email: user?.email || "user@growflow.com",
+    avatar: "",
+  }
+
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
-        <div className="flex items-center gap-3 px-3 py-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground font-bold shadow-md shadow-sidebar-primary/20 shrink-0">
-            G
-          </div>
-          <span className="text-xl font-bold tracking-tight text-sidebar-foreground group-data-[collapsible=icon]:hidden">
-            GrowFlow
-          </span>
-        </div>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              className="data-[slot=sidebar-menu-button]:p-1.5!"
+              render={<a href="/dashboard" />}
+            >
+              <div className="flex aspect-square size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
+                <Sprout className="size-4" />
+              </div>
+              <span className="text-base font-semibold bg-linear-to-r from-foreground via-foreground/90 to-foreground/75 bg-clip-text text-transparent">GrowFlow</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser />
+        <NavUser user={sidebarUser} />
       </SidebarFooter>
-      <SidebarRail />
     </Sidebar>
   )
 }
