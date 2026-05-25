@@ -8,6 +8,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { StockModule } from './modules/stock/stock.module';
+import { WarehousesModule } from './modules/warehouses/warehouses.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 
@@ -24,6 +25,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     UsersModule,
     RolesModule,
     StockModule,
+    WarehousesModule,
   ],
   controllers: [AppController],
   providers: [
