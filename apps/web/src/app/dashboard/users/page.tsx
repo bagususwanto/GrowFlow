@@ -20,7 +20,6 @@ export default function UsersPage() {
         </div>
         <div className="flex items-center gap-2">
           <Button
-            size="sm"
             nativeButton={false}
             render={
               <Link href="/dashboard/users/new">
