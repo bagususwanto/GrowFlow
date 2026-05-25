@@ -1,0 +1,362 @@
+# ============================================================
+
+# .cursorrules — NestJS + Next.js Monorepo (shadcn/ui)
+
+# ============================================================
+
+## PROJECT OVERVIEW
+
+This is a monorepo containing:
+
+- `apps/api` → NestJS (backend REST API)
+- `apps/web` → Next.js App Router (frontend)
+- `packages/` → Shared types, utils, configs, UI lib
+
+## MONOREPO TOOLING
+
+- Package manager : pnpm workspaces
+- Build system : Turborepo
+- Language : TypeScript (strict mode) everywhere
+- Linter : ESLint + Prettier (shared config in `packages/eslint-config`)
+- Git hooks : Husky + lint-staged
+
+---
+
+## GENERAL RULES
+
+- Always use **TypeScript**. Never use `any`; prefer `unknown` with type guards.
+- Use **path aliases** (`@/`, `@api/`, `@web/`, `@repo/`) defined in each `tsconfig.json`.
+- No barrel re-exports (`index.ts`) in deeply nested folders — import directly.
+- All async functions must have explicit return types.
+- Prefer `const` over `let`; never use `var`.
+- Avoid magic numbers — use named constants or enums.
+- **No Emojis or Emoticons in UI/API Responses**: Never use emojis or emoticons (e.g., 📊, 📦, 🛒, 💰) in UI components, notifications, logs, or API response bodies. If icons are needed, always import and use professional vector icons from **`lucide-react`**.
+- All environment variables must be validated with **Zod** at startup (both apps).
+- Write self-documenting code; add JSDoc only for public API surfaces.
+- Each feature must be **self-contained**: co-locate types, hooks, utils, tests next to the feature.
+
+---
+
+## NESTJS (apps/api)
+
+### Architecture
+
+- Follow **modular architecture**: one module per domain feature.
+- Module structure per feature:
+  ```
+  src/
+  └── modules/
+      └── <feature>/
+          ├── <feature>.module.ts
+          ├── <feature>.controller.ts
+          ├── <feature>.service.ts
+          ├── <feature>.repository.ts   # optional
+          ├── dto/
+          │   ├── create-<feature>.dto.ts
+          │   └── update-<feature>.dto.ts
+          ├── entities/
+          │   └── <feature>.entity.ts
+          └── <feature>.spec.ts
+  ```
+
+### Controllers
+
+- Keep controllers **thin**: only handle HTTP concerns (parsing, status codes, response shaping).
+- Use **class-validator** + **class-transformer** on all DTOs.
+- Always define explicit HTTP status codes with `@HttpCode()`.
+- Use **guards** for auth, **interceptors** for logging/transform, **pipes** for validation.
+- Never put business logic in controllers.
+
+### Services
+
+- Services own all **business logic**.
+- Always **inject** dependencies via constructor (never use `new` directly).
+- Make services testable: no static methods, no direct DB calls (delegate to repository).
+- Use **custom exceptions** (`BadRequestException`, `NotFoundException`, etc.) with descriptive messages.
+
+### DTOs
+
+- Every DTO must use `class-validator` decorators (`@IsString()`, `@IsEmail()`, etc.).
+- Use `@ApiProperty()` from `@nestjs/swagger` on every DTO field.
+- Separate create/update DTOs; update DTOs use `PartialType(CreateDto)`.
+
+### Database (TypeORM / Prisma)
+
+- **Prisma preferred**. Schema in `apps/api/prisma/schema.prisma`.
+- Never run raw queries unless absolutely necessary; document them with a comment explaining why.
+- Use database **transactions** for operations that mutate multiple tables.
+- Repository pattern: wrap Prisma client calls in a dedicated repository class per entity.
+
+### Auth
+
+- Use **JWT** (access + refresh token strategy) via `@nestjs/passport`.
+- Store refresh tokens **hashed** in the DB.
+- All protected routes use `@UseGuards(JwtAuthGuard)`.
+- Role-based access via `@Roles()` decorator + `RolesGuard`.
+
+### Error Handling
+
+- Use a global **exception filter** (`AllExceptionsFilter`) for consistent error shape:
+  ```json
+  {
+    "statusCode": 400,
+    "message": "...",
+    "error": "Bad Request",
+    "timestamp": "..."
+  }
+  ```
+- Log errors with context (request id, user id) using the NestJS `Logger`.
+
+### Testing
+
+- Unit tests: `*.spec.ts` beside the file under test.
+- E2E tests: `test/` folder, use `supertest`.
+- Mock external dependencies with `jest.fn()` or `@nestjs/testing` `createTestingModule`.
+- Coverage target: 80 % minimum.
+
+---
+
+## NEXT.JS (apps/web)
+
+### App Router Conventions
+
+- Use **App Router** (`app/`) exclusively. No Pages Router.
+- Default to **Server Components**; add `'use client'` only when needed (interactivity, browser APIs, hooks).
+- `page.tsx` — route page (server component)
+- `layout.tsx` — shared layout
+- `loading.tsx` — Suspense fallback
+- `error.tsx` — error boundary (must be client component)
+- `not-found.tsx` — 404 boundary
+- `route.ts` — API route handler
+
+### Data Fetching
+
+- Fetch data in **Server Components** using `fetch()` with Next.js cache options (`cache`, `next.revalidate`).
+- Use **React Query / TanStack Query** for client-side mutations and real-time data.
+- Never fetch data inside client components on mount if it can be done server-side.
+- Use **Server Actions** for form submissions and mutations from server components.
+
+### Folder Structure
+
+```
+apps/web/
+└── src/
+    ├── app/                    # App Router pages & layouts
+    │   └── (dashboard)/        # Route group
+    ├── components/
+    │   ├── ui/                 # shadcn/ui generated components (DO NOT edit manually)
+    │   └── <feature>/          # Feature-specific components
+    ├── hooks/                  # Custom React hooks
+    ├── lib/
+    │   ├── api.ts              # API client (fetch wrapper)
+    │   └── utils.ts            # cn() and shared utils
+    ├── stores/                 # Zustand stores
+    └── types/                  # Frontend-only types
+```
+
+### State Management
+
+- Local UI state → `useState` / `useReducer`.
+- Global client state → **Zustand** (one slice per domain, in `stores/`).
+- Server state / caching → **TanStack Query**.
+- Form state → **React Hook Form** + **Zod** resolver.
+- Never use `useContext` for global state — use Zustand.
+
+---
+
+## SHADCN/UI
+
+### Installation & Setup
+
+- Init with `npx shadcn@latest init` inside `apps/web`.
+- Components live in `src/components/ui/` (auto-generated path).
+- Config in `components.json` at `apps/web` root.
+
+### Component Rules
+
+- **NEVER manually edit** files inside `src/components/ui/` — they are regenerated by the CLI.
+- **Prefer component properties over raw className styling**: If a shadcn/ui or custom primitive component supports dedicated attributes/properties (e.g., `variant="secondary"`, `size="lg"` on Button), always use those properties instead of hardcoding equivalent classes inside a custom `className` (e.g., avoid manual padding, background colors, and border styles when existing properties cover the requirement). Use `className` primarily for layout positioning, sizing, and spacing (e.g., `w-full`, `mt-4`).
+- Compose shadcn primitives in `src/components/<feature>/` for feature-specific variants.
+- Wrap shadcn components with your own interface to encapsulate logic:
+
+  ```tsx
+  // ✅ Good
+  // src/components/feature/user-avatar.tsx
+  import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+  // ❌ Bad — using shadcn primitives directly in page files everywhere
+  ```
+
+- Use the `cn()` utility from `@/lib/utils` for conditional class merging (not `clsx` or `classnames` directly).
+- Always use **`cva` (class-variance-authority)** for creating component variants.
+
+### Theming
+
+- All colors defined as **CSS variables** in `globals.css` using shadcn's convention:
+  ```css
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+  }
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+  }
+  ```
+- Never hardcode Tailwind color classes (e.g., `bg-white`, `text-gray-900`) in components — use semantic tokens (`bg-background`, `text-foreground`).
+- Dark mode via `class` strategy (set on `<html>`), managed by `next-themes`.
+
+### Forms
+
+- Always use **React Hook Form** + `<Form>` from shadcn/ui + **Zod** schema:
+  ```tsx
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
+    defaultValues: { ... },
+  })
+  ```
+- Use `<FormField>`, `<FormItem>`, `<FormLabel>`, `<FormControl>`, `<FormMessage>` wrappers.
+- Never use native `<form>` with uncontrolled inputs.
+
+### Accessibility
+
+- Every interactive component must have an accessible label (`aria-label`, `aria-labelledby`, or visible text).
+- Use shadcn's built-in Radix UI primitives — they handle keyboard navigation and ARIA roles.
+- Color contrast must meet **WCAG AA** minimum.
+- Use `sr-only` for visually hidden but screen-reader-accessible text.
+
+---
+
+## SHARED PACKAGES (packages/)
+
+```
+packages/
+├── types/          # Shared TS interfaces/types (API contracts)
+├── utils/          # Pure utility functions (no framework deps)
+├── eslint-config/  # Shared ESLint flat config
+├── tsconfig/       # Base tsconfig files
+└── ui/             # (optional) additional shared UI primitives
+```
+
+- `packages/types` is the **source of truth** for all API request/response types.
+- Both `apps/api` and `apps/web` import from `@repo/types`.
+- Shared packages must be **framework-agnostic** (no React, no NestJS imports).
+
+---
+
+## TYPESCRIPT
+
+- `strict: true` in all `tsconfig.json` files.
+- Use **Zod** for runtime validation and infer TypeScript types from schemas:
+  ```ts
+  const schema = z.object({ email: z.string().email() });
+  type Schema = z.infer<typeof schema>;
+  ```
+- Prefer **discriminated unions** over optional fields for variant types.
+- Use `satisfies` operator for config objects to get type checking without widening.
+- Never use `@ts-ignore`; use `@ts-expect-error` with a comment if truly necessary.
+
+---
+
+## STYLING (Tailwind CSS v4)
+
+- Tailwind config at `apps/web/tailwind.config.ts`.
+- Use **utility-first** classes; extract to components, not CSS files.
+- Responsive design: **mobile-first** (`sm:`, `md:`, `lg:`, `xl:`).
+- Animations: prefer Tailwind `animate-*` utilities; use `tailwindcss-animate` plugin (included with shadcn).
+- `cn()` for conditional class merging:
+  ```ts
+  import { cn } from "@/lib/utils";
+  cn("base-class", condition && "conditional-class", className);
+  ```
+
+---
+
+## TESTING
+
+| Layer         | Tool                           |
+| ------------- | ------------------------------ |
+| API unit      | Jest + `@nestjs/testing`       |
+| API E2E       | Jest + Supertest               |
+| Web unit      | Vitest + React Testing Library |
+| Web E2E       | Playwright                     |
+| Type checking | `tsc --noEmit` in CI           |
+
+- Test files co-located: `*.spec.ts` (unit), `*.test.ts` (integration).
+- E2E tests in `apps/web/e2e/` and `apps/api/test/`.
+- Mock external HTTP calls with `msw` (Mock Service Worker) in frontend tests.
+
+---
+
+## GIT & CI
+
+- Commit messages follow **Conventional Commits**: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`.
+- Feature branches: `feature/<ticket>-short-description`.
+- PRs require passing CI (lint + typecheck + tests) before merge.
+- Turborepo pipeline:
+  ```json
+  "build"  → depends on upstream "build"
+  "lint"   → no dependency
+  "test"   → no dependency
+  "dev"    → persistent, no dependency
+  ```
+
+---
+
+## NAMING CONVENTIONS
+
+| Item                  | Convention              | Example                      |
+| --------------------- | ----------------------- | ---------------------------- |
+| Files/folders         | kebab-case              | `user-profile.tsx`           |
+| React components      | PascalCase              | `UserProfile`                |
+| Hooks                 | camelCase, `use` prefix | `useUserProfile`             |
+| Services / Classes    | PascalCase              | `UserService`                |
+| Variables / functions | camelCase               | `getUserById`                |
+| Constants             | SCREAMING_SNAKE_CASE    | `MAX_RETRY_COUNT`            |
+| Zod schemas           | camelCase + `Schema`    | `createUserSchema`           |
+| DTO classes           | PascalCase + `Dto`      | `CreateUserDto`              |
+| Prisma models         | PascalCase              | `User`, `BlogPost`           |
+| API routes (NestJS)   | kebab-case              | `/api/user-profiles`         |
+| Next.js routes        | kebab-case folders      | `app/user-profiles/page.tsx` |
+
+---
+
+## ANTI-PATTERNS TO AVOID
+
+- ❌ Business logic in controllers or components.
+- ❌ Direct DOM manipulation in React (use refs only when necessary).
+- ❌ Storing sensitive data (tokens, secrets) in `localStorage` — use `httpOnly` cookies.
+- ❌ Editing generated shadcn `ui/` components directly.
+- ❌ Fetching inside `useEffect` when Server Components can do it.
+- ❌ `any` type — use `unknown` + type guard or proper generics.
+- ❌ Huge monolithic components — split at 150–200 lines.
+- ❌ Inline styles — use Tailwind utilities or CSS variables.
+- ❌ Importing from `apps/` in `packages/` (one-way dependency only).
+- ❌ Committing `.env` files — use `.env.example` + secret manager.
+
+---
+
+## SECURITY CHECKLIST
+
+- [ ] All API endpoints validated with DTOs and `ValidationPipe({ whitelist: true })`.
+- [ ] Auth routes behind `JwtAuthGuard`.
+- [ ] CORS configured explicitly (no wildcard `*` in production).
+- [ ] Helmet enabled on NestJS app.
+- [ ] Rate limiting (`@nestjs/throttler`) on public endpoints.
+- [ ] Content Security Policy set in Next.js `next.config.ts` headers.
+- [ ] No secrets in source code — all via environment variables.
+- [ ] `NEXT_PUBLIC_` prefix only for truly public env vars.
+
+---
+
+## DOCUMENTATION
+
+Always read docs/ before making architectural decisions.
+
+- docs/PROJECT.md → project overview & setup
+- docs/ARCHITECTURE.md → system design & patterns
+- docs/DATABASE.md → schema & conventions
+- docs/API.md → API design & endpoints
+- docs/WORKFLOWS.md → business flow
+- docs/DECISIONS.md → architectural decisions
+- docs/MVP_PLAN.md → MVP & Implementation Plan

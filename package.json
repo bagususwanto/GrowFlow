@@ -1,0 +1,28 @@
+{
+  "name": "growflow",
+  "private": true,
+  "packageManager": "pnpm@10.30.3",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "db:migrate": "pnpm --filter @growflow/api prisma:migrate",
+    "db:seed": "pnpm --filter @growflow/api prisma:seed",
+    "db:studio": "pnpm --filter @growflow/api prisma:studio"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "turbo": "^2.0.0",
+    "typescript": "^5.0.0",
+    "prettier": "^3.0.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "eslint": "^8.57.0"
+    }
+  }
+}
