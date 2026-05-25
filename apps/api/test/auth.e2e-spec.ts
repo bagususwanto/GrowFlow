@@ -87,58 +87,66 @@ describe('AuthController (e2e)', () => {
     await app.close();
   });
 
+  /** Helper: login and return { accessToken, refreshCookie } */
+  async function loginAndGetTokens() {
+    const loginResponse = await request(app.getHttpServer())
+      .post('/api/auth/login')
+      .send({ email: 'admin@growflow.com', password: 'Admin123!' })
+      .expect(200);
+
+    const accessToken = loginResponse.body.data.accessToken as string;
+    // Extract the Set-Cookie header so subsequent requests can send it back
+    const setCookieHeader = loginResponse.headers['set-cookie'] as string | string[];
+    const refreshCookie = Array.isArray(setCookieHeader)
+      ? setCookieHeader.find((c) => c.startsWith('growflow_refresh_token')) ?? ''
+      : setCookieHeader ?? '';
+
+    return { accessToken, refreshCookie };
+  }
+
   describe('POST /api/auth/login', () => {
     it('should login successfully with correct credentials', async () => {
-      const response = await request(app.getHttpServer())
+      const loginResponse = await request(app.getHttpServer())
         .post('/api/auth/login')
-        .send({
-          email: 'admin@growflow.com',
-          password: 'Admin123!',
-        })
+        .send({ email: 'admin@growflow.com', password: 'Admin123!' })
         .expect(200);
 
-      expect(response.body.data).toHaveProperty('accessToken');
-      expect(response.body.data).toHaveProperty('refreshToken');
-      expect(response.body.data.user.email).toBe('admin@growflow.com');
-      expect(response.body.data.user.role).toBe('superadmin');
+      // refreshToken must NOT be in the response body (it lives in an HTTP-only cookie)
+      expect(loginResponse.body.data).toHaveProperty('accessToken');
+      expect(loginResponse.body.data).not.toHaveProperty('refreshToken');
+      expect(loginResponse.body.data.user.email).toBe('admin@growflow.com');
+      expect(loginResponse.body.data.user.role).toBe('superadmin');
+
+      // Refresh token must be set as an HTTP-only cookie
+      const setCookieHeader = loginResponse.headers['set-cookie'] as string | string[];
+      const cookies = Array.isArray(setCookieHeader) ? setCookieHeader : [setCookieHeader];
+      const refreshCookie = cookies.find((c) => c.startsWith('growflow_refresh_token'));
+      expect(refreshCookie).toBeDefined();
+      expect(refreshCookie).toContain('HttpOnly');
     });
 
     it('should throw 401 with incorrect password', async () => {
       await request(app.getHttpServer())
         .post('/api/auth/login')
-        .send({
-          email: 'admin@growflow.com',
-          password: 'wrong-password',
-        })
+        .send({ email: 'admin@growflow.com', password: 'wrong-password' })
         .expect(401);
     });
 
     it('should throw 401 if user does not exist', async () => {
       await request(app.getHttpServer())
         .post('/api/auth/login')
-        .send({
-          email: 'nonexistent@growflow.com',
-          password: 'Admin123!',
-        })
+        .send({ email: 'nonexistent@growflow.com', password: 'Admin123!' })
         .expect(401);
     });
   });
 
   describe('GET /api/auth/me', () => {
     it('should return user info when authorized', async () => {
-      // 1. Get token
-      const loginResponse = await request(app.getHttpServer())
-        .post('/api/auth/login')
-        .send({
-          email: 'admin@growflow.com',
-          password: 'Admin123!',
-        });
-      const token = loginResponse.body.data.accessToken;
+      const { accessToken } = await loginAndGetTokens();
 
-      // 2. Call /me
       const meResponse = await request(app.getHttpServer())
         .get('/api/auth/me')
-        .set('Authorization', `Bearer ${token}`)
+        .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
 
       expect(meResponse.body.data.email).toBe('admin@growflow.com');
@@ -153,45 +161,42 @@ describe('AuthController (e2e)', () => {
   });
 
   describe('POST /api/auth/refresh', () => {
-    it('should return new tokens with valid refresh token', async () => {
-      // 1. Get refresh token
-      const loginResponse = await request(app.getHttpServer())
-        .post('/api/auth/login')
-        .send({
-          email: 'admin@growflow.com',
-          password: 'Admin123!',
-        });
-      const refreshToken = loginResponse.body.data.refreshToken;
+    it('should return new tokens with valid refresh token cookie', async () => {
+      const { refreshCookie } = await loginAndGetTokens();
 
-      // 2. Refresh
+      // Send the refresh token as a cookie (not in the request body)
       const refreshResponse = await request(app.getHttpServer())
         .post('/api/auth/refresh')
-        .send({ refreshToken })
+        .set('Cookie', refreshCookie)
         .expect(200);
 
       expect(refreshResponse.body.data).toHaveProperty('accessToken');
-      expect(refreshResponse.body.data).toHaveProperty('refreshToken');
+      expect(refreshResponse.body.data).not.toHaveProperty('refreshToken');
+
+      // A new refresh token cookie must be set (token rotation)
+      const newCookies = refreshResponse.headers['set-cookie'] as string | string[];
+      const newCookieArr = Array.isArray(newCookies) ? newCookies : [newCookies];
+      expect(newCookieArr.some((c) => c.startsWith('growflow_refresh_token'))).toBe(true);
+    });
+
+    it('should throw 401 when no refresh token cookie is provided', async () => {
+      await request(app.getHttpServer())
+        .post('/api/auth/refresh')
+        .expect(401);
     });
   });
 
   describe('POST /api/auth/logout', () => {
     it('should revoke token and return 204', async () => {
-      // 1. Get refresh token
-      const loginResponse = await request(app.getHttpServer())
-        .post('/api/auth/login')
-        .send({
-          email: 'admin@growflow.com',
-          password: 'Admin123!',
-        });
-      const refreshToken = loginResponse.body.data.refreshToken;
-      const token = loginResponse.body.data.accessToken;
+      const { accessToken, refreshCookie } = await loginAndGetTokens();
 
-      // 2. Logout
       await request(app.getHttpServer())
         .post('/api/auth/logout')
-        .set('Authorization', `Bearer ${token}`)
-        .send({ refreshToken })
+        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Cookie', refreshCookie)
         .expect(204);
     });
   });
 });
+
+
