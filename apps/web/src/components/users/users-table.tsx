@@ -28,11 +28,11 @@ export function UsersTable() {
   const { data, isLoading, isError, error } = useUsers(page, limit);
   const deleteMutation = useDeleteUser();
 
-  const handleEdit = (user: { id: string }) => {
+  const handleEdit = React.useCallback((user: { id: string }) => {
     router.push(`/dashboard/users/${user.id}/edit`);
-  };
+  }, [router]);
 
-  const handleDelete = async (user: { id: string; name: string }) => {
+  const handleDelete = React.useCallback(async (user: { id: string; name: string }) => {
     if (confirm(`Are you sure you want to delete ${user.name}?`)) {
       toast.promise(deleteMutation.mutateAsync(user.id), {
         loading: `Deleting user ${user.name}...`,
@@ -40,11 +40,11 @@ export function UsersTable() {
         error: 'Failed to delete user',
       });
     }
-  };
+  }, [deleteMutation]);
 
   const columns = React.useMemo(
     () => getColumns({ onEdit: handleEdit, onDelete: handleDelete }),
-    [],
+    [handleEdit, handleDelete],
   );
 
   const tableData = React.useMemo(() => data?.data || [], [data]);

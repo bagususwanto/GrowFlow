@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import * as React from "react"
 
 import { NavMain } from "@web/components/nav-main"
@@ -14,35 +15,100 @@ import {
   SidebarMenuItem,
 } from "@web/components/ui/sidebar"
 import { useAuthStore } from "@web/stores/auth.store"
-import { LayoutDashboard, Package, ShoppingCart, FileText, Sprout } from "lucide-react"
-
-const data = {
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: <LayoutDashboard />,
-    },
-    {
-      title: "Inventory",
-      url: "#",
-      icon: <Package />,
-    },
-    {
-      title: "Purchase",
-      url: "#",
-      icon: <ShoppingCart />,
-    },
-    {
-      title: "Sales Order",
-      url: "#",
-      icon: <FileText />,
-    },
-  ],
-}
+import { LayoutDashboard, Package, ShoppingCart, FileText, Sprout, Users, Shield, Warehouse, History, Boxes, Sliders, Handshake } from "lucide-react"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const user = useAuthStore((state) => state.user)
+
+  const roleName = user?.role
+  const showUserManagement = roleName === "superadmin" || roleName === "manager"
+
+  const navGroups = [
+    {
+      label: "Overview",
+      items: [
+        {
+          title: "Dashboard",
+          url: "/dashboard",
+          icon: <LayoutDashboard />,
+        },
+      ],
+    },
+    {
+      label: "Inventory",
+      items: [
+        {
+          title: "Items",
+          url: "/dashboard/items",
+          icon: <Package />,
+        },
+        {
+          title: "Warehouses",
+          url: "/dashboard/warehouses",
+          icon: <Warehouse />,
+        },
+        {
+          title: "Stock Mutations",
+          url: "/dashboard/stock",
+          icon: <History />,
+        },
+        {
+          title: "Stock Balance",
+          url: "/dashboard/stock/balance",
+          icon: <Boxes />,
+        },
+        {
+          title: "Stock Adjustment",
+          url: "/dashboard/stock/adjust",
+          icon: <Sliders />,
+        },
+      ],
+    },
+    {
+      label: "Transactions",
+      items: [
+        {
+          title: "Purchase",
+          url: "#",
+          icon: <ShoppingCart />,
+        },
+        {
+          title: "Sales Order",
+          url: "#",
+          icon: <FileText />,
+        },
+      ],
+    },
+    {
+      label: "Relations",
+      items: [
+        {
+          title: "Partners",
+          url: "/dashboard/partners",
+          icon: <Handshake />,
+        },
+      ],
+    },
+    ...(showUserManagement
+      ? [
+          {
+            label: "Administration",
+            items: [
+              {
+                title: "Users",
+                url: "/dashboard/users",
+                icon: <Users />,
+              },
+              {
+                title: "Roles",
+                url: "/dashboard/roles",
+                icon: <Shield />,
+              },
+            ],
+          },
+        ]
+      : []),
+  ]
 
   const sidebarUser = {
     name: user?.name || "GrowFlow User",
@@ -57,7 +123,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               className="data-[slot=sidebar-menu-button]:p-1.5!"
-              render={<a href="/dashboard" />}
+              render={<Link href="/dashboard" />}
             >
               <div className="flex aspect-square size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
                 <Sprout className="size-4" />
@@ -68,7 +134,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain groups={navGroups} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={sidebarUser} />

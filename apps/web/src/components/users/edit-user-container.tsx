@@ -3,7 +3,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { useUser, useUpdateUser } from "@web/hooks/use-users";
-import { UserForm } from "./user-form";
+import { UserForm, UserFormValues } from "./user-form";
 import { Card, CardContent } from "@web/components/ui/card";
 import { Skeleton } from "@web/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@web/components/ui/alert";
@@ -20,10 +20,10 @@ export function EditUserContainer({ id }: EditUserContainerProps) {
   const { data: user, isLoading, isError, error } = useUser(id);
   const updateMutation = useUpdateUser(id);
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: UserFormValues) => {
     try {
       // Remove password from payload if it was left blank
-      const payload = { ...data };
+      const payload: Partial<UserFormValues> = { ...data };
       if (!payload.password) {
         delete payload.password;
       }

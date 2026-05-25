@@ -70,7 +70,7 @@ export function useUpdateUser(id: string) {
     mutationFn: async (data) => {
       return apiClient.patch<UserResponse>(`/users/${id}`, data);
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       // Invalidate the specific user detail and the list
       queryClient.invalidateQueries({ queryKey: userKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: userKeys.lists() });

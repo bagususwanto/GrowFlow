@@ -4,7 +4,7 @@ import React from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { UserResponse, CreateUserRequest, UpdateUserRequest } from "@growflow/types";
+import { UserResponse } from "@growflow/types";
 import { useRoles } from "@web/hooks/use-roles";
 import { Button } from "@web/components/ui/button";
 import { Input } from "@web/components/ui/input";
@@ -31,11 +31,11 @@ const getFormSchema = (isEdit: boolean) => {
   });
 };
 
-type UserFormValues = z.infer<ReturnType<typeof getFormSchema>>;
+export type UserFormValues = z.infer<ReturnType<typeof getFormSchema>>;
 
 interface UserFormProps {
   initialData?: UserResponse;
-  onSubmit: (data: any) => Promise<void>;
+  onSubmit: (data: UserFormValues) => Promise<void>;
   isSubmitting: boolean;
 }
 

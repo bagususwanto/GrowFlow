@@ -3,7 +3,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { useCreateUser } from "@web/hooks/use-users";
-import { UserForm } from "./user-form";
+import { UserForm, UserFormValues } from "./user-form";
 import { Card, CardContent } from "@web/components/ui/card";
 import { toast } from "sonner";
 import { ApiError } from "@growflow/types";
@@ -12,9 +12,14 @@ export function CreateUserContainer() {
   const router = useRouter();
   const createMutation = useCreateUser();
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: UserFormValues) => {
     try {
-      await createMutation.mutateAsync(data);
+      await createMutation.mutateAsync({
+        name: data.name,
+        email: data.email,
+        password: data.password as string,
+        roleId: data.roleId,
+      });
       toast.success("User created successfully");
       router.push("/dashboard/users");
     } catch (error) {
