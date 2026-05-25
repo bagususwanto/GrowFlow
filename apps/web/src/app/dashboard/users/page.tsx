@@ -23,6 +23,7 @@ export default function UsersPage() {
         <div className="flex items-center gap-2">
           <Button
             size="sm"
+            nativeButton={false}
             render={
               <Link href="/dashboard/users/new">
                 <PlusIcon className="mr-2 h-4 w-4" />

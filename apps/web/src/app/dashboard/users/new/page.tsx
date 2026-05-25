@@ -24,6 +24,7 @@ export default function CreateUserPage() {
           <Button
             variant="outline"
             size="sm"
+            nativeButton={false}
             render={
               <Link href="/dashboard/users">
                 <ChevronLeftIcon className="mr-2 h-4 w-4" />
