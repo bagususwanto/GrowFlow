@@ -30,7 +30,8 @@ model User {
   roleId       String    @map("role_id")
   role         Role      @relation(fields: [roleId], references: [id])
 
-  refreshTokens RefreshToken[]
+  refreshTokens  RefreshToken[]
+  stockMutations StockMutation[]
 
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
@@ -50,3 +51,112 @@ model RefreshToken {
 
   @@map("refresh_tokens")
 }
+
+model Warehouse {
+  id            String         @id @default(uuid())
+  name          String
+  address       String?
+  isActive      Boolean        @default(true) @map("is_active")
+  deletedAt     DateTime?      @map("deleted_at")
+  stockBalances StockBalance[]
+  stockMutations StockMutation[]
+
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  @@map("warehouses")
+}
+
+model Item {
+  id            String         @id @default(uuid())
+  code          String         @unique
+  name          String
+  unit          String
+  category      String?
+  minStock      Int            @default(0) @map("min_stock")
+  deletedAt     DateTime?      @map("deleted_at")
+  stockBalances StockBalance[]
+  stockMutations StockMutation[]
+
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  @@map("items")
+}
+
+enum PartnerType {
+  SUPPLIER
+  CUSTOMER
+  BOTH
+}
+
+model Partner {
+  id        String      @id @default(uuid())
+  code      String      @unique
+  name      String
+  type      PartnerType
+  email     String?
+  phone     String?
+  address   String?
+  isActive  Boolean     @default(true) @map("is_active")
+  deletedAt DateTime?   @map("deleted_at")
+
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+
+  @@map("partners")
+}
+
+model StockBalance {
+  id          String    @id @default(uuid())
+  qty         Int       @default(0)
+  itemId      String    @map("item_id")
+  item        Item      @relation(fields: [itemId], references: [id])
+  warehouseId String    @map("warehouse_id")
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@unique([itemId, warehouseId])
+  @@map("stock_balances")
+}
+
+enum MutationType {
+  IN
+  OUT
+  TRANSFER
+  ADJUSTMENT
+}
+
+model StockMutation {
+  id            String       @id @default(uuid())
+  qty           Int
+  type          MutationType
+  referenceType String?      @map("reference_type")
+  referenceId   String?      @map("reference_id")
+  note          String?
+
+  itemId        String       @map("item_id")
+  item          Item         @relation(fields: [itemId], references: [id])
+  warehouseId   String       @map("warehouse_id")
+  warehouse     Warehouse    @relation(fields: [warehouseId], references: [id])
+  createdById   String?      @map("created_by_id")
+  createdBy     User?        @relation(fields: [createdById], references: [id])
+
+  createdAt     DateTime     @default(now()) @map("created_at")
+
+  @@map("stock_mutations")
+}
+
+model DocumentSequence {
+  id      String @id @default(uuid())
+  type    String
+  year    Int
+  month   Int
+  lastSeq Int    @default(0) @map("last_seq")
+
+  @@unique([type, year, month])
+  @@map("document_sequences")
+}
+
