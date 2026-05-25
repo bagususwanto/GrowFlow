@@ -4,3 +4,4 @@ export * from './warehouse';
 export * from './item';
 export * from './partner';
 export * from './stock';
+export * from './user';
