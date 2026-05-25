@@ -1,6 +1,10 @@
 'use client';
 
 import { useEffect } from 'react';
+import { Card, CardContent } from '@web/components/ui/card';
+import { Button } from '@web/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@web/components/ui/alert';
+import { AlertCircle, RefreshCw, LayoutDashboard } from 'lucide-react';
 
 interface ErrorProps {
   error: Error & { digest?: string };
@@ -15,59 +19,51 @@ export default function GlobalError({ error, reset }: ErrorProps) {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6 py-24 text-center">
-      <div className="w-full max-w-md rounded-2xl border border-border bg-card/40 p-8 shadow-2xl backdrop-blur-xl">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-rose-500/10 text-rose-500">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="h-8 w-8"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 8.25h.008v.008H12v-.008Z"
-            />
-          </svg>
-        </div>
-
-        <h1 className="mt-6 text-2xl font-bold tracking-tight text-foreground">
-          Terjadi Kesalahan Sistem
-        </h1>
-        
-        <p className="mt-3 text-sm text-muted-foreground">
-          Aplikasi mengalami error yang tidak terduga. Kami mohon maaf atas ketidaknyamanan ini.
-        </p>
-
-        {error.message && (
-          <div className="mt-4 rounded-lg bg-muted/80 p-3 text-left border border-border">
-            <span className="block text-xs font-semibold text-rose-400 uppercase tracking-wider">Detail Error:</span>
-            <code className="mt-1 block text-xs text-muted-foreground font-mono break-all leading-normal">
-              {error.message}
-            </code>
+      <Card className="w-full max-w-md shadow-2xl">
+        <CardContent className="space-y-6 py-8">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-rose-500/10 text-rose-500">
+            <AlertCircle className="h-8 w-8" />
           </div>
-        )}
 
-        <div className="mt-8 flex flex-col gap-3">
-          <button
-            onClick={() => reset()}
-            className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 active:scale-98"
-          >
-            Coba Lagi
-          </button>
-          
-          <button
-            onClick={() => {
-              window.location.href = '/dashboard';
-            }}
-            className="w-full rounded-xl border border-border bg-card/80 px-4 py-3 text-sm font-semibold text-card-foreground transition-all hover:bg-accent hover:text-accent-foreground"
-          >
-            Kembali ke Dashboard
-          </button>
-        </div>
-      </div>
+          <div className="space-y-3">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">
+              Terjadi Kesalahan Sistem
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Aplikasi mengalami error yang tidak terduga. Kami mohon maaf atas ketidaknyamanan ini.
+            </p>
+          </div>
+
+          {error.message && (
+            <Alert variant="destructive" className="text-left">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle className="text-xs font-semibold uppercase tracking-wider">
+                Detail Error
+              </AlertTitle>
+              <AlertDescription>
+                <code className="text-xs font-mono break-all leading-normal">
+                  {error.message}
+                </code>
+              </AlertDescription>
+            </Alert>
+          )}
+
+          <div className="flex flex-col gap-3">
+            <Button onClick={() => reset()} className="w-full">
+              <RefreshCw className="h-4 w-4" />
+              Coba Lagi
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => { window.location.href = '/dashboard'; }}
+              className="w-full"
+            >
+              <LayoutDashboard className="h-4 w-4" />
+              Kembali ke Dashboard
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

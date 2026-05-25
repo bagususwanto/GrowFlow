@@ -6,8 +6,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '../../stores/auth.store';
-import { Button } from '../ui/button';
+import { Button } from '@web/components/ui/button';
+import { Input } from '@web/components/ui/input';
+import { Label } from '@web/components/ui/label';
+import { Alert, AlertDescription } from '@web/components/ui/alert';
 import { ApiError } from '@growflow/types';
+import { AlertCircle, Loader2 } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.string().email('Format email tidak valid'),
@@ -34,7 +38,7 @@ export default function LoginForm() {
     },
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
+  const onSubmit = async (data: LoginFormValues): Promise<void> => {
     setError(null);
     setIsSubmitting(true);
     try {
@@ -52,62 +56,60 @@ export default function LoginForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6">
       {error && (
-        <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive text-center">
-          {error}
-        </div>
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
 
       <div className="space-y-4">
-        <div>
-          <label
+        <div className="space-y-1.5">
+          <Label
             htmlFor="email"
-            className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+            className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
           >
             Email Address
-          </label>
-          <input
+          </Label>
+          <Input
             id="email"
             type="email"
-            required
-            {...register('email')}
-            className="mt-1 block w-full rounded-lg border border-border bg-card/50 px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary"
             placeholder="you@company.com"
+            {...register('email')}
           />
           {errors.email && (
-            <p className="mt-1 text-xs text-destructive">{errors.email.message}</p>
+            <p className="text-xs text-destructive">{errors.email.message}</p>
           )}
         </div>
 
-        <div>
-          <label
+        <div className="space-y-1.5">
+          <Label
             htmlFor="password"
-            className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+            className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
           >
             Password
-          </label>
-          <input
+          </Label>
+          <Input
             id="password"
             type="password"
-            required
-            {...register('password')}
-            className="mt-1 block w-full rounded-lg border border-border bg-card/50 px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary"
             placeholder="••••••••"
+            {...register('password')}
           />
           {errors.password && (
-            <p className="mt-1 text-xs text-destructive">{errors.password.message}</p>
+            <p className="text-xs text-destructive">{errors.password.message}</p>
           )}
         </div>
       </div>
 
-      <div>
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full h-11 text-sm font-semibold cursor-pointer"
-        >
-          {isSubmitting ? 'Signing in...' : 'Sign In'}
-        </Button>
-      </div>
+      <Button type="submit" disabled={isSubmitting} className="w-full h-11">
+        {isSubmitting ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Signing in...
+          </>
+        ) : (
+          'Sign In'
+        )}
+      </Button>
     </form>
   );
 }
