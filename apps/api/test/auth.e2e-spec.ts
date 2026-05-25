@@ -8,6 +8,7 @@ import { PrismaService } from './../src/modules/prisma/prisma.service';
 import { AllExceptionsFilter } from './../src/common/filters/all-exceptions.filter';
 import { ResponseTransformInterceptor } from './../src/common/interceptors/response-transform.interceptor';
 import * as bcrypt from 'bcrypt';
+import cookieParser from 'cookie-parser';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication<App>;
@@ -74,6 +75,7 @@ describe('AuthController (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     app.setGlobalPrefix('api');
+    app.use(cookieParser()); // required so req.cookies is populated in controllers
     app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
     
     const httpAdapterHost = app.get(HttpAdapterHost);
@@ -95,11 +97,13 @@ describe('AuthController (e2e)', () => {
       .expect(200);
 
     const accessToken = loginResponse.body.data.accessToken as string;
-    // Extract the Set-Cookie header so subsequent requests can send it back
+    // Extract only the name=value part of the cookie (strip Path, HttpOnly, etc.)
+    // Browsers do this automatically; supertest requires it explicitly
     const setCookieHeader = loginResponse.headers['set-cookie'] as string | string[];
-    const refreshCookie = Array.isArray(setCookieHeader)
+    const rawCookie = Array.isArray(setCookieHeader)
       ? setCookieHeader.find((c) => c.startsWith('growflow_refresh_token')) ?? ''
       : setCookieHeader ?? '';
+    const refreshCookie = rawCookie.split(';')[0]; // e.g. "growflow_refresh_token=<jwt>"
 
     return { accessToken, refreshCookie };
   }
