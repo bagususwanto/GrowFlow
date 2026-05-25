@@ -1,14 +1,10 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { useRouter } from "next/navigation";
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import { useUsers, useDeleteUser } from "@web/hooks/use-users";
-import { getColumns } from "./columns";
+import * as React from 'react';
+import { useRouter } from 'next/navigation';
+import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { useUsers, useDeleteUser } from '@web/hooks/use-users';
+import { getColumns } from './columns';
 import {
   Table,
   TableBody,
@@ -16,13 +12,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@web/components/ui/table";
-import { Button } from "@web/components/ui/button";
-import { Card, CardContent } from "@web/components/ui/card";
-import { Skeleton } from "@web/components/ui/skeleton";
-import { Alert, AlertDescription, AlertTitle } from "@web/components/ui/alert";
-import { toast } from "sonner";
-import { ChevronLeftIcon, ChevronRightIcon, AlertCircleIcon } from "lucide-react";
+} from '@web/components/ui/table';
+import { Button } from '@web/components/ui/button';
+import { Card, CardContent } from '@web/components/ui/card';
+import { Skeleton } from '@web/components/ui/skeleton';
+import { Alert, AlertDescription, AlertTitle } from '@web/components/ui/alert';
+import { toast } from 'sonner';
+import { ChevronLeftIcon, ChevronRightIcon, AlertCircleIcon } from 'lucide-react';
 
 export function UsersTable() {
   const router = useRouter();
@@ -41,14 +37,14 @@ export function UsersTable() {
       toast.promise(deleteMutation.mutateAsync(user.id), {
         loading: `Deleting user ${user.name}...`,
         success: `User ${user.name} deleted successfully`,
-        error: "Failed to delete user",
+        error: 'Failed to delete user',
       });
     }
   };
 
   const columns = React.useMemo(
     () => getColumns({ onEdit: handleEdit, onDelete: handleDelete }),
-    []
+    [],
   );
 
   const tableData = React.useMemo(() => data?.data || [], [data]);
@@ -65,10 +61,10 @@ export function UsersTable() {
       <Card>
         <CardContent className="p-6">
           <div className="space-y-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-20 w-full" />
-            <Skeleton className="h-20 w-full" />
-            <Skeleton className="h-20 w-full" />
+            <Skeleton className="w-full h-10" />
+            <Skeleton className="w-full h-20" />
+            <Skeleton className="w-full h-20" />
+            <Skeleton className="w-full h-20" />
           </div>
         </CardContent>
       </Card>
@@ -78,10 +74,10 @@ export function UsersTable() {
   if (isError) {
     return (
       <Alert variant="destructive">
-        <AlertCircleIcon className="h-4 w-4" />
+        <AlertCircleIcon className="w-4 h-4" />
         <AlertTitle>Error loading users</AlertTitle>
         <AlertDescription>
-          {error instanceof Error ? error.message : "Something went wrong while fetching users."}
+          {error instanceof Error ? error.message : 'Something went wrong while fetching users.'}
         </AlertDescription>
       </Alert>
     );
@@ -93,8 +89,8 @@ export function UsersTable() {
 
   return (
     <Card>
-      <CardContent className="p-0">
-        <div className="overflow-hidden rounded-lg border">
+      <CardContent className="p-4">
+        <div className="border rounded-lg overflow-hidden">
           <Table>
             <TableHeader className="bg-muted/50">
               {table.getHeaderGroups().map((headerGroup) => (
@@ -103,10 +99,7 @@ export function UsersTable() {
                     <TableHead key={header.id}>
                       {header.isPlaceholder
                         ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -118,10 +111,7 @@ export function UsersTable() {
                   <TableRow key={row.id}>
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
                   </TableRow>
@@ -130,7 +120,7 @@ export function UsersTable() {
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center text-muted-foreground"
+                    className="h-24 text-muted-foreground text-center"
                   >
                     No users found.
                   </TableCell>
@@ -142,8 +132,8 @@ export function UsersTable() {
 
         {/* Pagination controls */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between p-4 border-t">
-            <div className="text-sm text-muted-foreground">
+          <div className="flex justify-between items-center p-4 border-t">
+            <div className="text-muted-foreground text-sm">
               Showing page {page} of {totalPages} ({data?.total} users total)
             </div>
             <div className="flex items-center gap-2">
@@ -153,7 +143,7 @@ export function UsersTable() {
                 onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
                 disabled={!hasPreviousPage}
               >
-                <ChevronLeftIcon className="h-4 w-4" />
+                <ChevronLeftIcon className="w-4 h-4" />
                 Previous
               </Button>
               <Button
@@ -163,7 +153,7 @@ export function UsersTable() {
                 disabled={!hasNextPage}
               >
                 Next
-                <ChevronRightIcon className="h-4 w-4" />
+                <ChevronRightIcon className="w-4 h-4" />
               </Button>
             </div>
           </div>
