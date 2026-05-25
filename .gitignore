@@ -90,3 +90,5 @@ Thumbs.db
 .turbo/
 
 /node_modules
+
+repomix-output.xml
