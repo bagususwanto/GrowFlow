@@ -10,10 +10,6 @@ export default function Header() {
         Foundation Phase (Fase 1)
       </h2>
       <div className="flex items-center space-x-6">
-        <div className="flex items-center space-x-2">
-          <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span className="text-[11px] text-muted-foreground font-medium">Connected</span>
-        </div>
         <UserMenu />
       </div>
     </header>
