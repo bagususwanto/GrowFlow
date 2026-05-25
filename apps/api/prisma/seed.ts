@@ -52,6 +52,106 @@ async function main() {
   });
 
   console.info(`Created superadmin user: ${superadmin.email}`);
+
+  // 3. Seed Warehouses
+  const warehousesData = [
+    { name: 'Gudang Utama', address: 'Jl. Industri No. 12, Bekasi' },
+    { name: 'Gudang Cabang', address: 'Jl. Rungkut Industri No. 45, Surabaya' },
+  ];
+
+  const warehouses = [];
+  for (const wh of warehousesData) {
+    const upsertedWh = await prisma.warehouse.upsert({
+      where: { id: wh.name === 'Gudang Utama' ? 'e9c8a2b5-55ff-4be5-9430-c3d3958c279c' : 'f3dbdf7c-50ab-48d6-9cb3-b2d9de59ee93' },
+      update: { address: wh.address },
+      create: {
+        id: wh.name === 'Gudang Utama' ? 'e9c8a2b5-55ff-4be5-9430-c3d3958c279c' : 'f3dbdf7c-50ab-48d6-9cb3-b2d9de59ee93'        ,
+        name: wh.name,
+        address: wh.address,
+        isActive: true,
+      },
+    });
+    warehouses.push(upsertedWh);
+    console.info(`Created warehouse: ${wh.name}`);
+  }
+
+  // 4. Seed Items
+  const itemsData = [
+    { code: 'ITEM-EL-001', name: 'Laptop ThinkPad L14', unit: 'pcs', category: 'Elektronik', minStock: 5 },
+    { code: 'ITEM-FT-002', name: 'Meja Kerja Minimalis', unit: 'unit', category: 'Furniture', minStock: 2 },
+    { code: 'ITEM-ATK-003', name: 'Kertas A4 80gr', unit: 'rim', category: 'ATK', minStock: 10 },
+  ];
+
+  const items = [];
+  for (const item of itemsData) {
+    const upsertedItem = await prisma.item.upsert({
+      where: { code: item.code },
+      update: { name: item.name, unit: item.unit, category: item.category, minStock: item.minStock },
+      create: {
+        code: item.code,
+        name: item.name,
+        unit: item.unit,
+        category: item.category,
+        minStock: item.minStock,
+      },
+    });
+    items.push(upsertedItem);
+    console.info(`Created item: ${item.name}`);
+  }
+
+  // 5. Seed Partners
+  const partnersData = [
+    { code: 'PRT-SUP-001', name: 'PT Multi Kencana Elektronik', type: 'SUPPLIER' as const, email: 'sales@multikencana.co.id', phone: '021-5551234', address: 'Kawasan Industri Jababeka, Cikarang' },
+    { code: 'PRT-SUP-002', name: 'CV Rimba Abadi', type: 'SUPPLIER' as const, email: 'rimba.abadi@gmail.com', phone: '08123456789', address: 'Jl. Raya Jepara KM 7, Jepara' },
+    { code: 'PRT-CUST-001', name: 'PT Solusi Teknologi Nusantara', type: 'CUSTOMER' as const, email: 'procurement@solusitekno.com', phone: '021-8884321', address: 'Sudirman Central Business District, Jakarta' },
+    { code: 'PRT-CUST-002', name: 'Yayasan Harapan Bangsa', type: 'CUSTOMER' as const, email: 'info@harapanbangsa.or.id', phone: '021-7773333', address: 'Jl. Pemuda No. 100, Bandung' },
+    { code: 'PRT-BOTH-001', name: 'PT Sinar Makmur Sejahtera', type: 'BOTH' as const, email: 'info@sinarmakmur.com', phone: '021-9990000', address: 'Jl. Gatot Subroto No. 50, Semarang' },
+  ];
+
+  for (const partner of partnersData) {
+    await prisma.partner.upsert({
+      where: { code: partner.code },
+      update: { name: partner.name, type: partner.type, email: partner.email, phone: partner.phone, address: partner.address },
+      create: {
+        code: partner.code,
+        name: partner.name,
+        type: partner.type,
+        email: partner.email,
+        phone: partner.phone,
+        address: partner.address,
+        isActive: true,
+      },
+    });
+    console.info(`Created partner: ${partner.name} (${partner.type})`);
+  }
+
+  // 6. Seed Stock Balances
+  // Let's seed initial stock in Gudang Utama (first warehouse)
+  const mainWarehouse = warehouses[0];
+  const stockBalancesData = [
+    { itemId: items[0].id, warehouseId: mainWarehouse.id, qty: 15 },
+    { itemId: items[1].id, warehouseId: mainWarehouse.id, qty: 8 },
+    { itemId: items[2].id, warehouseId: mainWarehouse.id, qty: 50 },
+  ];
+
+  for (const balance of stockBalancesData) {
+    await prisma.stockBalance.upsert({
+      where: {
+        itemId_warehouseId: {
+          itemId: balance.itemId,
+          warehouseId: balance.warehouseId,
+        },
+      },
+      update: { qty: balance.qty },
+      create: {
+        itemId: balance.itemId,
+        warehouseId: balance.warehouseId,
+        qty: balance.qty,
+      },
+    });
+    console.info(`Set stock balance for item ID ${balance.itemId} at ${mainWarehouse.name} to ${balance.qty}`);
+  }
+
   console.info('🌱 Seeding finished successfully.');
 }
 
@@ -63,3 +163,4 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+
