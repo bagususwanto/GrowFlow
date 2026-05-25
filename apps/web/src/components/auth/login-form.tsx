@@ -43,7 +43,7 @@ export default function LoginForm() {
     setIsSubmitting(true);
     try {
       await login(data);
-      router.push('/');
+      router.push('/dashboard');
       router.refresh();
     } catch (err) {
       const apiError = err as ApiError;
@@ -70,15 +70,8 @@ export default function LoginForm() {
           >
             Email Address
           </Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="you@company.com"
-            {...register('email')}
-          />
-          {errors.email && (
-            <p className="text-xs text-destructive">{errors.email.message}</p>
-          )}
+          <Input id="email" type="email" placeholder="you@company.com" {...register('email')} />
+          {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
         </div>
 
         <div className="space-y-1.5">
@@ -88,15 +81,8 @@ export default function LoginForm() {
           >
             Password
           </Label>
-          <Input
-            id="password"
-            type="password"
-            placeholder="••••••••"
-            {...register('password')}
-          />
-          {errors.password && (
-            <p className="text-xs text-destructive">{errors.password.message}</p>
-          )}
+          <Input id="password" type="password" placeholder="••••••••" {...register('password')} />
+          {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
         </div>
       </div>
 
