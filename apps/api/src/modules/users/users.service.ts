@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { UsersRepository, UserWithRole } from './users.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { FindAllUsersDto } from './dto/find-all-users.dto';
 import * as bcrypt from 'bcrypt';
 import { PaginatedResponse } from '@growflow/types';
 import { UserResponseEntity } from './entities/user-response.entity';
@@ -26,11 +27,12 @@ export class UsersService {
     };
   }
 
-  async findAll(page = 1, limit = 10): Promise<PaginatedResponse<UserResponseEntity>> {
+  async findAll(query: FindAllUsersDto): Promise<PaginatedResponse<UserResponseEntity>> {
+    const { page = 1, limit = 10 } = query;
     const skip = (page - 1) * limit;
     const [users, total] = await Promise.all([
-      this.usersRepository.findAll(skip, limit),
-      this.usersRepository.count(),
+      this.usersRepository.findAll(query, skip, limit),
+      this.usersRepository.count(query),
     ]);
 
     return {

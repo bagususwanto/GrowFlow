@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { User, Role } from '@prisma/client';
+import { User, Role, Prisma } from '@prisma/client';
 import { CreateUserDto } from './dto/create-user.dto';
+import { FindAllUsersDto } from './dto/find-all-users.dto';
 
 export type UserWithRole = User & { role: Role };
 
@@ -9,18 +10,43 @@ export type UserWithRole = User & { role: Role };
 export class UsersRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(skip?: number, take?: number): Promise<UserWithRole[]> {
+  private buildWhereClause(query: FindAllUsersDto): Prisma.UserWhereInput {
+    const where: Prisma.UserWhereInput = { deletedAt: null };
+    
+    if (query.search) {
+      where.OR = [
+        { name: { contains: query.search, mode: 'insensitive' } },
+        { email: { contains: query.search, mode: 'insensitive' } },
+      ];
+    }
+    
+    if (query.roleId) {
+      where.roleId = query.roleId;
+    }
+    
+    if (query.isActive !== undefined) {
+      where.isActive = query.isActive;
+    }
+    
+    return where;
+  }
+
+  async findAll(query: FindAllUsersDto, skip?: number, take?: number): Promise<UserWithRole[]> {
+    const where = this.buildWhereClause(query);
+    const orderBy = { [query.sortBy || 'createdAt']: query.sortOrder || 'desc' };
+
     return this.prisma.user.findMany({
       skip,
       take,
+      where,
+      orderBy,
       include: { role: true },
-      where: { deletedAt: null },
-      orderBy: { createdAt: 'desc' },
     });
   }
 
-  async count(): Promise<number> {
-    return this.prisma.user.count({ where: { deletedAt: null } });
+  async count(query: FindAllUsersDto): Promise<number> {
+    const where = this.buildWhereClause(query);
+    return this.prisma.user.count({ where });
   }
 
   async findById(id: string): Promise<UserWithRole | null> {
