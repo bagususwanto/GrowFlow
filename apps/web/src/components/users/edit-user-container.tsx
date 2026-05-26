@@ -30,7 +30,7 @@ export function EditUserContainer({ id }: EditUserContainerProps) {
       
       await updateMutation.mutateAsync(payload);
       toast.success("User updated successfully");
-      router.push("/dashboard/users");
+      router.push("/administration/users");
     } catch (error) {
       const apiError = error as ApiError;
       toast.error(apiError.message || "Failed to update user");

@@ -39,27 +39,27 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       items: [
         {
           title: "Items",
-          url: "/dashboard/items",
+          url: "/inventory/items",
           icon: <Package />,
         },
         {
           title: "Warehouses",
-          url: "/dashboard/warehouses",
+          url: "/inventory/warehouses",
           icon: <Warehouse />,
         },
         {
           title: "Stock Mutations",
-          url: "/dashboard/stock",
+          url: "/inventory/stock",
           icon: <History />,
         },
         {
           title: "Stock Balance",
-          url: "/dashboard/stock/balance",
+          url: "/inventory/stock/balance",
           icon: <Boxes />,
         },
         {
           title: "Stock Adjustment",
-          url: "/dashboard/stock/adjust",
+          url: "/inventory/stock/adjust",
           icon: <Sliders />,
         },
       ],
@@ -84,7 +84,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       items: [
         {
           title: "Partners",
-          url: "/dashboard/partners",
+          url: "/relations/partners",
           icon: <Handshake />,
         },
       ],
@@ -96,12 +96,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             items: [
               {
                 title: "Users",
-                url: "/dashboard/users",
+                url: "/administration/users",
                 icon: <Users />,
               },
               {
                 title: "Roles",
-                url: "/dashboard/roles",
+                url: "/administration/roles",
                 icon: <Shield />,
               },
             ],

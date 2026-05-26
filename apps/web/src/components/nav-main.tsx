@@ -37,7 +37,10 @@ export function NavMain({
           <SidebarGroupContent className="flex flex-col gap-2">
             <SidebarMenu>
               {group.items.map((item) => {
-                const isActive = pathname === item.url || (item.url !== "#" && pathname?.startsWith(item.url))
+                const isActive =
+                  item.url === "/dashboard" || item.url === "/"
+                    ? pathname === item.url
+                    : pathname === item.url || (item.url !== "#" && pathname?.startsWith(item.url + "/"));
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
@@ -49,7 +52,7 @@ export function NavMain({
                       <span>{item.title}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                )
+                );
               })}
             </SidebarMenu>
           </SidebarGroupContent>

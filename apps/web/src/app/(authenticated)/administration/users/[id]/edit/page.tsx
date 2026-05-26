@@ -34,7 +34,7 @@ export default async function EditUserPage({ params }: EditUserPageProps) {
             size="sm"
             nativeButton={false}
             render={
-              <Link href="/dashboard/users">
+              <Link href="/administration/users">
                 <ChevronLeftIcon className="mr-2 h-4 w-4" />
                 Back to Users
               </Link>

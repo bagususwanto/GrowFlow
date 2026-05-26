@@ -21,7 +21,7 @@ export function CreateUserContainer() {
         roleId: data.roleId,
       });
       toast.success("User created successfully");
-      router.push("/dashboard/users");
+      router.push("/administration/users");
     } catch (error) {
       const apiError = error as ApiError;
       toast.error(apiError.message || "Failed to create user");

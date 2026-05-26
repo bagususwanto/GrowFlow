@@ -1,7 +1,9 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { UsersTable } from '@web/components/users/users-table';
 import { Button } from '@web/components/ui/button';
 import { PlusIcon } from 'lucide-react';
+import { Skeleton } from '@web/components/ui/skeleton';
 
 export const metadata = {
   title: 'Users Management | GrowFlow',
@@ -22,7 +24,7 @@ export default function UsersPage() {
           <Button
             nativeButton={false}
             render={
-              <Link href="/dashboard/users/new">
+              <Link href="/administration/users/new">
                 <PlusIcon className="mr-2 w-4 h-4" />
                 Add User
               </Link>
@@ -31,7 +33,9 @@ export default function UsersPage() {
         </div>
       </div>
 
-      <UsersTable />
+      <Suspense fallback={<Skeleton className="w-full h-96" />}>
+        <UsersTable />
+      </Suspense>
     </div>
   );
 }

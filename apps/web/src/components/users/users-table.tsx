@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useUsers, useDeleteUser } from '@web/hooks/use-users';
 import { useDebounce } from '@web/hooks/use-debounce';
@@ -32,23 +32,99 @@ import { ChevronLeftIcon, ChevronRightIcon, SearchIcon, RotateCcwIcon, ChevronsL
 
 export function UsersTable() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
 
-  // State for filtering, sorting, and pagination
-  const [page, setPage] = React.useState(1);
-  const [limit, setLimit] = React.useState(10);
-  const [search, setSearch] = React.useState('');
+  // Read search params
+  const urlPage = searchParams.get('page');
+  const urlLimit = searchParams.get('limit');
+  const urlSearch = searchParams.get('search');
+  const urlRoleId = searchParams.get('roleId');
+  const urlIsActive = searchParams.get('isActive');
+  const urlSortBy = searchParams.get('sortBy');
+  const urlSortOrder = searchParams.get('sortOrder');
+
+  // Compute active states
+  const page = urlPage ? parseInt(urlPage, 10) : 1;
+  const limit = urlLimit ? parseInt(urlLimit, 10) : 10;
+  const roleId = urlRoleId || 'all';
+  const isActive = urlIsActive || 'all';
+  const sortBy = urlSortBy || 'createdAt';
+  const sortOrder = (urlSortOrder === 'asc' || urlSortOrder === 'desc') ? urlSortOrder : 'desc';
+
+  // Search input uses a local state for instant typing response
+  const [search, setSearch] = React.useState(urlSearch || '');
   const debouncedSearch = useDebounce(search, 500);
-  const [roleId, setRoleId] = React.useState('all');
-  const [isActive, setIsActive] = React.useState('all');
-  const [sortBy, setSortBy] = React.useState('createdAt');
-  const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('desc');
 
-  // Reset page on filter/limit change
+  // Sync local search input with URL search param changes (e.g., reset)
   React.useEffect(() => {
-    setPage(1);
-  }, [debouncedSearch, roleId, isActive, limit]);
+    setSearch(urlSearch || '');
+  }, [urlSearch]);
 
-  // Construct query object
+  // Helper to generate search params string
+  const createQueryString = React.useCallback(
+    (params: Record<string, string | number | boolean | null | undefined>) => {
+      const newParams = new URLSearchParams(searchParams.toString());
+      
+      Object.entries(params).forEach(([key, value]) => {
+        if (value === null || value === undefined || value === '' || value === 'all') {
+          newParams.delete(key);
+        } else {
+          newParams.set(key, String(value));
+        }
+      });
+      
+      return newParams.toString();
+    },
+    [searchParams]
+  );
+
+  // Sync debounced search to URL
+  React.useEffect(() => {
+    const currentUrlSearch = searchParams.get('search') || '';
+    if (debouncedSearch !== currentUrlSearch && search === debouncedSearch) {
+      const queryString = createQueryString({
+        search: debouncedSearch || null,
+        page: 1, // Reset page on new search
+      });
+      router.replace(`${pathname}?${queryString}`, { scroll: false });
+    }
+  }, [debouncedSearch, search, pathname, router, createQueryString, searchParams]);
+
+  // Setters that update URL instead of local React state
+  const setPage = React.useCallback(
+    (newPage: number) => {
+      const queryString = createQueryString({ page: newPage });
+      router.replace(`${pathname}?${queryString}`, { scroll: false });
+    },
+    [pathname, router, createQueryString]
+  );
+
+  const setLimit = React.useCallback(
+    (newLimit: number) => {
+      const queryString = createQueryString({ limit: newLimit, page: 1 });
+      router.replace(`${pathname}?${queryString}`, { scroll: false });
+    },
+    [pathname, router, createQueryString]
+  );
+
+  const setRoleId = React.useCallback(
+    (newRoleId: string) => {
+      const queryString = createQueryString({ roleId: newRoleId, page: 1 });
+      router.replace(`${pathname}?${queryString}`, { scroll: false });
+    },
+    [pathname, router, createQueryString]
+  );
+
+  const setIsActive = React.useCallback(
+    (newIsActive: string) => {
+      const queryString = createQueryString({ isActive: newIsActive, page: 1 });
+      router.replace(`${pathname}?${queryString}`, { scroll: false });
+    },
+    [pathname, router, createQueryString]
+  );
+
+  // Construct query object for API request
   const query = React.useMemo(() => {
     const q: FindAllUsersQuery = {
       page,
@@ -68,7 +144,7 @@ export function UsersTable() {
 
   const handleEdit = React.useCallback(
     (user: { id: string }) => {
-      router.push(`/dashboard/users/${user.id}/edit`);
+      router.push(`/administration/users/${user.id}/edit`);
     },
     [router],
   );
@@ -88,15 +164,18 @@ export function UsersTable() {
 
   const handleSort = React.useCallback(
     (field: string) => {
+      let newOrder: 'asc' | 'desc' = 'asc';
       if (sortBy === field) {
-        setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-      } else {
-        setSortBy(field);
-        setSortOrder('asc');
+        newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
       }
-      setPage(1);
+      const queryString = createQueryString({
+        sortBy: field,
+        sortOrder: newOrder,
+        page: 1,
+      });
+      router.replace(`${pathname}?${queryString}`, { scroll: false });
     },
-    [sortBy],
+    [sortBy, sortOrder, pathname, router, createQueryString]
   );
 
   const columns = React.useMemo(
@@ -125,14 +204,18 @@ export function UsersTable() {
   const hasPreviousPage = page > 1;
   const hasNextPage = page < totalPages;
 
-  const isFilterActive = search !== '' || roleId !== 'all' || isActive !== 'all';
+  const isFilterActive =
+    (urlSearch && urlSearch !== '') ||
+    (urlRoleId && urlRoleId !== 'all') ||
+    (urlIsActive && urlIsActive !== 'all');
 
   const handleResetFilters = () => {
     setSearch('');
-    setRoleId('all');
-    setIsActive('all');
-    setSortBy('createdAt');
-    setSortOrder('desc');
+    const newParams = new URLSearchParams();
+    if (limit !== 10) {
+      newParams.set('limit', String(limit));
+    }
+    router.replace(`${pathname}?${newParams.toString()}`, { scroll: false });
   };
 
   return (
@@ -299,7 +382,7 @@ export function UsersTable() {
                 variant="outline"
                 size="sm"
                 className="h-9"
-                onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                onClick={() => setPage(Math.max(page - 1, 1))}
                 disabled={!hasPreviousPage || isLoading}
               >
                 <ChevronLeftIcon className="w-4 h-4 mr-1" />
@@ -309,7 +392,7 @@ export function UsersTable() {
                 variant="outline"
                 size="sm"
                 className="h-9"
-                onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+                onClick={() => setPage(Math.min(page + 1, totalPages))}
                 disabled={!hasNextPage || isLoading}
               >
                 Next
