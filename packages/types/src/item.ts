@@ -30,6 +30,8 @@ export interface ListItemsQuery {
   limit?: number;
   search?: string;
   category?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }
 
 export interface ItemStockByWarehouse {

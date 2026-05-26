@@ -44,8 +44,33 @@ describe('ItemsRepository', () => {
     it('should return paginated items', async () => {
       prisma.item.findMany.mockResolvedValue([mockItem]);
       prisma.item.count.mockResolvedValue(1);
-      const res = await repository.findAll({ skip: 0, take: 10 });
+      const res = await repository.findAll({ page: 1, limit: 10, sortBy: 'name', sortOrder: 'asc' }, 0, 10);
       expect(res).toEqual([[mockItem], 1]);
+      expect(prisma.item.findMany).toHaveBeenCalledWith({
+        skip: 0,
+        take: 10,
+        where: { deletedAt: null },
+        orderBy: { name: 'asc' },
+      });
+    });
+
+    it('should filter by search and category', async () => {
+      prisma.item.findMany.mockResolvedValue([mockItem]);
+      prisma.item.count.mockResolvedValue(1);
+      await repository.findAll({ page: 1, limit: 10, search: 'test', category: 'Cat' }, 0, 10);
+      expect(prisma.item.findMany).toHaveBeenCalledWith({
+        skip: 0,
+        take: 10,
+        where: {
+          deletedAt: null,
+          category: 'Cat',
+          OR: [
+            { name: { contains: 'test', mode: 'insensitive' } },
+            { code: { contains: 'test', mode: 'insensitive' } },
+          ],
+        },
+        orderBy: { createdAt: 'desc' },
+      });
     });
   });
 

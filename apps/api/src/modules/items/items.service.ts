@@ -5,7 +5,7 @@ import { UpdateItemDto } from './dto/update-item.dto';
 import { ListItemsQueryDto } from './dto/list-items-query.dto';
 import { PaginatedResponse } from '@growflow/types';
 import { ItemResponseEntity } from './entities/item-response.entity';
-import { Item, Prisma } from '@prisma/client';
+import { Item } from '@prisma/client';
 
 @Injectable()
 export class ItemsService {
@@ -29,20 +29,7 @@ export class ItemsService {
     const limit = query.limit || 10;
     const skip = (page - 1) * limit;
 
-    const where: Prisma.ItemWhereInput = { deletedAt: null };
-    
-    if (query.search) {
-      where.OR = [
-        { name: { contains: query.search, mode: 'insensitive' } },
-        { code: { contains: query.search, mode: 'insensitive' } },
-      ];
-    }
-    
-    if (query.category) {
-      where.category = query.category;
-    }
-
-    const [items, total] = await this.itemsRepository.findAll({ skip, take: limit, where });
+    const [items, total] = await this.itemsRepository.findAll(query, skip, limit);
 
     return {
       data: items.map(i => this.mapToResponse(i)),
@@ -51,6 +38,7 @@ export class ItemsService {
       limit,
     };
   }
+
 
   async findOne(id: string): Promise<ItemResponseEntity> {
     const item = await this.itemsRepository.findById(id);
