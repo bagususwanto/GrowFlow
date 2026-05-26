@@ -19,27 +19,24 @@ export default async function EditUserPage({ params }: EditUserPageProps) {
 
   return (
     <div className="space-y-6 px-4 lg:px-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="space-y-1">
+      <div className="flex items-center gap-3">
+        <Button
+          variant="outline"
+          size="icon"
+          nativeButton={false}
+          render={
+            <Link href="/administration/users" title="Back to Users">
+              <ChevronLeftIcon className="h-4 w-4" />
+            </Link>
+          }
+        />
+        <div className="space-y-0.5">
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Edit User
           </h1>
           <p className="text-sm text-muted-foreground">
             Update user information, assign a different role, or manage account status.
           </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            nativeButton={false}
-            render={
-              <Link href="/administration/users">
-                <ChevronLeftIcon className="mr-2 h-4 w-4" />
-                Back to Users
-              </Link>
-            }
-          />
         </div>
       </div>
 

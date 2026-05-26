@@ -39,7 +39,7 @@ export function EditUserContainer({ id }: EditUserContainerProps) {
 
   if (isLoading) {
     return (
-      <Card className="max-w-md">
+      <Card className="w-full">
         <CardContent className="p-6 space-y-4">
           <Skeleton className="h-8 w-full" />
           <Skeleton className="h-8 w-full" />
@@ -52,7 +52,7 @@ export function EditUserContainer({ id }: EditUserContainerProps) {
 
   if (isError || !user) {
     return (
-      <Alert variant="destructive" className="max-w-md">
+      <Alert variant="destructive" className="w-full">
         <AlertCircleIcon className="h-4 w-4" />
         <AlertTitle>Error loading user</AlertTitle>
         <AlertDescription>
@@ -63,7 +63,7 @@ export function EditUserContainer({ id }: EditUserContainerProps) {
   }
 
   return (
-    <Card className="max-w-md">
+    <Card className="w-full">
       <CardContent className="p-6">
         <UserForm
           initialData={user}

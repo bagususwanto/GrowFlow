@@ -29,7 +29,7 @@ export function CreateUserContainer() {
   };
 
   return (
-    <Card className="max-w-md">
+    <Card className="w-full">
       <CardContent className="p-6">
         <UserForm
           onSubmit={handleSubmit}
