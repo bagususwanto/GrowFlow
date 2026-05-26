@@ -5,27 +5,32 @@ import {
   CreateUserRequest,
   UpdateUserRequest,
   PaginatedResponse,
+  FindAllUsersQuery,
 } from '@growflow/types';
 
 // Query keys
 export const userKeys = {
   all: ['users'] as const,
   lists: () => [...userKeys.all, 'list'] as const,
-  list: (page: number, limit: number) => [...userKeys.lists(), { page, limit }] as const,
+  list: (query: FindAllUsersQuery) => [...userKeys.lists(), query] as const,
   details: () => [...userKeys.all, 'detail'] as const,
   detail: (id: string) => [...userKeys.details(), id] as const,
 };
 
 /**
- * Hook to retrieve a paginated list of users.
+ * Hook to retrieve a paginated, filtered, and sorted list of users.
  */
-export function useUsers(page = 1, limit = 10) {
+export function useUsers(query: FindAllUsersQuery = {}) {
   return useQuery<PaginatedResponse<UserResponse>>({
-    queryKey: userKeys.list(page, limit),
+    queryKey: userKeys.list(query),
     queryFn: async () => {
-      return apiClient.get<PaginatedResponse<UserResponse>>(
-        `/users?page=${page}&limit=${limit}`
-      );
+      const params = new URLSearchParams();
+      Object.entries(query).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          params.append(key, value.toString());
+        }
+      });
+      return apiClient.get<PaginatedResponse<UserResponse>>(`/users?${params.toString()}`);
     },
   });
 }

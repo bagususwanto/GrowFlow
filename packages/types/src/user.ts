@@ -28,3 +28,14 @@ export interface UpdateUserRequest {
   roleId?: string;
   isActive?: boolean;
 }
+
+export interface FindAllUsersQuery {
+  page?: number;
+  limit?: number;
+  search?: string;
+  roleId?: string;
+  isActive?: boolean;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+

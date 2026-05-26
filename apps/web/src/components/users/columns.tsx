@@ -13,17 +13,40 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@web/components/ui/dropdown-menu';
-import { EditIcon, EllipsisVerticalIcon, ShieldIcon, Trash2Icon, UserIcon } from 'lucide-react';
+import { EditIcon, EllipsisVerticalIcon, ShieldIcon, Trash2Icon, UserIcon, ArrowUpDownIcon, ArrowUpIcon, ArrowDownIcon } from 'lucide-react';
 
 interface ColumnActions {
   onEdit: (user: UserResponse) => void;
   onDelete: (user: UserResponse) => void;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  onSort?: (field: string) => void;
 }
 
-export const getColumns = ({ onEdit, onDelete }: ColumnActions): ColumnDef<UserResponse>[] => [
+export const getColumns = ({ onEdit, onDelete, sortBy, sortOrder, onSort }: ColumnActions): ColumnDef<UserResponse>[] => [
   {
     accessorKey: 'name',
-    header: 'Name',
+    header: () => {
+      const isSorted = sortBy === 'name';
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => onSort?.('name')}
+          className="-ml-4 hover:bg-transparent font-semibold h-8 text-xs uppercase tracking-wider text-muted-foreground"
+        >
+          Name
+          {isSorted ? (
+            sortOrder === 'asc' ? (
+              <ArrowUpIcon className="ml-2 w-3.5 h-3.5 text-foreground" />
+            ) : (
+              <ArrowDownIcon className="ml-2 w-3.5 h-3.5 text-foreground" />
+            )
+          ) : (
+            <ArrowUpDownIcon className="ml-2 w-3.5 h-3.5 text-muted-foreground/30" />
+          )}
+        </Button>
+      );
+    },
     cell: ({ row }) => {
       const user = row.original;
       return (
@@ -38,7 +61,27 @@ export const getColumns = ({ onEdit, onDelete }: ColumnActions): ColumnDef<UserR
   },
   {
     accessorKey: 'email',
-    header: 'Email',
+    header: () => {
+      const isSorted = sortBy === 'email';
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => onSort?.('email')}
+          className="-ml-4 hover:bg-transparent font-semibold h-8 text-xs uppercase tracking-wider text-muted-foreground"
+        >
+          Email
+          {isSorted ? (
+            sortOrder === 'asc' ? (
+              <ArrowUpIcon className="ml-2 w-3.5 h-3.5 text-foreground" />
+            ) : (
+              <ArrowDownIcon className="ml-2 w-3.5 h-3.5 text-foreground" />
+            )
+          ) : (
+            <ArrowUpDownIcon className="ml-2 w-3.5 h-3.5 text-muted-foreground/30" />
+          )}
+        </Button>
+      );
+    },
   },
   {
     accessorKey: 'role',
@@ -60,7 +103,27 @@ export const getColumns = ({ onEdit, onDelete }: ColumnActions): ColumnDef<UserR
   },
   {
     accessorKey: 'isActive',
-    header: 'Status',
+    header: () => {
+      const isSorted = sortBy === 'isActive';
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => onSort?.('isActive')}
+          className="-ml-4 hover:bg-transparent font-semibold h-8 text-xs uppercase tracking-wider text-muted-foreground"
+        >
+          Status
+          {isSorted ? (
+            sortOrder === 'asc' ? (
+              <ArrowUpIcon className="ml-2 w-3.5 h-3.5 text-foreground" />
+            ) : (
+              <ArrowDownIcon className="ml-2 w-3.5 h-3.5 text-foreground" />
+            )
+          ) : (
+            <ArrowUpDownIcon className="ml-2 w-3.5 h-3.5 text-muted-foreground/30" />
+          )}
+        </Button>
+      );
+    },
     cell: ({ row }) => {
       const isActive = row.original.isActive;
       return (
