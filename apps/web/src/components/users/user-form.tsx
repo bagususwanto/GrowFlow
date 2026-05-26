@@ -132,7 +132,9 @@ export function UserForm({ initialData, onSubmit, isSubmitting }: UserFormProps)
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger className="w-full h-9 relative pl-9" id="roleId">
                       <ShieldIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <SelectValue placeholder="Select a role" />
+                      <SelectValue placeholder="Select a role">
+                        {roles.find((role) => role.id === field.value)?.name}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {roles.map((role) => (
@@ -163,7 +165,9 @@ export function UserForm({ initialData, onSubmit, isSubmitting }: UserFormProps)
                   >
                     <SelectTrigger className="w-full h-9 relative pl-9" id="isActive">
                       <CheckIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <SelectValue placeholder="Select status" />
+                      <SelectValue placeholder="Select status">
+                        {field.value ? "Active (Allowed to sign in)" : "Inactive (Suspended)"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="true">Active (Allowed to sign in)</SelectItem>
