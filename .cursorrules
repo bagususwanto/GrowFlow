@@ -42,9 +42,15 @@ This is a monorepo containing:
 ### Architecture
 
 - Follow **modular architecture**: one module per domain feature.
+- Shared infrastructure (Prisma, cache, etc.) lives in `src/infrastructure/`, **not** inside `src/modules/`.
 - Module structure per feature:
   ```
   src/
+  ├── infrastructure/          # Shared infrastructure (NOT domain modules)
+  │   └── prisma/
+  │       ├── prisma.module.ts
+  │       └── prisma.service.ts
+  ├── common/                  # Guards, decorators, filters, interceptors
   └── modules/
       └── <feature>/
           ├── <feature>.module.ts
@@ -58,6 +64,7 @@ This is a monorepo containing:
           │   └── <feature>.entity.ts
           └── <feature>.spec.ts
   ```
+- **Infrastructure vs Modules rule**: Only domain business logic belongs in `modules/`. Anything that is a shared technical concern (database clients, cache, external service adapters) belongs in `infrastructure/`.
 
 ### Controllers
 
@@ -169,14 +176,27 @@ apps/web/
     │   └── (dashboard)/        # Route group
     ├── components/
     │   ├── ui/                 # shadcn/ui generated components (DO NOT edit manually)
-    │   └── <feature>/          # Feature-specific components
-    ├── hooks/                  # Custom React hooks
+    │   └── <feature>/          # Feature-specific components + co-located hooks
+    │       ├── use-<feature>.ts  # Feature hook (co-located, not in global hooks/)
+    │       └── <feature>-table.tsx
+    ├── hooks/                  # ONLY truly shared/generic hooks
+    │   ├── use-debounce.ts     # Generic utility
+    │   └── use-mobile.ts       # Generic utility
     ├── lib/
     │   ├── api.ts              # API client (fetch wrapper)
     │   └── utils.ts            # cn() and shared utils
     ├── stores/                 # Zustand stores
     └── types/                  # Frontend-only types
 ```
+
+### Hooks Co-location Rule
+
+- **Feature-specific hooks** (e.g., `useUsers`, `useRoles`, `useWarehouses`) must live **inside `components/<feature>/`** alongside the components that use them — **not** in the global `hooks/` folder.
+- **Generic/shared hooks** (e.g., `useDebounce`, `useIsMobile`) that are used across multiple unrelated features belong in the global `hooks/` folder.
+- Decision guide:
+  - Hook is used only within one feature folder → co-locate in `components/<feature>/`
+  - Hook has no feature-specific API calls and is reused across 2+ unrelated features → put in `hooks/`
+- ❌ Never put TanStack Query hooks (`useQuery`, `useMutation`) for a specific entity in the global `hooks/` folder.
 
 ### State Management
 

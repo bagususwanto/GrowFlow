@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { useCreateUser } from "@web/hooks/use-users";
+import { useCreateUser } from "./use-users";
 import { UserForm, UserFormValues } from "./user-form";
 import { Card, CardContent } from "@web/components/ui/card";
 import { toast } from "sonner";

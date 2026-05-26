@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { useUser, useUpdateUser } from "@web/hooks/use-users";
+import { useUser, useUpdateUser } from "./use-users";
 import { UserForm, UserFormValues } from "./user-form";
 import { Card, CardContent } from "@web/components/ui/card";
 import { Skeleton } from "@web/components/ui/skeleton";

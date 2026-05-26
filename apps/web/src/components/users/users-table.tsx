@@ -3,9 +3,9 @@
 import * as React from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { useUsers, useDeleteUser } from '@web/hooks/use-users';
+import { useUsers, useDeleteUser } from './use-users';
 import { useDebounce } from '@web/hooks/use-debounce';
-import { useRoles } from '@web/hooks/use-roles';
+import { useRoles } from './use-roles';
 import { getColumns } from './columns';
 import { FindAllUsersQuery } from '@growflow/types';
 import {
