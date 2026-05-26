@@ -44,8 +44,35 @@ describe('PartnersRepository', () => {
     it('should return paginated partners', async () => {
       prisma.partner.findMany.mockResolvedValue([mockPartner]);
       prisma.partner.count.mockResolvedValue(1);
-      const res = await repository.findAll({ skip: 0, take: 10 });
+      const res = await repository.findAll({ page: 1, limit: 10, sortBy: 'name', sortOrder: 'asc' }, 0, 10);
       expect(res).toEqual([[mockPartner], 1]);
+      expect(prisma.partner.findMany).toHaveBeenCalledWith({
+        skip: 0,
+        take: 10,
+        where: { deletedAt: null },
+        orderBy: { name: 'asc' },
+      });
+    });
+
+    it('should filter by search and type and isActive', async () => {
+      prisma.partner.findMany.mockResolvedValue([mockPartner]);
+      prisma.partner.count.mockResolvedValue(1);
+      await repository.findAll({ page: 1, limit: 10, search: 'test', type: 'SUPPLIER', isActive: true }, 0, 10);
+      expect(prisma.partner.findMany).toHaveBeenCalledWith({
+        skip: 0,
+        take: 10,
+        where: {
+          deletedAt: null,
+          isActive: true,
+          type: 'SUPPLIER',
+          OR: [
+            { name: { contains: 'test', mode: 'insensitive' } },
+            { code: { contains: 'test', mode: 'insensitive' } },
+            { email: { contains: 'test', mode: 'insensitive' } },
+          ],
+        },
+        orderBy: { createdAt: 'desc' },
+      });
     });
   });
 

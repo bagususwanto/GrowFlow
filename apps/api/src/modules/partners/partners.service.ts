@@ -5,7 +5,7 @@ import { UpdatePartnerDto } from './dto/update-partner.dto';
 import { ListPartnersQueryDto } from './dto/list-partners-query.dto';
 import { PaginatedResponse } from '@growflow/types';
 import { PartnerResponseEntity } from './entities/partner-response.entity';
-import { Partner, Prisma } from '@prisma/client';
+import { Partner } from '@prisma/client';
 
 @Injectable()
 export class PartnersService {
@@ -31,21 +31,7 @@ export class PartnersService {
     const limit = query.limit || 10;
     const skip = (page - 1) * limit;
 
-    const where: Prisma.PartnerWhereInput = { deletedAt: null };
-    
-    if (query.search) {
-      where.OR = [
-        { name: { contains: query.search, mode: 'insensitive' } },
-        { code: { contains: query.search, mode: 'insensitive' } },
-        { email: { contains: query.search, mode: 'insensitive' } },
-      ];
-    }
-    
-    if (query.type) {
-      where.type = query.type;
-    }
-
-    const [partners, total] = await this.partnersRepository.findAll({ skip, take: limit, where });
+    const [partners, total] = await this.partnersRepository.findAll(query, skip, limit);
 
     return {
       data: partners.map(p => this.mapToResponse(p)),
@@ -54,6 +40,7 @@ export class PartnersService {
       limit,
     };
   }
+
 
   async findOne(id: string): Promise<PartnerResponseEntity> {
     const partner = await this.partnersRepository.findById(id);

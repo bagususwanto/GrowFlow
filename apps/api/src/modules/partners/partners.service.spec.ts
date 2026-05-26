@@ -41,10 +41,12 @@ describe('PartnersService', () => {
   });
 
   describe('findAll', () => {
-    it('should return mapped partners', async () => {
+    it('should return mapped partners and delegate to repository correctly', async () => {
       repository.findAll.mockResolvedValue([[mockPartner], 1]);
-      const res = await service.findAll({ page: 1, limit: 10, search: 'Part' });
-      expect(res).toEqual({ data: [mockResponse], total: 1, page: 1, limit: 10 });
+      const query = { page: 2, limit: 5, search: 'Part', sortBy: 'name', sortOrder: 'asc' as const };
+      const res = await service.findAll(query);
+      expect(res).toEqual({ data: [mockResponse], total: 1, page: 2, limit: 5 });
+      expect(repository.findAll).toHaveBeenCalledWith(query, 5, 5);
     });
   });
 
