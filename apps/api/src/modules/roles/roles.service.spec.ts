@@ -57,10 +57,11 @@ describe('RolesService', () => {
 
   describe('findAll', () => {
     it('should return paginated mapped roles', async () => {
-      repository.findAll.mockResolvedValue([mockRole]);
-      repository.count.mockResolvedValue(1);
+      repository.findAll.mockResolvedValue([[mockRole], 1]);
 
-      const result = await service.findAll(1, 10);
+      const query = { page: 1, limit: 10, search: 'staff' };
+      const result = await service.findAll(query);
+      expect(repository.findAll).toHaveBeenCalledWith(query, 0, 10);
       expect(result.data).toEqual([mockRoleResponse]);
       expect(result.total).toBe(1);
     });

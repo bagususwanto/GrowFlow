@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, DefaultValuePipe, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpCode, HttpStatus } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { RoleResponseEntity } from './entities/role-response.entity';
+import { ListRolesQueryDto } from './dto/list-roles-query.dto';
 
 @ApiTags('roles')
 @ApiBearerAuth()
@@ -23,14 +24,9 @@ export class RolesController {
   @Get()
   @Roles('superadmin', 'manager')
   @ApiOperation({ summary: 'Get all roles' })
-  @ApiQuery({ name: 'page', required: false, type: Number })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiResponse({ status: 200, description: 'Return paginated roles' })
-  findAll(
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
-    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
-  ) {
-    return this.rolesService.findAll(page, limit);
+  findAll(@Query() query: ListRolesQueryDto) {
+    return this.rolesService.findAll(query);
   }
 
   @Get(':id')

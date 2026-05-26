@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RolesRepository } from './roles.repository';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
+import { SortOrder } from './dto/list-roles-query.dto';
 
 describe('RolesRepository', () => {
   let repository: RolesRepository;
@@ -46,23 +47,32 @@ describe('RolesRepository', () => {
   });
 
   describe('findAll', () => {
-    it('should return paginated roles', async () => {
+    it('should return paginated roles with filters and sorting', async () => {
       prisma.role.findMany.mockResolvedValue([mockRole]);
-      const result = await repository.findAll(0, 10);
+      prisma.role.count.mockResolvedValue(1);
+
+      const query = { search: 'staff', sortBy: 'name', sortOrder: SortOrder.ASC };
+      const result = await repository.findAll(query, 0, 10);
       expect(prisma.role.findMany).toHaveBeenCalledWith({
         skip: 0,
         take: 10,
-        orderBy: { createdAt: 'desc' },
+        where: {
+          name: {
+            contains: 'staff',
+            mode: 'insensitive',
+          },
+        },
+        orderBy: { name: 'asc' },
       });
-      expect(result).toEqual([mockRole]);
-    });
-  });
-
-  describe('count', () => {
-    it('should return roles count', async () => {
-      prisma.role.count.mockResolvedValue(5);
-      const result = await repository.count();
-      expect(result).toBe(5);
+      expect(prisma.role.count).toHaveBeenCalledWith({
+        where: {
+          name: {
+            contains: 'staff',
+            mode: 'insensitive',
+          },
+        },
+      });
+      expect(result).toEqual([[mockRole], 1]);
     });
   });
 

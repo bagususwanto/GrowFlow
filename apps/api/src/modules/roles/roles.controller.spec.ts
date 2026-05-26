@@ -56,7 +56,9 @@ describe('RolesController', () => {
     it('should call service findAll', async () => {
       const res = { data: [mockRoleResponse], total: 1, page: 1, limit: 10 };
       service.findAll.mockResolvedValue(res);
-      const result = await controller.findAll(1, 10);
+      const query = { page: 1, limit: 10 };
+      const result = await controller.findAll(query);
+      expect(service.findAll).toHaveBeenCalledWith(query);
       expect(result).toEqual(res);
     });
   });

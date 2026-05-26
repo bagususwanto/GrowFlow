@@ -6,6 +6,8 @@ import { PaginatedResponse } from '@growflow/types';
 import { RoleResponseEntity } from './entities/role-response.entity';
 import { Role } from '@prisma/client';
 
+import { ListRolesQueryDto } from './dto/list-roles-query.dto';
+
 @Injectable()
 export class RolesService {
   constructor(private readonly rolesRepository: RolesRepository) {}
@@ -20,12 +22,12 @@ export class RolesService {
     };
   }
 
-  async findAll(page = 1, limit = 10): Promise<PaginatedResponse<RoleResponseEntity>> {
+  async findAll(query: ListRolesQueryDto): Promise<PaginatedResponse<RoleResponseEntity>> {
+    const page = query.page || 1;
+    const limit = query.limit || 10;
     const skip = (page - 1) * limit;
-    const [roles, total] = await Promise.all([
-      this.rolesRepository.findAll(skip, limit),
-      this.rolesRepository.count(),
-    ]);
+
+    const [roles, total] = await this.rolesRepository.findAll(query, skip, limit);
 
     return {
       data: roles.map(role => this.mapToResponse(role)),
