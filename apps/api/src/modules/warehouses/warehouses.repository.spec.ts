@@ -44,8 +44,22 @@ describe('WarehousesRepository', () => {
     it('should return paginated warehouses', async () => {
       prisma.warehouse.findMany.mockResolvedValue([mockWarehouse]);
       prisma.warehouse.count.mockResolvedValue(1);
-      const res = await repository.findAll({ skip: 0, take: 10 });
+      const query = { page: 1, limit: 10, search: 'Main', isActive: true, sortBy: 'name', sortOrder: 'asc' as any };
+      const res = await repository.findAll(query, 0, 10);
       expect(res).toEqual([[mockWarehouse], 1]);
+      expect(prisma.warehouse.findMany).toHaveBeenCalledWith({
+        skip: 0,
+        take: 10,
+        where: {
+          deletedAt: null,
+          isActive: true,
+          OR: [
+            { name: { contains: 'Main', mode: 'insensitive' } },
+            { address: { contains: 'Main', mode: 'insensitive' } },
+          ],
+        },
+        orderBy: { name: 'asc' },
+      });
     });
   });
 

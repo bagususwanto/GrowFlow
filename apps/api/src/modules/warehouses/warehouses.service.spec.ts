@@ -43,8 +43,10 @@ describe('WarehousesService', () => {
   describe('findAll', () => {
     it('should return mapped warehouses', async () => {
       repository.findAll.mockResolvedValue([[mockWarehouse], 1]);
-      const res = await service.findAll({ page: 1, limit: 10, search: 'M' });
+      const query = { page: 1, limit: 10, search: 'M' };
+      const res = await service.findAll(query);
       expect(res).toEqual({ data: [mockResponse], total: 1, page: 1, limit: 10 });
+      expect(repository.findAll).toHaveBeenCalledWith(query, 0, 10);
     });
   });
 

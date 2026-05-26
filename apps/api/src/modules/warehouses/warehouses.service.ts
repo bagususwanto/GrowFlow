@@ -5,7 +5,7 @@ import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
 import { ListWarehousesQueryDto } from './dto/list-warehouses-query.dto';
 import { PaginatedResponse } from '@growflow/types';
 import { WarehouseResponseEntity } from './entities/warehouse-response.entity';
-import { Warehouse, Prisma } from '@prisma/client';
+import { Warehouse } from '@prisma/client';
 
 @Injectable()
 export class WarehousesService {
@@ -27,12 +27,7 @@ export class WarehousesService {
     const limit = query.limit || 10;
     const skip = (page - 1) * limit;
 
-    const where: Prisma.WarehouseWhereInput = { deletedAt: null };
-    if (query.search) {
-      where.name = { contains: query.search, mode: 'insensitive' };
-    }
-
-    const [warehouses, total] = await this.warehousesRepository.findAll({ skip, take: limit, where });
+    const [warehouses, total] = await this.warehousesRepository.findAll(query, skip, limit);
 
     return {
       data: warehouses.map(w => this.mapToResponse(w)),
@@ -41,6 +36,7 @@ export class WarehousesService {
       limit,
     };
   }
+
 
   async findOne(id: string): Promise<WarehouseResponseEntity> {
     const warehouse = await this.warehousesRepository.findById(id);

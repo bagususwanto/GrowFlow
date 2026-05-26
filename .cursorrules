@@ -185,6 +185,7 @@ apps/web/
 - Server state / caching → **TanStack Query**.
 - Form state → **React Hook Form** + **Zod** resolver.
 - Never use `useContext` for global state — use Zustand.
+- **URL State Management (Sinkronisasi State dengan URL)**: Untuk tabel data, sinkronkan state seperti halaman (page), pencarian (search), dan filter ke URL query parameters (contoh: `?page=2&search=budi&roleId=admin`) bukan hanya menyimpannya di memori komponen (`useState`). Ini memungkinkan user melakukan bookmark, kembali (Back), atau membagikan link dengan state yang sama persis.
 
 ---
 

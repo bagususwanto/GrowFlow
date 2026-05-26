@@ -3,27 +3,49 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Warehouse, Prisma } from '@prisma/client';
 import { CreateWarehouseDto } from './dto/create-warehouse.dto';
 import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
+import { ListWarehousesQueryDto } from './dto/list-warehouses-query.dto';
 
 @Injectable()
 export class WarehousesRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(params: {
-    skip?: number;
-    take?: number;
-    where?: Prisma.WarehouseWhereInput;
-  }): Promise<[Warehouse[], number]> {
+  private buildWhereClause(query: ListWarehousesQueryDto): Prisma.WarehouseWhereInput {
+    const where: Prisma.WarehouseWhereInput = { deletedAt: null };
+
+    if (query.search) {
+      where.OR = [
+        { name: { contains: query.search, mode: 'insensitive' } },
+        { address: { contains: query.search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (query.isActive !== undefined) {
+      where.isActive = query.isActive;
+    }
+
+    return where;
+  }
+
+  async findAll(
+    query: ListWarehousesQueryDto,
+    skip?: number,
+    take?: number,
+  ): Promise<[Warehouse[], number]> {
+    const where = this.buildWhereClause(query);
+    const orderBy = { [query.sortBy || 'createdAt']: query.sortOrder || 'desc' };
+
     const [data, total] = await Promise.all([
       this.prisma.warehouse.findMany({
-        skip: params.skip,
-        take: params.take,
-        where: params.where,
-        orderBy: { createdAt: 'desc' },
+        skip,
+        take,
+        where,
+        orderBy,
       }),
-      this.prisma.warehouse.count({ where: params.where }),
+      this.prisma.warehouse.count({ where }),
     ]);
     return [data, total];
   }
+
 
   async findById(id: string): Promise<Warehouse | null> {
     return this.prisma.warehouse.findUnique({
