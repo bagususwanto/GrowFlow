@@ -66,6 +66,7 @@ This is a monorepo containing:
 - Always define explicit HTTP status codes with `@HttpCode()`.
 - Use **guards** for auth, **interceptors** for logging/transform, **pipes** for validation.
 - Never put business logic in controllers.
+- **List/FindAll Endpoints**: Every `findAll` (GET) endpoint returning a list of entities must support pagination, filtering, and sorting options (see standard under **Pagination, Filtering & Sorting**).
 
 ### Services
 
@@ -79,6 +80,7 @@ This is a monorepo containing:
 - Every DTO must use `class-validator` decorators (`@IsString()`, `@IsEmail()`, etc.).
 - Use `@ApiProperty()` from `@nestjs/swagger` on every DTO field.
 - Separate create/update DTOs; update DTOs use `PartialType(CreateDto)`.
+- Use specialized query DTOs (e.g., `FindAllQueryDto`) for `findAll` endpoints to handle and validate pagination, filtering, and sorting parameters (see validation rules under **Pagination, Filtering & Sorting**).
 
 ### Database (TypeORM / Prisma)
 
@@ -86,6 +88,28 @@ This is a monorepo containing:
 - Never run raw queries unless absolutely necessary; document them with a comment explaining why.
 - Use database **transactions** for operations that mutate multiple tables.
 - Repository pattern: wrap Prisma client calls in a dedicated repository class per entity.
+- Handle pagination, filtering, and sorting efficiently at the database query level (e.g., using Prisma's `take`, `skip`, `where`, and `orderBy`).
+
+### Pagination, Filtering & Sorting
+
+- **Standard Paginated Response Shape**: All paginated responses must return a standardized wrapper object with `data` and `meta` fields:
+  ```json
+  {
+    "data": [...],
+    "meta": {
+      "total": 100,
+      "page": 1,
+      "limit": 10,
+      "totalPages": 10
+    }
+  }
+  ```
+- **Guarded Limit**: Limit the maximum allowed page size (e.g., max 100 items per query) to prevent denial of service and database performance degradation.
+- **Safe Sorting**: Restrict `sortBy` fields to allowed property names of the entity. Use `class-validator`'s `@IsIn()` decorator in query DTOs to whitelist valid fields.
+- **Filtering Options**: Use case-insensitive filters (e.g., Prisma's `{ mode: 'insensitive' }` for string fields) for text searches/filters.
+- **Pagination Strategies**: 
+  - Use **offset pagination** (`page` & `limit`) for tables, admin dashboards, and scenarios requiring exact page navigation.
+  - Use **cursor pagination** (`cursor` & `limit`) for high-volume datasets, feeds, and infinite scroll lists.
 
 ### Auth
 
