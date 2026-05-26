@@ -73,18 +73,7 @@ export class StockService {
     const limit = query.limit || 10;
     const skip = (page - 1) * limit;
 
-    const where: any = {};
-    if (query.itemId) where.itemId = query.itemId;
-    if (query.warehouseId) where.warehouseId = query.warehouseId;
-    if (query.type) where.type = query.type;
-    
-    if (query.from || query.to) {
-      where.createdAt = {};
-      if (query.from) where.createdAt.gte = new Date(query.from);
-      if (query.to) where.createdAt.lte = new Date(query.to);
-    }
-
-    const [mutations, total] = await this.stockRepository.findMutations({ skip, take: limit, where });
+    const [mutations, total] = await this.stockRepository.findMutations(query, skip, limit);
 
     return {
       data: mutations.map(m => this.mapMutation(m)),

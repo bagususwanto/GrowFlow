@@ -68,7 +68,9 @@ describe('StockService', () => {
   describe('listMutations', () => {
     it('should list mapped mutations', async () => {
       repository.findMutations.mockResolvedValue([[mockMutation], 1]);
-      const res = await service.listMutations({ page: 1, limit: 10, itemId: 'i-id' });
+      const query = { page: 1, limit: 10, itemId: 'i-id' };
+      const res = await service.listMutations(query);
+      expect(repository.findMutations).toHaveBeenCalledWith(query, 0, 10);
       expect(res).toEqual({ data: [mockMutationResponse], total: 1, page: 1, limit: 10 });
     });
   });

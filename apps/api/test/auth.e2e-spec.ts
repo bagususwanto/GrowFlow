@@ -4,7 +4,7 @@ import { HttpAdapterHost } from '@nestjs/core';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
-import { PrismaService } from './../src/modules/prisma/prisma.service';
+import { PrismaService } from './../src/infrastructure/prisma/prisma.service';
 import { AllExceptionsFilter } from './../src/common/filters/all-exceptions.filter';
 import { ResponseTransformInterceptor } from './../src/common/interceptors/response-transform.interceptor';
 import * as bcrypt from 'bcrypt';

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 import { StockBalance, StockMutation, Prisma, MutationType } from '@prisma/client';
+import { ListStockMutationsQueryDto } from './dto/list-stock-mutations-query.dto';
 
 @Injectable()
 export class StockRepository {
@@ -62,19 +63,46 @@ export class StockRepository {
     });
   }
 
-  async findMutations(params: {
-    skip?: number;
-    take?: number;
-    where?: Prisma.StockMutationWhereInput;
-  }): Promise<[StockMutation[], number]> {
+  buildWhereClause(query: ListStockMutationsQueryDto): Prisma.StockMutationWhereInput {
+    const where: Prisma.StockMutationWhereInput = {};
+    if (query.itemId) {
+      where.itemId = query.itemId;
+    }
+    if (query.warehouseId) {
+      where.warehouseId = query.warehouseId;
+    }
+    if (query.type) {
+      where.type = query.type;
+    }
+    if (query.from || query.to) {
+      where.createdAt = {};
+      if (query.from) {
+        where.createdAt.gte = new Date(query.from);
+      }
+      if (query.to) {
+        where.createdAt.lte = new Date(query.to);
+      }
+    }
+    return where;
+  }
+
+  async findMutations(
+    query: ListStockMutationsQueryDto,
+    skip?: number,
+    take?: number,
+  ): Promise<[StockMutation[], number]> {
+    const where = this.buildWhereClause(query);
+    const sortBy = query.sortBy || 'createdAt';
+    const sortOrder = query.sortOrder || 'desc';
+
     const [data, total] = await Promise.all([
       this.prisma.stockMutation.findMany({
-        skip: params.skip,
-        take: params.take,
-        where: params.where,
-        orderBy: { createdAt: 'desc' },
+        skip,
+        take,
+        where,
+        orderBy: { [sortBy]: sortOrder },
       }),
-      this.prisma.stockMutation.count({ where: params.where }),
+      this.prisma.stockMutation.count({ where }),
     ]);
     return [data, total];
   }

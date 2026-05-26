@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { StockRepository } from './stock.repository';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../infrastructure/prisma/prisma.service';
+import { SortOrder } from './dto/list-stock-mutations-query.dto';
 
 describe('StockRepository', () => {
   let repository: StockRepository;
@@ -71,13 +72,21 @@ describe('StockRepository', () => {
   });
 
   describe('findMutations', () => {
-    it('should find mutations with pagination and filters', async () => {
+    it('should find mutations with pagination, filters, and dynamic sorting', async () => {
       prisma.stockMutation.findMany.mockResolvedValue([mockMutation]);
       prisma.stockMutation.count.mockResolvedValue(1);
       
-      const res = await repository.findMutations({ skip: 0, take: 10, where: { itemId: 'i-id' } });
-      expect(prisma.stockMutation.findMany).toHaveBeenCalled();
-      expect(prisma.stockMutation.count).toHaveBeenCalled();
+      const query = { itemId: 'i-id', sortBy: 'qty', sortOrder: SortOrder.ASC };
+      const res = await repository.findMutations(query, 0, 10);
+      expect(prisma.stockMutation.findMany).toHaveBeenCalledWith({
+        skip: 0,
+        take: 10,
+        where: { itemId: 'i-id' },
+        orderBy: { qty: 'asc' },
+      });
+      expect(prisma.stockMutation.count).toHaveBeenCalledWith({
+        where: { itemId: 'i-id' },
+      });
       expect(res).toEqual([[mockMutation], 1]);
     });
   });
