@@ -332,7 +332,7 @@ export function CategoryItemsTable() {
       </div>
 
       {/* Categories Table */}
-      <div className="border rounded-lg overflow-hidden bg-card">
+      <div className="border rounded-lg overflow-hidden">
         <Table>
           <TableHeader className="bg-muted/50">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -395,7 +395,7 @@ export function CategoryItemsTable() {
 
       {/* Pagination controls */}
       {totalPages > 0 && (
-        <div className="flex sm:flex-row flex-col justify-between items-center gap-4 mt-4 p-4 border-t bg-card rounded-lg border">
+        <div className="flex sm:flex-row flex-col justify-between items-center gap-4 mt-4 p-4 border-t">
           <div className="flex sm:flex-row flex-col items-center gap-4 w-full sm:w-auto">
             <div className="text-muted-foreground text-sm">
               Showing page {page} of {totalPages} ({total} categories total)

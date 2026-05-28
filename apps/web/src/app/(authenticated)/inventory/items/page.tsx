@@ -5,6 +5,8 @@ import { CategoryItemsTable } from '@web/components/category-items/category-item
 import { Button } from '@web/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@web/components/ui/tabs';
 import { PlusIcon } from 'lucide-react';
+import { Card, CardContent } from '@web/components/ui/card';
+import { Skeleton } from '@web/components/ui/skeleton';
 
 export const metadata = {
   title: 'Items & Categories | GrowFlow',
@@ -34,26 +36,30 @@ export default function ItemsPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="items" className="space-y-6 w-full">
-        <div className="flex sm:flex-row flex-col sm:justify-between sm:items-center gap-4 border-b pb-1">
-          <TabsList className="bg-muted/50 p-1">
-            <TabsTrigger value="items" className="text-sm">Items Master</TabsTrigger>
-            <TabsTrigger value="categories" className="text-sm">Categories</TabsTrigger>
-          </TabsList>
-        </div>
+      <Card className="py-0 overflow-hidden">
+        <Tabs defaultValue="items" className="w-full">
+          <div className="px-6 pt-4 border-b">
+            <TabsList variant="line" className="-mb-[1px]">
+              <TabsTrigger value="items" className="text-sm pb-3">Items Master</TabsTrigger>
+              <TabsTrigger value="categories" className="text-sm pb-3">Categories</TabsTrigger>
+            </TabsList>
+          </div>
 
-        <TabsContent value="items" className="space-y-4 outline-none">
-          <Suspense fallback={<div className="w-full h-96 bg-card animate-pulse rounded-lg border" />}>
-            <ItemsTable />
-          </Suspense>
-        </TabsContent>
+          <CardContent className="p-6">
+            <TabsContent value="items" className="space-y-4 outline-none">
+              <Suspense fallback={<Skeleton className="w-full h-96" />}>
+                <ItemsTable />
+              </Suspense>
+            </TabsContent>
 
-        <TabsContent value="categories" className="space-y-4 outline-none">
-          <Suspense fallback={<div className="w-full h-96 bg-card animate-pulse rounded-lg border" />}>
-            <CategoryItemsTable />
-          </Suspense>
-        </TabsContent>
-      </Tabs>
+            <TabsContent value="categories" className="space-y-4 outline-none">
+              <Suspense fallback={<Skeleton className="w-full h-96" />}>
+                <CategoryItemsTable />
+              </Suspense>
+            </TabsContent>
+          </CardContent>
+        </Tabs>
+      </Card>
     </div>
   );
 }
