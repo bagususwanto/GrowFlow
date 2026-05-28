@@ -75,23 +75,45 @@ async function main() {
     console.info(`Created warehouse: ${wh.name}`);
   }
 
-  // 4. Seed Items
+  // 4. Seed Category Items
+  const categoriesData = [
+    { name: 'Elektronik', description: 'Barang-barang elektronik dan komputer' },
+    { name: 'Furniture', description: 'Peralatan kantor dan mebel' },
+    { name: 'ATK', description: 'Alat tulis kantor dan kertas' },
+  ];
+
+  const categoriesMap: Record<string, string> = {};
+  for (const cat of categoriesData) {
+    const upsertedCat = await prisma.categoryItem.upsert({
+      where: { name: cat.name },
+      update: { description: cat.description },
+      create: {
+        name: cat.name,
+        description: cat.description,
+      },
+    });
+    categoriesMap[cat.name] = upsertedCat.id;
+    console.info(`Created category: ${cat.name}`);
+  }
+
+  // 4b. Seed Items
   const itemsData = [
-    { code: 'ITEM-EL-001', name: 'Laptop ThinkPad L14', unit: 'pcs', category: 'Elektronik', minStock: 5 },
-    { code: 'ITEM-FT-002', name: 'Meja Kerja Minimalis', unit: 'unit', category: 'Furniture', minStock: 2 },
-    { code: 'ITEM-ATK-003', name: 'Kertas A4 80gr', unit: 'rim', category: 'ATK', minStock: 10 },
+    { code: 'ITEM-EL-001', name: 'Laptop ThinkPad L14', unit: 'pcs', categoryName: 'Elektronik', minStock: 5 },
+    { code: 'ITEM-FT-002', name: 'Meja Kerja Minimalis', unit: 'unit', categoryName: 'Furniture', minStock: 2 },
+    { code: 'ITEM-ATK-003', name: 'Kertas A4 80gr', unit: 'rim', categoryName: 'ATK', minStock: 10 },
   ];
 
   const items = [];
   for (const item of itemsData) {
+    const categoryId = categoriesMap[item.categoryName] || null;
     const upsertedItem = await prisma.item.upsert({
       where: { code: item.code },
-      update: { name: item.name, unit: item.unit, category: item.category, minStock: item.minStock },
+      update: { name: item.name, unit: item.unit, categoryId, minStock: item.minStock },
       create: {
         code: item.code,
         name: item.name,
         unit: item.unit,
-        category: item.category,
+        categoryId,
         minStock: item.minStock,
       },
     });
