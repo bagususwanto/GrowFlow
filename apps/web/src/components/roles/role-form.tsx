@@ -104,8 +104,8 @@ export function RoleForm({ initialData, onSubmit, isSubmitting }: RoleFormProps)
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label htmlFor="name" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Role Name <span className="text-destructive">*</span>
+            <Label htmlFor="name" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Role Name
             </Label>
             <div className="relative">
               <ShieldIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -121,8 +121,8 @@ export function RoleForm({ initialData, onSubmit, isSubmitting }: RoleFormProps)
           </div>
 
           <div className="space-y-1.5 flex flex-col justify-end">
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Assign Permissions <span className="text-[10px] text-muted-foreground lowercase font-normal"> (optional)</span>
+            <Label optional className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Assign Permissions
             </Label>
             <Controller
               name="permissions"

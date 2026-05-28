@@ -21,9 +21,7 @@ import {
   ClockIcon,
   ScaleIcon,
   InboxIcon,
-  ArrowLeftIcon,
 } from 'lucide-react';
-import Link from 'next/link';
 
 interface ItemDetailContainerProps {
   id: string;

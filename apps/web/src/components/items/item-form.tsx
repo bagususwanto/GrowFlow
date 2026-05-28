@@ -68,8 +68,8 @@ export function ItemForm({ initialData, onSubmit, isSubmitting }: ItemFormProps)
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label htmlFor="code" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Item Code <span className="text-destructive">*</span>
+            <Label htmlFor="code" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Item Code
             </Label>
             <div className="relative">
               <PackageIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -86,8 +86,8 @@ export function ItemForm({ initialData, onSubmit, isSubmitting }: ItemFormProps)
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="name" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Item Name <span className="text-destructive">*</span>
+            <Label htmlFor="name" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Item Name
             </Label>
             <div className="relative">
               <FileTextIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -109,7 +109,7 @@ export function ItemForm({ initialData, onSubmit, isSubmitting }: ItemFormProps)
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label htmlFor="categoryId" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <Label htmlFor="categoryId" optional className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Category
             </Label>
             {isLoadingCategories ? (
@@ -142,8 +142,8 @@ export function ItemForm({ initialData, onSubmit, isSubmitting }: ItemFormProps)
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="unit" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Unit of Measure <span className="text-destructive">*</span>
+            <Label htmlFor="unit" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Unit of Measure
             </Label>
             <div className="relative">
               <ScaleIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -153,8 +153,8 @@ export function ItemForm({ initialData, onSubmit, isSubmitting }: ItemFormProps)
           </div>
 
           <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="minStock" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Minimum Stock (Safety Stock) <span className="text-destructive">*</span>
+            <Label htmlFor="minStock" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Minimum Stock (Safety Stock)
             </Label>
             <div className="relative">
               <InboxIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

@@ -42,8 +42,8 @@ export function CategoryItemForm({ initialData, onSubmit, isSubmitting, onCancel
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full">
       <div className="space-y-1.5">
-        <Label htmlFor="name" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Category Name <span className="text-destructive">*</span>
+        <Label htmlFor="name" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Category Name
         </Label>
         <div className="relative">
           <LayersIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -53,7 +53,7 @@ export function CategoryItemForm({ initialData, onSubmit, isSubmitting, onCancel
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="description" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <Label htmlFor="description" optional className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Description
         </Label>
         <div className="relative">

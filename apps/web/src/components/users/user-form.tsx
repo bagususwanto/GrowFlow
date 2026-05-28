@@ -74,8 +74,8 @@ export function UserForm({ initialData, onSubmit, isSubmitting }: UserFormProps)
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label htmlFor="name" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Full Name <span className="text-destructive">*</span>
+            <Label htmlFor="name" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Full Name
             </Label>
             <div className="relative">
               <UserIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -85,8 +85,8 @@ export function UserForm({ initialData, onSubmit, isSubmitting }: UserFormProps)
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Email Address <span className="text-destructive">*</span>
+            <Label htmlFor="email" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Email Address
             </Label>
             <div className="relative">
               <MailIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -108,8 +108,8 @@ export function UserForm({ initialData, onSubmit, isSubmitting }: UserFormProps)
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label htmlFor="password" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Password {!isEdit ? <span className="text-destructive">*</span> : <span className="text-[10px] text-muted-foreground lowercase font-normal"> (optional - leave blank to keep current)</span>}
+            <Label htmlFor="password" required={!isEdit} optional={isEdit} className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Password {isEdit && <span className="text-[10px] text-muted-foreground lowercase font-normal"> (leave blank to keep current)</span>}
             </Label>
             <div className="relative">
               <LockIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -119,8 +119,8 @@ export function UserForm({ initialData, onSubmit, isSubmitting }: UserFormProps)
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="roleId" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              System Role <span className="text-destructive">*</span>
+            <Label htmlFor="roleId" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              System Role
             </Label>
             {isLoadingRoles ? (
               <Input disabled placeholder="Loading roles..." className="h-9" />
@@ -152,8 +152,8 @@ export function UserForm({ initialData, onSubmit, isSubmitting }: UserFormProps)
 
           {isEdit && (
             <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor="isActive" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Account Status <span className="text-destructive">*</span>
+              <Label htmlFor="isActive" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Account Status
               </Label>
               <Controller
                 name="isActive"
