@@ -17,7 +17,7 @@ import {
 } from '@web/components/ui/select';
 import { useItems } from '../items/use-items';
 import { useWarehouses } from '../warehouses/use-warehouses';
-import { Loader2Icon, PackageIcon, WarehouseIcon, ArrowUpRightIcon, FileTextIcon, HelpCircleIcon } from 'lucide-react';
+import { Loader2Icon, PackageIcon, WarehouseIcon, ArrowUpRightIcon, FileTextIcon } from 'lucide-react';
 
 const formSchema = z.object({
   itemId: z.string().min(1, 'Item selection is required'),

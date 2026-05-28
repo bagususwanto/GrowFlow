@@ -15,7 +15,7 @@ import {
   SidebarMenuItem,
 } from "@web/components/ui/sidebar"
 import { useAuthStore } from "@web/stores/auth.store"
-import { LayoutDashboard, Package, ShoppingCart, FileText, Sprout, Users, Shield, Warehouse, History, Boxes, Sliders, Handshake } from "lucide-react"
+import { LayoutDashboard, Package, ShoppingCart, FileText, Sprout, Users, Shield, Warehouse, Boxes, Handshake } from "lucide-react"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const user = useAuthStore((state) => state.user)
@@ -48,19 +48,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           icon: <Warehouse />,
         },
         {
-          title: "Stock Mutations",
+          title: "Stock",
           url: "/inventory/stock",
-          icon: <History />,
-        },
-        {
-          title: "Stock Balance",
-          url: "/inventory/stock/balance",
           icon: <Boxes />,
-        },
-        {
-          title: "Stock Adjustment",
-          url: "/inventory/stock/adjust",
-          icon: <Sliders />,
         },
       ],
     },

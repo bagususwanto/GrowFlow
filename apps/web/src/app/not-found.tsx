@@ -21,7 +21,7 @@ export default function NotFound() {
             </p>
           </div>
 
-          <Button className="w-full" render={<Link href="/dashboard" />}>
+          <Button className="w-full" nativeButton={false} render={<Link href="/dashboard" />}>
             Kembali ke Dashboard
           </Button>
         </CardContent>
