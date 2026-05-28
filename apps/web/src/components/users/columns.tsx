@@ -13,9 +13,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@web/components/ui/dropdown-menu';
-import { EditIcon, EllipsisVerticalIcon, ShieldIcon, Trash2Icon, UserIcon, ArrowUpDownIcon, ArrowUpIcon, ArrowDownIcon } from 'lucide-react';
+import { EditIcon, EllipsisVerticalIcon, ShieldIcon, Trash2Icon, UserIcon, ArrowUpDownIcon, ArrowUpIcon, ArrowDownIcon, EyeIcon } from 'lucide-react';
 
 interface ColumnActions {
+  onView: (user: UserResponse) => void;
   onEdit: (user: UserResponse) => void;
   onDelete: (user: UserResponse) => void;
   sortBy?: string;
@@ -23,7 +24,7 @@ interface ColumnActions {
   onSort?: (field: string) => void;
 }
 
-export const getColumns = ({ onEdit, onDelete, sortBy, sortOrder, onSort }: ColumnActions): ColumnDef<UserResponse>[] => [
+export const getColumns = ({ onView, onEdit, onDelete, sortBy, sortOrder, onSort }: ColumnActions): ColumnDef<UserResponse>[] => [
   {
     accessorKey: 'name',
     header: () => {
@@ -155,6 +156,10 @@ export const getColumns = ({ onEdit, onDelete, sortBy, sortOrder, onSort }: Colu
             <DropdownMenuGroup>
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onView(user)}>
+                <EyeIcon className="mr-2 w-4 h-4" />
+                View Details
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onEdit(user)}>
                 <EditIcon className="mr-2 w-4 h-4" />
                 Edit

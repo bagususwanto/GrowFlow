@@ -1,17 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
-import { apiClient } from '@web/lib/api-client';
-import { RoleResponse, PaginatedResponse } from '@growflow/types';
+import { useRolesList } from '../roles/use-roles';
 
-export const roleKeys = {
-  all: ['roles'] as const,
-  lists: () => [...roleKeys.all, 'list'] as const,
-};
+export { useRolesList as useRoles };
 
-export function useRoles() {
-  return useQuery<PaginatedResponse<RoleResponse>>({
-    queryKey: roleKeys.lists(),
-    queryFn: async () => {
-      return apiClient.get<PaginatedResponse<RoleResponse>>('/roles?limit=100');
-    },
-  });
-}

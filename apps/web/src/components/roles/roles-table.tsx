@@ -3,11 +3,10 @@
 import * as React from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { useUsers, useDeleteUser } from './use-users';
+import { useRoles, useDeleteRole } from './use-roles';
 import { useDebounce } from '@web/hooks/use-debounce';
-import { useRoles } from './use-roles';
 import { getColumns } from './columns';
-import { FindAllUsersQuery } from '@growflow/types';
+import { ListRolesQuery } from '@growflow/types';
 import {
   Table,
   TableBody,
@@ -30,7 +29,7 @@ import {
 import { toast } from 'sonner';
 import { ChevronLeftIcon, ChevronRightIcon, SearchIcon, RotateCcwIcon, ChevronsLeftIcon, ChevronsRightIcon } from 'lucide-react';
 
-export function UsersTable() {
+export function RolesTable() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -39,16 +38,12 @@ export function UsersTable() {
   const urlPage = searchParams.get('page');
   const urlLimit = searchParams.get('limit');
   const urlSearch = searchParams.get('search');
-  const urlRoleId = searchParams.get('roleId');
-  const urlIsActive = searchParams.get('isActive');
   const urlSortBy = searchParams.get('sortBy');
   const urlSortOrder = searchParams.get('sortOrder');
 
   // Compute active states
   const page = urlPage ? parseInt(urlPage, 10) : 1;
   const limit = urlLimit ? parseInt(urlLimit, 10) : 10;
-  const roleId = urlRoleId || 'all';
-  const isActive = urlIsActive || 'all';
   const sortBy = urlSortBy || 'createdAt';
   const sortOrder = (urlSortOrder === 'asc' || urlSortOrder === 'desc') ? urlSortOrder : 'desc';
 
@@ -108,61 +103,42 @@ export function UsersTable() {
     [pathname, router, createQueryString]
   );
 
-  const setRoleId = React.useCallback(
-    (newRoleId: string) => {
-      const queryString = createQueryString({ roleId: newRoleId, page: 1 });
-      router.replace(`${pathname}?${queryString}`, { scroll: false });
-    },
-    [pathname, router, createQueryString]
-  );
-
-  const setIsActive = React.useCallback(
-    (newIsActive: string) => {
-      const queryString = createQueryString({ isActive: newIsActive, page: 1 });
-      router.replace(`${pathname}?${queryString}`, { scroll: false });
-    },
-    [pathname, router, createQueryString]
-  );
-
   // Construct query object for API request
   const query = React.useMemo(() => {
-    const q: FindAllUsersQuery = {
+    const q: ListRolesQuery = {
       page,
       limit,
       sortBy,
       sortOrder,
     };
     if (debouncedSearch) q.search = debouncedSearch;
-    if (roleId && roleId !== 'all') q.roleId = roleId;
-    if (isActive && isActive !== 'all') q.isActive = isActive === 'true';
     return q;
-  }, [page, limit, debouncedSearch, roleId, isActive, sortBy, sortOrder]);
+  }, [page, limit, debouncedSearch, sortBy, sortOrder]);
 
-  const { data, isLoading, isError, error } = useUsers(query);
-  const { data: rolesData } = useRoles();
-  const deleteMutation = useDeleteUser();
+  const { data, isLoading, isError, error } = useRoles(query);
+  const deleteMutation = useDeleteRole();
 
   const handleView = React.useCallback(
-    (user: { id: string }) => {
-      router.push(`/administration/users/${user.id}`);
+    (role: { id: string }) => {
+      router.push(`/administration/roles/${role.id}`);
     },
     [router],
   );
 
   const handleEdit = React.useCallback(
-    (user: { id: string }) => {
-      router.push(`/administration/users/${user.id}/edit`);
+    (role: { id: string }) => {
+      router.push(`/administration/roles/${role.id}/edit`);
     },
     [router],
   );
 
   const handleDelete = React.useCallback(
-    async (user: { id: string; name: string }) => {
-      if (confirm(`Are you sure you want to delete ${user.name}?`)) {
-        toast.promise(deleteMutation.mutateAsync(user.id), {
-          loading: `Deleting user ${user.name}...`,
-          success: `User ${user.name} deleted successfully`,
-          error: 'Failed to delete user',
+    async (role: { id: string; name: string }) => {
+      if (confirm(`Are you sure you want to delete the role "${role.name}"?`)) {
+        toast.promise(deleteMutation.mutateAsync(role.id), {
+          loading: `Deleting role ${role.name}...`,
+          success: `Role ${role.name} deleted successfully`,
+          error: 'Failed to delete role',
         });
       }
     },
@@ -212,10 +188,7 @@ export function UsersTable() {
   const hasPreviousPage = page > 1;
   const hasNextPage = page < totalPages;
 
-  const isFilterActive =
-    (urlSearch && urlSearch !== '') ||
-    (urlRoleId && urlRoleId !== 'all') ||
-    (urlIsActive && urlIsActive !== 'all');
+  const isFilterActive = urlSearch && urlSearch !== '';
 
   const handleResetFilters = () => {
     setSearch('');
@@ -234,45 +207,12 @@ export function UsersTable() {
           <div className="relative w-full sm:w-64">
             <SearchIcon className="top-2.5 left-2.5 absolute w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="Search name or email..."
+              placeholder="Search role name..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-8 h-9"
             />
           </div>
-
-          <Select value={roleId} onValueChange={(val) => setRoleId(val || 'all')}>
-            <SelectTrigger className="w-full sm:w-40 h-9">
-              <SelectValue placeholder="Filter by Role">
-                {roleId === 'all'
-                  ? 'All Roles'
-                  : rolesData?.data?.find((r) => r.id === roleId)?.name || 'Loading...'}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Roles</SelectItem>
-              {rolesData?.data?.map((role) => (
-                <SelectItem key={role.id} value={role.id}>
-                  {role.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={isActive} onValueChange={(val) => setIsActive(val || 'all')}>
-            <SelectTrigger className="w-full sm:w-40 h-9">
-              <SelectValue placeholder="Filter by Status">
-                {isActive === 'all' && 'All Status'}
-                {isActive === 'true' && 'Active'}
-                {isActive === 'false' && 'Inactive'}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="true">Active</SelectItem>
-              <SelectItem value="false">Inactive</SelectItem>
-            </SelectContent>
-          </Select>
 
           {isFilterActive && (
             <Button
@@ -320,7 +260,7 @@ export function UsersTable() {
                   >
                     {error instanceof Error
                       ? error.message
-                      : 'Something went wrong while fetching users.'}
+                      : 'Something went wrong while fetching roles.'}
                   </TableCell>
                 </TableRow>
               ) : tableData.length ? (
@@ -339,7 +279,7 @@ export function UsersTable() {
                     colSpan={columns.length}
                     className="h-24 text-muted-foreground text-center"
                   >
-                    No users found.
+                    No roles found.
                   </TableCell>
                 </TableRow>
               )}
@@ -352,7 +292,7 @@ export function UsersTable() {
           <div className="flex sm:flex-row flex-col justify-between items-center gap-4 mt-4 p-4 border-t">
             <div className="flex sm:flex-row flex-col items-center gap-4 w-full sm:w-auto">
               <div className="text-muted-foreground text-sm">
-                Showing page {page} of {totalPages} ({total} users total)
+                Showing page {page} of {totalPages} ({total} roles total)
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -375,48 +315,48 @@ export function UsersTable() {
                   </SelectContent>
                 </Select>
               </div>
-            <div className="flex items-center gap-1.5">
-              <Button
-                variant="outline"
-                size="icon"
-                className="w-9 h-9"
-                onClick={() => setPage(1)}
-                disabled={!hasPreviousPage || isLoading}
-              >
-                <ChevronsLeftIcon className="w-4 h-4" />
-                <span className="sr-only">First page</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-9"
-                onClick={() => setPage(Math.max(page - 1, 1))}
-                disabled={!hasPreviousPage || isLoading}
-              >
-                <ChevronLeftIcon className="w-4 h-4 mr-1" />
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-9"
-                onClick={() => setPage(Math.min(page + 1, totalPages))}
-                disabled={!hasNextPage || isLoading}
-              >
-                Next
-                <ChevronRightIcon className="w-4 h-4 ml-1" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="w-9 h-9"
-                onClick={() => setPage(totalPages)}
-                disabled={!hasNextPage || isLoading}
-              >
-                <ChevronsRightIcon className="w-4 h-4" />
-                <span className="sr-only">Last page</span>
-              </Button>
-            </div>
+              <div className="flex items-center gap-1.5">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="w-9 h-9"
+                  onClick={() => setPage(1)}
+                  disabled={!hasPreviousPage || isLoading}
+                >
+                  <ChevronsLeftIcon className="w-4 h-4" />
+                  <span className="sr-only">First page</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9"
+                  onClick={() => setPage(Math.max(page - 1, 1))}
+                  disabled={!hasPreviousPage || isLoading}
+                >
+                  <ChevronLeftIcon className="w-4 h-4 mr-1" />
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9"
+                  onClick={() => setPage(Math.min(page + 1, totalPages))}
+                  disabled={!hasNextPage || isLoading}
+                >
+                  Next
+                  <ChevronRightIcon className="w-4 h-4 ml-1" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="w-9 h-9"
+                  onClick={() => setPage(totalPages)}
+                  disabled={!hasNextPage || isLoading}
+                >
+                  <ChevronsRightIcon className="w-4 h-4" />
+                  <span className="sr-only">Last page</span>
+                </Button>
+              </div>
             </div>
           </div>
         )}

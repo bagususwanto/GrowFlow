@@ -75,7 +75,7 @@ export function UserForm({ initialData, onSubmit, isSubmitting }: UserFormProps)
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="name" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Full Name
+              Full Name <span className="text-destructive">*</span>
             </Label>
             <div className="relative">
               <UserIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -86,7 +86,7 @@ export function UserForm({ initialData, onSubmit, isSubmitting }: UserFormProps)
 
           <div className="space-y-1.5">
             <Label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Email Address
+              Email Address <span className="text-destructive">*</span>
             </Label>
             <div className="relative">
               <MailIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -109,7 +109,7 @@ export function UserForm({ initialData, onSubmit, isSubmitting }: UserFormProps)
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="password" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Password {isEdit && <span className="text-[10px] text-muted-foreground lowercase font-normal">(leave blank to keep current)</span>}
+              Password {!isEdit ? <span className="text-destructive">*</span> : <span className="text-[10px] text-muted-foreground lowercase font-normal"> (optional - leave blank to keep current)</span>}
             </Label>
             <div className="relative">
               <LockIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -120,7 +120,7 @@ export function UserForm({ initialData, onSubmit, isSubmitting }: UserFormProps)
 
           <div className="space-y-1.5">
             <Label htmlFor="roleId" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              System Role
+              System Role <span className="text-destructive">*</span>
             </Label>
             {isLoadingRoles ? (
               <Input disabled placeholder="Loading roles..." className="h-9" />
@@ -153,7 +153,7 @@ export function UserForm({ initialData, onSubmit, isSubmitting }: UserFormProps)
           {isEdit && (
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="isActive" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Account Status
+                Account Status <span className="text-destructive">*</span>
               </Label>
               <Controller
                 name="isActive"
