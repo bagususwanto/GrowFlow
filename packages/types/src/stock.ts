@@ -47,3 +47,14 @@ export interface ListStockMutationsQuery {
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
 }
+
+export interface ListStockBalancesQuery {
+  page?: number;
+  limit?: number;
+  itemId?: string;
+  warehouseId?: string;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+

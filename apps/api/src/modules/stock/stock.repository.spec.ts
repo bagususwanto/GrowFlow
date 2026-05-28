@@ -20,6 +20,7 @@ describe('StockRepository', () => {
     stockBalance: {
       findUnique: jest.fn(),
       findMany: jest.fn(),
+      count: jest.fn(),
     },
     stockMutation: {
       findMany: jest.fn(),
@@ -90,4 +91,29 @@ describe('StockRepository', () => {
       expect(res).toEqual([[mockMutation], 1]);
     });
   });
+
+  describe('findBalances', () => {
+    it('should find balances with pagination, filters, and dynamic sorting', async () => {
+      prisma.stockBalance.findMany.mockResolvedValue([mockBalance]);
+      prisma.stockBalance.count.mockResolvedValue(1);
+      
+      const query = { itemId: 'i-id', sortBy: 'qty', sortOrder: SortOrder.ASC };
+      const res = await repository.findBalances(query, 0, 10);
+      expect(prisma.stockBalance.findMany).toHaveBeenCalledWith({
+        skip: 0,
+        take: 10,
+        where: { itemId: 'i-id' },
+        orderBy: { qty: 'asc' },
+        include: {
+          item: true,
+          warehouse: true,
+        },
+      });
+      expect(prisma.stockBalance.count).toHaveBeenCalledWith({
+        where: { itemId: 'i-id' },
+      });
+      expect(res).toEqual([[mockBalance], 1]);
+    });
+  });
 });
+

@@ -18,6 +18,7 @@ describe('StockService', () => {
     findBalance: jest.fn(),
     adjustStock: jest.fn(),
     findMutations: jest.fn(),
+    findBalances: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -74,4 +75,15 @@ describe('StockService', () => {
       expect(res).toEqual({ data: [mockMutationResponse], total: 1, page: 1, limit: 10 });
     });
   });
+
+  describe('listBalances', () => {
+    it('should list mapped balances', async () => {
+      repository.findBalances.mockResolvedValue([[mockBalance], 1]);
+      const query = { page: 1, limit: 10, itemId: 'i-id' };
+      const res = await service.listBalances(query);
+      expect(repository.findBalances).toHaveBeenCalledWith(query, 0, 10);
+      expect(res).toEqual({ data: [mockBalanceResponse], total: 1, page: 1, limit: 10 });
+    });
+  });
 });
+

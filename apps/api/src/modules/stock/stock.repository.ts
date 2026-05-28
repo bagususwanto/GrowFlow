@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 import { StockBalance, StockMutation, Prisma, MutationType } from '@prisma/client';
 import { ListStockMutationsQueryDto } from './dto/list-stock-mutations-query.dto';
+import { ListStockBalancesQueryDto } from './dto/list-stock-balances-query.dto';
 
 @Injectable()
 export class StockRepository {
@@ -103,6 +104,50 @@ export class StockRepository {
         orderBy: { [sortBy]: sortOrder },
       }),
       this.prisma.stockMutation.count({ where }),
+    ]);
+    return [data, total];
+  }
+
+  buildBalanceWhereClause(query: ListStockBalancesQueryDto): Prisma.StockBalanceWhereInput {
+    const where: Prisma.StockBalanceWhereInput = {};
+    if (query.itemId) {
+      where.itemId = query.itemId;
+    }
+    if (query.warehouseId) {
+      where.warehouseId = query.warehouseId;
+    }
+    if (query.search) {
+      where.item = {
+        OR: [
+          { name: { contains: query.search, mode: 'insensitive' } },
+          { code: { contains: query.search, mode: 'insensitive' } },
+        ],
+      };
+    }
+    return where;
+  }
+
+  async findBalances(
+    query: ListStockBalancesQueryDto,
+    skip?: number,
+    take?: number,
+  ): Promise<[StockBalance[], number]> {
+    const where = this.buildBalanceWhereClause(query);
+    const sortBy = query.sortBy || 'updatedAt';
+    const sortOrder = query.sortOrder || 'desc';
+
+    const [data, total] = await Promise.all([
+      this.prisma.stockBalance.findMany({
+        skip,
+        take,
+        where,
+        orderBy: { [sortBy]: sortOrder },
+        include: {
+          item: true,
+          warehouse: true,
+        },
+      }),
+      this.prisma.stockBalance.count({ where }),
     ]);
     return [data, total];
   }

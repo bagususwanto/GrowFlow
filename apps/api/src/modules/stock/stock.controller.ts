@@ -3,6 +3,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { StockService } from './stock.service';
 import { StockAdjustmentDto } from './dto/stock-adjustment.dto';
 import { ListStockMutationsQueryDto } from './dto/list-stock-mutations-query.dto';
+import { ListStockBalancesQueryDto } from './dto/list-stock-balances-query.dto';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { AuthUser } from '@growflow/types';
@@ -42,5 +43,13 @@ export class StockController {
   @ApiResponse({ status: 200, description: 'Paginated stock mutations' })
   listMutations(@Query() query: ListStockMutationsQueryDto) {
     return this.stockService.listMutations(query);
+  }
+
+  @Get('balance')
+  @Roles('superadmin', 'manager', 'staff', 'warehouse')
+  @ApiOperation({ summary: 'List stock balances with filters' })
+  @ApiResponse({ status: 200, description: 'Paginated stock balances' })
+  listBalances(@Query() query: ListStockBalancesQueryDto) {
+    return this.stockService.listBalances(query);
   }
 }

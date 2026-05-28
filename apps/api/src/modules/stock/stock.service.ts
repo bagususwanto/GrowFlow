@@ -2,6 +2,7 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { StockRepository } from './stock.repository';
 import { StockAdjustmentDto } from './dto/stock-adjustment.dto';
 import { ListStockMutationsQueryDto } from './dto/list-stock-mutations-query.dto';
+import { ListStockBalancesQueryDto } from './dto/list-stock-balances-query.dto';
 import { PaginatedResponse } from '@growflow/types';
 import { StockBalanceResponseEntity } from './entities/stock-balance-response.entity';
 import { StockMutationResponseEntity } from './entities/stock-mutation-response.entity';
@@ -11,12 +12,30 @@ import { StockBalance, StockMutation } from '@prisma/client';
 export class StockService {
   constructor(private readonly stockRepository: StockRepository) {}
 
-  private mapBalance(balance: StockBalance): StockBalanceResponseEntity {
+  private mapBalance(balance: any): StockBalanceResponseEntity {
     return {
       id: balance.id,
       qty: balance.qty,
       itemId: balance.itemId,
+      item: balance.item ? {
+        id: balance.item.id,
+        code: balance.item.code,
+        name: balance.item.name,
+        unit: balance.item.unit,
+        categoryId: balance.item.categoryId,
+        minStock: balance.item.minStock,
+        createdAt: balance.item.createdAt.toISOString(),
+        updatedAt: balance.item.updatedAt.toISOString(),
+      } : undefined,
       warehouseId: balance.warehouseId,
+      warehouse: balance.warehouse ? {
+        id: balance.warehouse.id,
+        name: balance.warehouse.name,
+        address: balance.warehouse.address,
+        isActive: balance.warehouse.isActive,
+        createdAt: balance.warehouse.createdAt.toISOString(),
+        updatedAt: balance.warehouse.updatedAt.toISOString(),
+      } : undefined,
       createdAt: balance.createdAt.toISOString(),
       updatedAt: balance.updatedAt.toISOString(),
     };
@@ -77,6 +96,21 @@ export class StockService {
 
     return {
       data: mutations.map(m => this.mapMutation(m)),
+      total,
+      page,
+      limit,
+    };
+  }
+
+  async listBalances(query: ListStockBalancesQueryDto): Promise<PaginatedResponse<StockBalanceResponseEntity>> {
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+    const skip = (page - 1) * limit;
+
+    const [balances, total] = await this.stockRepository.findBalances(query, skip, limit);
+
+    return {
+      data: balances.map(b => this.mapBalance(b)),
       total,
       page,
       limit,

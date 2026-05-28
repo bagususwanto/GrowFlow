@@ -10,6 +10,7 @@ describe('StockController', () => {
     getBalance: jest.fn(),
     adjustStock: jest.fn(),
     listMutations: jest.fn(),
+    listBalances: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -61,4 +62,15 @@ describe('StockController', () => {
       expect(res).toBe('mutations');
     });
   });
+
+  describe('listBalances', () => {
+    it('should call service listBalances', async () => {
+      service.listBalances.mockResolvedValue('balances');
+      const query = { page: 1, limit: 10 };
+      const res = await controller.listBalances(query);
+      expect(service.listBalances).toHaveBeenCalledWith(query);
+      expect(res).toBe('balances');
+    });
+  });
 });
+
