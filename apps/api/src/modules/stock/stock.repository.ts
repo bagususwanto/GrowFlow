@@ -102,6 +102,10 @@ export class StockRepository {
         take,
         where,
         orderBy: { [sortBy]: sortOrder },
+        include: {
+          item: true,
+          warehouse: true,
+        },
       }),
       this.prisma.stockMutation.count({ where }),
     ]);

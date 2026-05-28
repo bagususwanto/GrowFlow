@@ -41,7 +41,7 @@ export class StockService {
     };
   }
 
-  private mapMutation(mutation: StockMutation): StockMutationResponseEntity {
+  private mapMutation(mutation: any): StockMutationResponseEntity {
     return {
       id: mutation.id,
       qty: mutation.qty,
@@ -50,7 +50,25 @@ export class StockService {
       referenceId: mutation.referenceId,
       note: mutation.note,
       itemId: mutation.itemId,
+      item: mutation.item ? {
+        id: mutation.item.id,
+        code: mutation.item.code,
+        name: mutation.item.name,
+        unit: mutation.item.unit,
+        categoryId: mutation.item.categoryId,
+        minStock: mutation.item.minStock,
+        createdAt: mutation.item.createdAt.toISOString(),
+        updatedAt: mutation.item.updatedAt.toISOString(),
+      } : undefined,
       warehouseId: mutation.warehouseId,
+      warehouse: mutation.warehouse ? {
+        id: mutation.warehouse.id,
+        name: mutation.warehouse.name,
+        address: mutation.warehouse.address,
+        isActive: mutation.warehouse.isActive,
+        createdAt: mutation.warehouse.createdAt.toISOString(),
+        updatedAt: mutation.warehouse.updatedAt.toISOString(),
+      } : undefined,
       createdById: mutation.createdById,
       createdAt: mutation.createdAt.toISOString(),
     };

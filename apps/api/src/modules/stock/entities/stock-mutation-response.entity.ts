@@ -1,5 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { StockMutation, MutationType } from '@growflow/types';
+import { ItemResponseEntity } from '../../items/entities/item-response.entity';
+import { WarehouseResponseEntity } from '../../warehouses/entities/warehouse-response.entity';
 
 export class StockMutationResponseEntity implements StockMutation {
   @ApiProperty()
@@ -23,8 +25,14 @@ export class StockMutationResponseEntity implements StockMutation {
   @ApiProperty()
   itemId!: string;
 
+  @ApiPropertyOptional({ type: ItemResponseEntity })
+  item?: ItemResponseEntity;
+
   @ApiProperty()
   warehouseId!: string;
+
+  @ApiPropertyOptional({ type: WarehouseResponseEntity })
+  warehouse?: WarehouseResponseEntity;
 
   @ApiProperty({ required: false, nullable: true })
   createdById!: string | null;
@@ -32,3 +40,4 @@ export class StockMutationResponseEntity implements StockMutation {
   @ApiProperty()
   createdAt!: string;
 }
+
