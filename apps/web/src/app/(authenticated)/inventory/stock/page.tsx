@@ -28,9 +28,13 @@ export default function StockPage() {
       <Card className="py-0 overflow-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="flex sm:flex-row flex-col sm:justify-between sm:items-center px-6 pt-4 border-b gap-4">
-            <TabsList variant="line" className="-mb-[1px] w-full sm:w-auto justify-start">
-              <TabsTrigger value="balance" className="text-sm pb-3">Stock Balance</TabsTrigger>
-              <TabsTrigger value="mutations" className="text-sm pb-3">Mutations History</TabsTrigger>
+            <TabsList variant="line" className="-mb-px w-full sm:w-auto justify-start">
+              <TabsTrigger value="balance" className="text-sm pb-3">
+                Stock Balance
+              </TabsTrigger>
+              <TabsTrigger value="mutations" className="text-sm pb-3">
+                Mutations History
+              </TabsTrigger>
             </TabsList>
 
             <div className="pb-3 flex items-center w-full sm:w-auto justify-end">
