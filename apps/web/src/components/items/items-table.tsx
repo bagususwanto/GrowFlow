@@ -28,11 +28,13 @@ import {
 } from '@web/components/ui/select';
 import { toast } from 'sonner';
 import { ChevronLeftIcon, ChevronRightIcon, SearchIcon, RotateCcwIcon, ChevronsLeftIcon, ChevronsRightIcon } from 'lucide-react';
+import { useConfirm } from '@web/hooks/use-confirm';
 
 export function ItemsTable() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const confirm = useConfirm();
 
   // Read search params from URL
   const urlPage = searchParams.get('page');
@@ -146,7 +148,19 @@ export function ItemsTable() {
 
   const handleDelete = React.useCallback(
     async (item: Item) => {
-      if (confirm(`Are you sure you want to delete ${item.name}?`)) {
+      const ok = await confirm({
+        title: 'Delete Item',
+        description: (
+          <>
+            Are you sure you want to delete item{' '}
+            <span className="font-semibold text-foreground">{item.name}</span>?
+            This action cannot be undone.
+          </>
+        ),
+        confirmText: 'Delete',
+        variant: 'destructive',
+      });
+      if (ok) {
         toast.promise(deleteMutation.mutateAsync(item.id), {
           loading: `Deleting item ${item.name}...`,
           success: `Item ${item.name} deleted successfully`,
@@ -154,7 +168,7 @@ export function ItemsTable() {
         });
       }
     },
-    [deleteMutation],
+    [confirm, deleteMutation],
   );
 
   const handleSort = React.useCallback(

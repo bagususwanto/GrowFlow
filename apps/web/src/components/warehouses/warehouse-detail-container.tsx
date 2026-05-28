@@ -1,15 +1,16 @@
-"use client";
+'use client';
 
-import React from "react";
-import { useRouter } from "next/navigation";
-import { useWarehouse, useDeleteWarehouse } from "./use-warehouses";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@web/components/ui/card";
-import { Button } from "@web/components/ui/button";
-import { Badge } from "@web/components/ui/badge";
-import { Skeleton } from "@web/components/ui/skeleton";
-import { Alert, AlertDescription, AlertTitle } from "@web/components/ui/alert";
-import { toast } from "sonner";
-import { ApiError } from "@growflow/types";
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { useWarehouse, useDeleteWarehouse } from './use-warehouses';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@web/components/ui/card';
+import { Button } from '@web/components/ui/button';
+import { Badge } from '@web/components/ui/badge';
+import { Skeleton } from '@web/components/ui/skeleton';
+import { Alert, AlertDescription, AlertTitle } from '@web/components/ui/alert';
+import { toast } from 'sonner';
+import { ApiError } from '@growflow/types';
+import { useConfirm } from '@web/hooks/use-confirm';
 import {
   Warehouse as WarehouseIcon,
   MapPinIcon,
@@ -19,7 +20,7 @@ import {
   AlertCircleIcon,
   Loader2Icon,
   ClockIcon,
-} from "lucide-react";
+} from 'lucide-react';
 
 interface WarehouseDetailContainerProps {
   id: string;
@@ -29,6 +30,7 @@ export function WarehouseDetailContainer({ id }: WarehouseDetailContainerProps) 
   const router = useRouter();
   const { data: warehouse, isLoading, isError, error } = useWarehouse(id);
   const deleteMutation = useDeleteWarehouse();
+  const confirm = useConfirm();
 
   const handleEdit = () => {
     router.push(`/inventory/warehouses/${id}/edit`);
@@ -36,17 +38,29 @@ export function WarehouseDetailContainer({ id }: WarehouseDetailContainerProps) 
 
   const handleDelete = async () => {
     if (!warehouse) return;
-    if (confirm(`Are you sure you want to delete warehouse ${warehouse.name}?`)) {
+    const ok = await confirm({
+      title: 'Delete Warehouse',
+      description: (
+        <>
+          Are you sure you want to delete warehouse{' '}
+          <span className="font-semibold text-foreground">{warehouse.name}</span>?
+          This action cannot be undone.
+        </>
+      ),
+      confirmText: 'Delete',
+      variant: 'destructive',
+    });
+    if (ok) {
       try {
         await toast.promise(deleteMutation.mutateAsync(warehouse.id), {
           loading: `Deleting warehouse ${warehouse.name}...`,
           success: `Warehouse ${warehouse.name} deleted successfully`,
-          error: "Failed to delete warehouse",
+          error: 'Failed to delete warehouse',
         });
-        router.push("/inventory/warehouses");
+        router.push('/inventory/warehouses');
       } catch (err) {
         const apiError = err as ApiError;
-        toast.error(apiError.message || "Failed to delete warehouse");
+        toast.error(apiError.message || 'Failed to delete warehouse');
       }
     }
   };
@@ -83,7 +97,7 @@ export function WarehouseDetailContainer({ id }: WarehouseDetailContainerProps) 
         <AlertCircleIcon className="h-4 w-4" />
         <AlertTitle>Error loading warehouse</AlertTitle>
         <AlertDescription>
-          {error instanceof Error ? error.message : "Could not fetch warehouse details."}
+          {error instanceof Error ? error.message : 'Could not fetch warehouse details.'}
         </AlertDescription>
       </Alert>
     );
@@ -101,14 +115,14 @@ export function WarehouseDetailContainer({ id }: WarehouseDetailContainerProps) 
               <CardTitle className="text-xl font-bold">{warehouse.name}</CardTitle>
               <CardDescription className="flex items-center gap-1.5 text-sm">
                 <MapPinIcon className="w-3.5 h-3.5" />
-                {warehouse.address || "No address provided"}
+                {warehouse.address || 'No address provided'}
               </CardDescription>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handleEdit} className="h-9">
               <EditIcon className="mr-1.5 w-4 h-4" />
-              Edit Warehouse
+              Edit
             </Button>
             <Button
               variant="destructive"
@@ -133,7 +147,9 @@ export function WarehouseDetailContainer({ id }: WarehouseDetailContainerProps) 
           <div className="space-y-4">
             <div>
               <h3 className="text-sm font-semibold text-foreground">Settings & Location</h3>
-              <p className="text-xs text-muted-foreground">General warehouse settings and accessibility status.</p>
+              <p className="text-xs text-muted-foreground">
+                General warehouse settings and accessibility status.
+              </p>
             </div>
 
             <div className="space-y-3.5">
@@ -141,8 +157,8 @@ export function WarehouseDetailContainer({ id }: WarehouseDetailContainerProps) 
                 <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Status
                 </span>
-                <Badge variant={warehouse.isActive ? "default" : "destructive"}>
-                  {warehouse.isActive ? "Active" : "Inactive"}
+                <Badge variant={warehouse.isActive ? 'default' : 'destructive'}>
+                  {warehouse.isActive ? 'Active' : 'Inactive'}
                 </Badge>
               </div>
 
@@ -150,9 +166,7 @@ export function WarehouseDetailContainer({ id }: WarehouseDetailContainerProps) 
                 <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Full Address
                 </span>
-                <span className="text-sm text-foreground">
-                  {warehouse.address || "-"}
-                </span>
+                <span className="text-sm text-foreground">{warehouse.address || '-'}</span>
               </div>
             </div>
           </div>
@@ -161,7 +175,9 @@ export function WarehouseDetailContainer({ id }: WarehouseDetailContainerProps) 
           <div className="space-y-4">
             <div>
               <h3 className="text-sm font-semibold text-foreground">Timeline & Logs</h3>
-              <p className="text-xs text-muted-foreground">Warehouse timestamps for creation and history.</p>
+              <p className="text-xs text-muted-foreground">
+                Warehouse timestamps for creation and history.
+              </p>
             </div>
 
             <div className="space-y-3.5">

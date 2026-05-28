@@ -28,11 +28,13 @@ import {
 } from '@web/components/ui/select';
 import { toast } from 'sonner';
 import { ChevronLeftIcon, ChevronRightIcon, SearchIcon, RotateCcwIcon, ChevronsLeftIcon, ChevronsRightIcon } from 'lucide-react';
+import { useConfirm } from '@web/hooks/use-confirm';
 
 export function RolesTable() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const confirm = useConfirm();
 
   // Read search params
   const urlPage = searchParams.get('page');
@@ -134,7 +136,19 @@ export function RolesTable() {
 
   const handleDelete = React.useCallback(
     async (role: { id: string; name: string }) => {
-      if (confirm(`Are you sure you want to delete the role "${role.name}"?`)) {
+      const ok = await confirm({
+        title: 'Delete Role',
+        description: (
+          <>
+            Are you sure you want to delete role{' '}
+            <span className="font-semibold text-foreground">{role.name}</span>?
+            This action cannot be undone.
+          </>
+        ),
+        confirmText: 'Delete',
+        variant: 'destructive',
+      });
+      if (ok) {
         toast.promise(deleteMutation.mutateAsync(role.id), {
           loading: `Deleting role ${role.name}...`,
           success: `Role ${role.name} deleted successfully`,
@@ -142,7 +156,7 @@ export function RolesTable() {
         });
       }
     },
-    [deleteMutation],
+    [confirm, deleteMutation],
   );
 
   const handleSort = React.useCallback(

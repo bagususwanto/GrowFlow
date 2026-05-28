@@ -10,6 +10,7 @@ import { Skeleton } from '@web/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@web/components/ui/alert';
 import { toast } from 'sonner';
 import { ApiError } from '@growflow/types';
+import { useConfirm } from '@web/hooks/use-confirm';
 import {
   PackageIcon,
   LayersIcon,
@@ -31,6 +32,7 @@ export function ItemDetailContainer({ id }: ItemDetailContainerProps) {
   const router = useRouter();
   const { data: item, isLoading, isError, error } = useItem(id);
   const deleteMutation = useDeleteItem();
+  const confirm = useConfirm();
 
   const handleEdit = () => {
     router.push(`/inventory/items/${id}/edit`);
@@ -38,7 +40,19 @@ export function ItemDetailContainer({ id }: ItemDetailContainerProps) {
 
   const handleDelete = async () => {
     if (!item) return;
-    if (confirm(`Are you sure you want to delete ${item.name}?`)) {
+    const ok = await confirm({
+      title: 'Delete Item',
+      description: (
+        <>
+          Are you sure you want to delete item{' '}
+          <span className="font-semibold text-foreground">{item.name}</span>?
+          This action cannot be undone.
+        </>
+      ),
+      confirmText: 'Delete',
+      variant: 'destructive',
+    });
+    if (ok) {
       try {
         await toast.promise(deleteMutation.mutateAsync(item.id), {
           loading: `Deleting item ${item.name}...`,
@@ -108,7 +122,7 @@ export function ItemDetailContainer({ id }: ItemDetailContainerProps) {
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" onClick={handleEdit} className="h-9">
                 <EditIcon className="mr-1.5 w-4 h-4" />
-                Edit Item
+                Edit
               </Button>
               <Button
                 variant="destructive"

@@ -1,16 +1,17 @@
-"use client";
+'use client';
 
-import React from "react";
-import { useRouter } from "next/navigation";
-import { useRole, useDeleteRole } from "./use-roles";
-import { normalizePermissions } from "./columns";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@web/components/ui/card";
-import { Button } from "@web/components/ui/button";
-import { Badge } from "@web/components/ui/badge";
-import { Skeleton } from "@web/components/ui/skeleton";
-import { Alert, AlertDescription, AlertTitle } from "@web/components/ui/alert";
-import { toast } from "sonner";
-import { ApiError } from "@growflow/types";
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { useRole, useDeleteRole } from './use-roles';
+import { normalizePermissions } from './columns';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@web/components/ui/card';
+import { Button } from '@web/components/ui/button';
+import { Badge } from '@web/components/ui/badge';
+import { Skeleton } from '@web/components/ui/skeleton';
+import { Alert, AlertDescription, AlertTitle } from '@web/components/ui/alert';
+import { toast } from 'sonner';
+import { ApiError } from '@growflow/types';
+import { useConfirm } from '@web/hooks/use-confirm';
 import {
   ShieldIcon,
   CalendarIcon,
@@ -20,7 +21,7 @@ import {
   Loader2Icon,
   ClockIcon,
   CheckCircle2Icon,
-} from "lucide-react";
+} from 'lucide-react';
 
 interface RoleDetailContainerProps {
   id: string;
@@ -30,6 +31,7 @@ export function RoleDetailContainer({ id }: RoleDetailContainerProps) {
   const router = useRouter();
   const { data: role, isLoading, isError, error } = useRole(id);
   const deleteMutation = useDeleteRole();
+  const confirm = useConfirm();
 
   const handleEdit = () => {
     router.push(`/administration/roles/${id}/edit`);
@@ -37,17 +39,29 @@ export function RoleDetailContainer({ id }: RoleDetailContainerProps) {
 
   const handleDelete = async () => {
     if (!role) return;
-    if (confirm(`Are you sure you want to delete the role "${role.name}"?`)) {
+    const ok = await confirm({
+      title: 'Delete Role',
+      description: (
+        <>
+          Are you sure you want to delete role{' '}
+          <span className="font-semibold text-foreground">{role.name}</span>?
+          This action cannot be undone.
+        </>
+      ),
+      confirmText: 'Delete',
+      variant: 'destructive',
+    });
+    if (ok) {
       try {
         await toast.promise(deleteMutation.mutateAsync(role.id), {
           loading: `Deleting role ${role.name}...`,
           success: `Role ${role.name} deleted successfully`,
-          error: "Failed to delete role",
+          error: 'Failed to delete role',
         });
-        router.push("/administration/roles");
+        router.push('/administration/roles');
       } catch (err) {
         const apiError = err as ApiError;
-        toast.error(apiError.message || "Failed to delete role");
+        toast.error(apiError.message || 'Failed to delete role');
       }
     }
   };
@@ -79,15 +93,15 @@ export function RoleDetailContainer({ id }: RoleDetailContainerProps) {
         <AlertCircleIcon className="h-4 w-4" />
         <AlertTitle>Error loading role</AlertTitle>
         <AlertDescription>
-          {error instanceof Error ? error.message : "Could not fetch role details."}
+          {error instanceof Error ? error.message : 'Could not fetch role details.'}
         </AlertDescription>
       </Alert>
     );
   }
 
   const permissions = normalizePermissions(role.permissions);
-  const isSystemRole = ["superadmin", "manager", "staff", "warehouse", "finance"].includes(
-    role.name.toLowerCase()
+  const isSystemRole = ['superadmin', 'manager', 'staff', 'warehouse', 'finance'].includes(
+    role.name.toLowerCase(),
   );
 
   return (
@@ -101,21 +115,21 @@ export function RoleDetailContainer({ id }: RoleDetailContainerProps) {
             <div className="space-y-1">
               <CardTitle className="text-xl font-bold capitalize">{role.name}</CardTitle>
               <CardDescription className="text-sm">
-                {isSystemRole ? "System Default Role" : "Custom User Role"}
+                {isSystemRole ? 'System Default Role' : 'Custom User Role'}
               </CardDescription>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handleEdit} className="h-9">
               <EditIcon className="mr-1.5 w-4 h-4" />
-              Edit Role
+              Edit
             </Button>
             <Button
               variant="destructive"
               size="sm"
               onClick={handleDelete}
               disabled={deleteMutation.isPending || isSystemRole}
-              title={isSystemRole ? "System roles cannot be deleted" : undefined}
+              title={isSystemRole ? 'System roles cannot be deleted' : undefined}
               className="h-9"
             >
               {deleteMutation.isPending ? (
@@ -144,7 +158,11 @@ export function RoleDetailContainer({ id }: RoleDetailContainerProps) {
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {permissions.map((perm) => (
-                    <Badge key={perm} variant="secondary" className="flex items-center gap-1.5 px-2.5 py-1 text-xs">
+                    <Badge
+                      key={perm}
+                      variant="secondary"
+                      className="flex items-center gap-1.5 px-2.5 py-1 text-xs"
+                    >
                       <CheckCircle2Icon className="w-3 h-3 text-primary" />
                       {perm}
                     </Badge>

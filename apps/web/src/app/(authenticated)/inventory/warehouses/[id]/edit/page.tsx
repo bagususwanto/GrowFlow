@@ -1,11 +1,11 @@
-import Link from "next/link";
-import { EditWarehouseContainer } from "@web/components/warehouses/edit-warehouse-container";
-import { Button } from "@web/components/ui/button";
-import { ChevronLeftIcon } from "lucide-react";
+import Link from 'next/link';
+import { EditWarehouseContainer } from '@web/components/warehouses/edit-warehouse-container';
+import { Button } from '@web/components/ui/button';
+import { ChevronLeftIcon } from 'lucide-react';
 
 export const metadata = {
-  title: "Edit Warehouse | GrowFlow",
-  description: "Edit warehouse details.",
+  title: 'Edit Warehouse | GrowFlow',
+  description: 'Edit warehouse details.',
 };
 
 interface EditWarehousePageProps {
@@ -31,9 +31,7 @@ export default async function EditWarehousePage({ params }: EditWarehousePagePro
           }
         />
         <div className="space-y-0.5">
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            Edit Warehouse
-          </h1>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Edit Warehouse</h1>
           <p className="text-sm text-muted-foreground">
             Update warehouse details and accessibility configurations.
           </p>

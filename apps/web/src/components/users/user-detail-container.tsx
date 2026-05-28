@@ -1,15 +1,16 @@
-"use client";
+'use client';
 
-import React from "react";
-import { useRouter } from "next/navigation";
-import { useUser, useDeleteUser } from "./use-users";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@web/components/ui/card";
-import { Button } from "@web/components/ui/button";
-import { Badge } from "@web/components/ui/badge";
-import { Skeleton } from "@web/components/ui/skeleton";
-import { Alert, AlertDescription, AlertTitle } from "@web/components/ui/alert";
-import { toast } from "sonner";
-import { ApiError } from "@growflow/types";
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { useUser, useDeleteUser } from './use-users';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@web/components/ui/card';
+import { Button } from '@web/components/ui/button';
+import { Badge } from '@web/components/ui/badge';
+import { Skeleton } from '@web/components/ui/skeleton';
+import { Alert, AlertDescription, AlertTitle } from '@web/components/ui/alert';
+import { toast } from 'sonner';
+import { ApiError } from '@growflow/types';
+import { useConfirm } from '@web/hooks/use-confirm';
 import {
   UserIcon,
   MailIcon,
@@ -20,7 +21,7 @@ import {
   AlertCircleIcon,
   Loader2Icon,
   ClockIcon,
-} from "lucide-react";
+} from 'lucide-react';
 
 interface UserDetailContainerProps {
   id: string;
@@ -30,6 +31,7 @@ export function UserDetailContainer({ id }: UserDetailContainerProps) {
   const router = useRouter();
   const { data: user, isLoading, isError, error } = useUser(id);
   const deleteMutation = useDeleteUser();
+  const confirm = useConfirm();
 
   const handleEdit = () => {
     router.push(`/administration/users/${id}/edit`);
@@ -37,17 +39,29 @@ export function UserDetailContainer({ id }: UserDetailContainerProps) {
 
   const handleDelete = async () => {
     if (!user) return;
-    if (confirm(`Are you sure you want to delete ${user.name}?`)) {
+    const ok = await confirm({
+      title: 'Delete User',
+      description: (
+        <>
+          Are you sure you want to delete user{' '}
+          <span className="font-semibold text-foreground">{user.name}</span>?
+          This action cannot be undone.
+        </>
+      ),
+      confirmText: 'Delete',
+      variant: 'destructive',
+    });
+    if (ok) {
       try {
         await toast.promise(deleteMutation.mutateAsync(user.id), {
           loading: `Deleting user ${user.name}...`,
           success: `User ${user.name} deleted successfully`,
-          error: "Failed to delete user",
+          error: 'Failed to delete user',
         });
-        router.push("/administration/users");
+        router.push('/administration/users');
       } catch (err) {
         const apiError = err as ApiError;
-        toast.error(apiError.message || "Failed to delete user");
+        toast.error(apiError.message || 'Failed to delete user');
       }
     }
   };
@@ -85,14 +99,14 @@ export function UserDetailContainer({ id }: UserDetailContainerProps) {
         <AlertCircleIcon className="h-4 w-4" />
         <AlertTitle>Error loading user</AlertTitle>
         <AlertDescription>
-          {error instanceof Error ? error.message : "Could not fetch user details."}
+          {error instanceof Error ? error.message : 'Could not fetch user details.'}
         </AlertDescription>
       </Alert>
     );
   }
 
-  const roleName = user.role?.name || "staff";
-  const isSuperadmin = roleName === "superadmin";
+  const roleName = user.role?.name || 'staff';
+  const isSuperadmin = roleName === 'superadmin';
 
   return (
     <Card className="w-full overflow-hidden">
@@ -113,7 +127,7 @@ export function UserDetailContainer({ id }: UserDetailContainerProps) {
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handleEdit} className="h-9">
               <EditIcon className="mr-1.5 w-4 h-4" />
-              Edit User
+              Edit
             </Button>
             <Button
               variant="destructive"
@@ -138,7 +152,9 @@ export function UserDetailContainer({ id }: UserDetailContainerProps) {
           <div className="space-y-4">
             <div>
               <h3 className="text-sm font-semibold text-foreground">Access & Role Settings</h3>
-              <p className="text-xs text-muted-foreground">Assigned permissions group and system level role.</p>
+              <p className="text-xs text-muted-foreground">
+                Assigned permissions group and system level role.
+              </p>
             </div>
 
             <div className="space-y-3.5">
@@ -147,7 +163,7 @@ export function UserDetailContainer({ id }: UserDetailContainerProps) {
                   System Role
                 </span>
                 <Badge
-                  variant={isSuperadmin ? "default" : "secondary"}
+                  variant={isSuperadmin ? 'default' : 'secondary'}
                   className="flex items-center gap-1 capitalize"
                 >
                   <ShieldIcon className="w-3 h-3" />
@@ -159,8 +175,8 @@ export function UserDetailContainer({ id }: UserDetailContainerProps) {
                 <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Account Status
                 </span>
-                <Badge variant={user.isActive ? "default" : "destructive"}>
-                  {user.isActive ? "Active" : "Inactive"}
+                <Badge variant={user.isActive ? 'default' : 'destructive'}>
+                  {user.isActive ? 'Active' : 'Inactive'}
                 </Badge>
               </div>
             </div>
@@ -170,7 +186,9 @@ export function UserDetailContainer({ id }: UserDetailContainerProps) {
           <div className="space-y-4">
             <div>
               <h3 className="text-sm font-semibold text-foreground">Timeline & Logs</h3>
-              <p className="text-xs text-muted-foreground">Account timestamps for creation and history.</p>
+              <p className="text-xs text-muted-foreground">
+                Account timestamps for creation and history.
+              </p>
             </div>
 
             <div className="space-y-3.5">

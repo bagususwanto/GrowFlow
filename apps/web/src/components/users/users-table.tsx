@@ -29,11 +29,13 @@ import {
 } from '@web/components/ui/select';
 import { toast } from 'sonner';
 import { ChevronLeftIcon, ChevronRightIcon, SearchIcon, RotateCcwIcon, ChevronsLeftIcon, ChevronsRightIcon } from 'lucide-react';
+import { useConfirm } from '@web/hooks/use-confirm';
 
 export function UsersTable() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const confirm = useConfirm();
 
   // Read search params
   const urlPage = searchParams.get('page');
@@ -158,7 +160,19 @@ export function UsersTable() {
 
   const handleDelete = React.useCallback(
     async (user: { id: string; name: string }) => {
-      if (confirm(`Are you sure you want to delete ${user.name}?`)) {
+      const ok = await confirm({
+        title: 'Delete User',
+        description: (
+          <>
+            Are you sure you want to delete user{' '}
+            <span className="font-semibold text-foreground">{user.name}</span>?
+            This action cannot be undone.
+          </>
+        ),
+        confirmText: 'Delete',
+        variant: 'destructive',
+      });
+      if (ok) {
         toast.promise(deleteMutation.mutateAsync(user.id), {
           loading: `Deleting user ${user.name}...`,
           success: `User ${user.name} deleted successfully`,
@@ -166,7 +180,7 @@ export function UsersTable() {
         });
       }
     },
-    [deleteMutation],
+    [confirm, deleteMutation],
   );
 
   const handleSort = React.useCallback(

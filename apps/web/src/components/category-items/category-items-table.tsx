@@ -47,6 +47,7 @@ import {
   ChevronsLeftIcon,
   ChevronsRightIcon,
 } from 'lucide-react';
+import { useConfirm } from '@web/hooks/use-confirm';
 
 interface CategoryItemsTableProps {
   isCreateOpen?: boolean;
@@ -57,6 +58,7 @@ export function CategoryItemsTable({ isCreateOpen, onOpenChange }: CategoryItems
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const confirm = useConfirm();
 
   // Read search params
   const urlPage = searchParams.get('cat_page');
@@ -183,7 +185,19 @@ export function CategoryItemsTable({ isCreateOpen, onOpenChange }: CategoryItems
 
   const handleDelete = React.useCallback(
     async (category: CategoryItem) => {
-      if (confirm(`Are you sure you want to delete category "${category.name}"?`)) {
+      const ok = await confirm({
+        title: 'Delete Category',
+        description: (
+          <>
+            Are you sure you want to delete category{' '}
+            <span className="font-semibold text-foreground">{category.name}</span>?
+            This action cannot be undone.
+          </>
+        ),
+        confirmText: 'Delete',
+        variant: 'destructive',
+      });
+      if (ok) {
         try {
           await toast.promise(deleteMutation.mutateAsync(category.id), {
             loading: `Deleting category ${category.name}...`,
@@ -196,7 +210,7 @@ export function CategoryItemsTable({ isCreateOpen, onOpenChange }: CategoryItems
         }
       }
     },
-    [deleteMutation],
+    [confirm, deleteMutation],
   );
 
   const handleSort = React.useCallback(
