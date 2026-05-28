@@ -1,14 +1,14 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsInt, IsOptional, IsString, Min, Max, IsIn } from 'class-validator';
 import { Type } from 'class-transformer';
-import { ListItemsQuery } from '@growflow/types';
+import { ListCategoryItemsQuery } from '@growflow/types';
 
 export enum SortOrder {
   ASC = 'asc',
   DESC = 'desc',
 }
 
-export class ListItemsQueryDto implements ListItemsQuery {
+export class ListCategoryItemsQueryDto implements ListCategoryItemsQuery {
   @ApiPropertyOptional({ default: 1 })
   @IsOptional()
   @Type(() => Number)
@@ -29,15 +29,10 @@ export class ListItemsQueryDto implements ListItemsQuery {
   @IsString()
   search?: string;
 
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  categoryId?: string;
-
   @ApiPropertyOptional({ default: 'createdAt' })
   @IsOptional()
   @IsString()
-  @IsIn(['name', 'code', 'unit', 'categoryId', 'minStock', 'createdAt', 'updatedAt'])
+  @IsIn(['name', 'createdAt', 'updatedAt'])
   sortBy?: string = 'createdAt';
 
   @ApiPropertyOptional({ enum: SortOrder, default: SortOrder.DESC })
@@ -45,4 +40,3 @@ export class ListItemsQueryDto implements ListItemsQuery {
   @IsEnum(SortOrder)
   sortOrder?: 'asc' | 'desc' = 'desc';
 }
-

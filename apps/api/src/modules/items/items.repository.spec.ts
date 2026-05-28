@@ -7,7 +7,8 @@ describe('ItemsRepository', () => {
   let prisma: any;
 
   const mockDate = new Date();
-  const mockItem = { id: 'i-id', code: 'ITM1', name: 'Item 1', unit: 'pcs', category: 'Cat', minStock: 10, createdAt: mockDate, updatedAt: mockDate, deletedAt: null };
+  const mockCategory = { id: 'c-id', name: 'Cat', description: null, createdAt: mockDate, updatedAt: mockDate };
+  const mockItem = { id: 'i-id', code: 'ITM1', name: 'Item 1', unit: 'pcs', categoryId: 'c-id', category: mockCategory, minStock: 10, createdAt: mockDate, updatedAt: mockDate, deletedAt: null };
 
   const mockPrismaService = {
     item: {
@@ -51,25 +52,27 @@ describe('ItemsRepository', () => {
         take: 10,
         where: { deletedAt: null },
         orderBy: { name: 'asc' },
+        include: { category: true },
       });
     });
 
-    it('should filter by search and category', async () => {
+    it('should filter by search and categoryId', async () => {
       prisma.item.findMany.mockResolvedValue([mockItem]);
       prisma.item.count.mockResolvedValue(1);
-      await repository.findAll({ page: 1, limit: 10, search: 'test', category: 'Cat' }, 0, 10);
+      await repository.findAll({ page: 1, limit: 10, search: 'test', categoryId: 'c-id' }, 0, 10);
       expect(prisma.item.findMany).toHaveBeenCalledWith({
         skip: 0,
         take: 10,
         where: {
           deletedAt: null,
-          category: 'Cat',
+          categoryId: 'c-id',
           OR: [
             { name: { contains: 'test', mode: 'insensitive' } },
             { code: { contains: 'test', mode: 'insensitive' } },
           ],
         },
         orderBy: { createdAt: 'desc' },
+        include: { category: true },
       });
     });
   });

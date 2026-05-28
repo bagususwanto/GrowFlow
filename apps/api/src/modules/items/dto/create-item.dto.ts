@@ -21,7 +21,7 @@ export class CreateItemDto implements CreateItemRequest {
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
-  category?: string;
+  categoryId?: string | null;
 
   @ApiPropertyOptional()
   @IsNumber()

@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
-import { Item, Prisma } from '@prisma/client';
+import { Item, CategoryItem, Prisma } from '@prisma/client';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { ListItemsQueryDto } from './dto/list-items-query.dto';
 
+export type ItemWithCategory = Item & { category: CategoryItem | null };
 
 @Injectable()
 export class ItemsRepository {
@@ -20,8 +21,8 @@ export class ItemsRepository {
       ];
     }
 
-    if (query.category) {
-      where.category = query.category;
+    if (query.categoryId) {
+      where.categoryId = query.categoryId;
     }
 
     return where;
@@ -31,7 +32,7 @@ export class ItemsRepository {
     query: ListItemsQueryDto,
     skip?: number,
     take?: number,
-  ): Promise<[Item[], number]> {
+  ): Promise<[ItemWithCategory[], number]> {
     const where = this.buildWhereClause(query);
     const sortBy = query.sortBy || 'createdAt';
     const sortOrder = query.sortOrder || 'desc';
@@ -42,35 +43,39 @@ export class ItemsRepository {
         take,
         where,
         orderBy: { [sortBy]: sortOrder },
+        include: { category: true },
       }),
       this.prisma.item.count({ where }),
     ]);
     return [data, total];
   }
 
-
-  async findById(id: string): Promise<Item | null> {
+  async findById(id: string): Promise<ItemWithCategory | null> {
     return this.prisma.item.findUnique({
       where: { id, deletedAt: null },
+      include: { category: true },
     });
   }
 
-  async findByCode(code: string): Promise<Item | null> {
+  async findByCode(code: string): Promise<ItemWithCategory | null> {
     return this.prisma.item.findFirst({
       where: { code, deletedAt: null },
+      include: { category: true },
     });
   }
 
-  async create(data: CreateItemDto): Promise<Item> {
+  async create(data: CreateItemDto): Promise<ItemWithCategory> {
     return this.prisma.item.create({
       data,
+      include: { category: true },
     });
   }
 
-  async update(id: string, data: UpdateItemDto): Promise<Item> {
+  async update(id: string, data: UpdateItemDto): Promise<ItemWithCategory> {
     return this.prisma.item.update({
       where: { id },
       data,
+      include: { category: true },
     });
   }
 

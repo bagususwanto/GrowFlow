@@ -1,23 +1,29 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
-import { ItemsRepository } from './items.repository';
+import { ItemsRepository, ItemWithCategory } from './items.repository';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { ListItemsQueryDto } from './dto/list-items-query.dto';
 import { PaginatedResponse } from '@growflow/types';
 import { ItemResponseEntity } from './entities/item-response.entity';
-import { Item } from '@prisma/client';
 
 @Injectable()
 export class ItemsService {
   constructor(private readonly itemsRepository: ItemsRepository) {}
 
-  private mapToResponse(item: Item): ItemResponseEntity {
+  private mapToResponse(item: ItemWithCategory): ItemResponseEntity {
     return {
       id: item.id,
       code: item.code,
       name: item.name,
       unit: item.unit,
-      category: item.category,
+      categoryId: item.categoryId,
+      category: item.category ? {
+        id: item.category.id,
+        name: item.category.name,
+        description: item.category.description,
+        createdAt: item.category.createdAt.toISOString(),
+        updatedAt: item.category.updatedAt.toISOString(),
+      } : null,
       minStock: item.minStock,
       createdAt: item.createdAt.toISOString(),
       updatedAt: item.updatedAt.toISOString(),

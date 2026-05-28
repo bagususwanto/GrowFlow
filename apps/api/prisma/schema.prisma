@@ -72,7 +72,8 @@ model Item {
   code          String         @unique
   name          String
   unit          String
-  category      String?
+  categoryId    String?        @map("category_id")
+  category      CategoryItem?  @relation(fields: [categoryId], references: [id])
   minStock      Int            @default(0) @map("min_stock")
   deletedAt     DateTime?      @map("deleted_at")
   stockBalances StockBalance[]
@@ -82,6 +83,18 @@ model Item {
   updatedAt     DateTime       @updatedAt @map("updated_at")
 
   @@map("items")
+}
+
+model CategoryItem {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  items       Item[]
+
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("category_items")
 }
 
 enum PartnerType {
