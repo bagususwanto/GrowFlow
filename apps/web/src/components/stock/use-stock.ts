@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@web/lib/api-client';
 import {
   StockBalance,
@@ -6,6 +6,7 @@ import {
   PaginatedResponse,
   ListStockBalancesQuery,
   ListStockMutationsQuery,
+  StockAdjustmentRequest,
 } from '@growflow/types';
 
 export const stockKeys = {
@@ -45,3 +46,17 @@ export function useStockMutations(query: ListStockMutationsQuery = {}) {
     },
   });
 }
+
+export function useAdjustStock() {
+  const queryClient = useQueryClient();
+
+  return useMutation<{ balance: StockBalance; mutation: StockMutation }, Error, StockAdjustmentRequest>({
+    mutationFn: async (data) => {
+      return apiClient.post<{ balance: StockBalance; mutation: StockMutation }>('/stock/adjust', data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: stockKeys.all });
+    },
+  });
+}
+
