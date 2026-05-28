@@ -21,6 +21,17 @@ export default function ItemsPage() {
             Manage system items, define safety stocks, and organize product categories.
           </p>
         </div>
+        <div className="flex items-center gap-2">
+          <Button
+            nativeButton={false}
+            render={
+              <Link href="/inventory/items/new">
+                <PlusIcon className="mr-2 w-4 h-4" />
+                Add Item
+              </Link>
+            }
+          />
+        </div>
       </div>
 
       <Tabs defaultValue="items" className="space-y-6 w-full">
@@ -29,18 +40,6 @@ export default function ItemsPage() {
             <TabsTrigger value="items" className="text-sm">Items Master</TabsTrigger>
             <TabsTrigger value="categories" className="text-sm">Categories</TabsTrigger>
           </TabsList>
-          
-          <TabsContent value="items" className="mt-0 flex items-center gap-2">
-            <Button
-              nativeButton={false}
-              render={
-                <Link href="/inventory/items/new">
-                  <PlusIcon className="mr-1.5 w-4 h-4" />
-                  Add Item
-                </Link>
-              }
-            />
-          </TabsContent>
         </div>
 
         <TabsContent value="items" className="space-y-4 outline-none">

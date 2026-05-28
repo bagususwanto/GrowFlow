@@ -40,7 +40,15 @@ import {
 } from '@web/components/ui/dialog';
 import { CategoryItemForm, CategoryFormValues } from './category-item-form';
 import { toast } from 'sonner';
-import { ChevronLeftIcon, ChevronRightIcon, SearchIcon, RotateCcwIcon, ChevronsLeftIcon, ChevronsRightIcon, PlusIcon } from 'lucide-react';
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  SearchIcon,
+  RotateCcwIcon,
+  ChevronsLeftIcon,
+  ChevronsRightIcon,
+  PlusIcon,
+} from 'lucide-react';
 
 export function CategoryItemsTable() {
   const router = useRouter();
@@ -58,7 +66,7 @@ export function CategoryItemsTable() {
   const page = urlPage ? parseInt(urlPage, 10) : 1;
   const limit = urlLimit ? parseInt(urlLimit, 10) : 10;
   const sortBy = urlSortBy || 'createdAt';
-  const sortOrder = (urlSortOrder === 'asc' || urlSortOrder === 'desc') ? urlSortOrder : 'desc';
+  const sortOrder = urlSortOrder === 'asc' || urlSortOrder === 'desc' ? urlSortOrder : 'desc';
 
   // Search input uses a local state for instant typing response
   const [search, setSearch] = React.useState(urlSearch || '');
@@ -78,7 +86,7 @@ export function CategoryItemsTable() {
   const createQueryString = React.useCallback(
     (params: Record<string, string | number | boolean | null | undefined>) => {
       const newParams = new URLSearchParams(searchParams.toString());
-      
+
       Object.entries(params).forEach(([key, value]) => {
         if (value === null || value === undefined || value === '') {
           newParams.delete(key);
@@ -86,10 +94,10 @@ export function CategoryItemsTable() {
           newParams.set(key, String(value));
         }
       });
-      
+
       return newParams.toString();
     },
-    [searchParams]
+    [searchParams],
   );
 
   // Sync debounced search to URL
@@ -110,7 +118,7 @@ export function CategoryItemsTable() {
       const queryString = createQueryString({ cat_page: newPage });
       router.replace(`${pathname}?${queryString}`, { scroll: false });
     },
-    [pathname, router, createQueryString]
+    [pathname, router, createQueryString],
   );
 
   const setLimit = React.useCallback(
@@ -118,7 +126,7 @@ export function CategoryItemsTable() {
       const queryString = createQueryString({ cat_limit: newLimit, cat_page: 1 });
       router.replace(`${pathname}?${queryString}`, { scroll: false });
     },
-    [pathname, router, createQueryString]
+    [pathname, router, createQueryString],
   );
 
   // Construct query object for API request
@@ -197,7 +205,7 @@ export function CategoryItemsTable() {
       });
       router.replace(`${pathname}?${queryString}`, { scroll: false });
     },
-    [sortBy, sortOrder, pathname, router, createQueryString]
+    [sortBy, sortOrder, pathname, router, createQueryString],
   );
 
   const columns = React.useMemo(
@@ -272,7 +280,7 @@ export function CategoryItemsTable() {
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <DialogTrigger
               render={
-                <Button className="w-full sm:w-auto h-9">
+                <Button>
                   <PlusIcon className="mr-1.5 w-4 h-4" />
                   Add Category
                 </Button>
@@ -296,16 +304,17 @@ export function CategoryItemsTable() {
           </Dialog>
 
           {/* Edit Category Modal */}
-          <Dialog open={isEditOpen} onOpenChange={(open) => {
-            setIsEditOpen(open);
-            if (!open) setEditingCategory(undefined);
-          }}>
+          <Dialog
+            open={isEditOpen}
+            onOpenChange={(open) => {
+              setIsEditOpen(open);
+              if (!open) setEditingCategory(undefined);
+            }}
+          >
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Edit Category</DialogTitle>
-                <DialogDescription>
-                  Update the category name or description.
-                </DialogDescription>
+                <DialogDescription>Update the category name or description.</DialogDescription>
               </DialogHeader>
               <div className="pt-2">
                 {editingCategory && (
@@ -397,10 +406,7 @@ export function CategoryItemsTable() {
               <span className="text-muted-foreground text-xs whitespace-nowrap">
                 Rows per page:
               </span>
-              <Select
-                value={limit.toString()}
-                onValueChange={(val) => setLimit(Number(val || 10))}
-              >
+              <Select value={limit.toString()} onValueChange={(val) => setLimit(Number(val || 10))}>
                 <SelectTrigger className="w-20 h-8">
                   <SelectValue />
                 </SelectTrigger>

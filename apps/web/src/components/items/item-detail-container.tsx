@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import React from "react";
-import { useRouter } from "next/navigation";
-import { useItem, useDeleteItem } from "./use-items";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@web/components/ui/card";
-import { Button } from "@web/components/ui/button";
-import { Badge } from "@web/components/ui/badge";
-import { Skeleton } from "@web/components/ui/skeleton";
-import { Alert, AlertDescription, AlertTitle } from "@web/components/ui/alert";
-import { toast } from "sonner";
-import { ApiError } from "@growflow/types";
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { useItem, useDeleteItem } from './use-items';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@web/components/ui/card';
+import { Button } from '@web/components/ui/button';
+import { Badge } from '@web/components/ui/badge';
+import { Skeleton } from '@web/components/ui/skeleton';
+import { Alert, AlertDescription, AlertTitle } from '@web/components/ui/alert';
+import { toast } from 'sonner';
+import { ApiError } from '@growflow/types';
 import {
   PackageIcon,
   LayersIcon,
@@ -22,8 +22,8 @@ import {
   ScaleIcon,
   InboxIcon,
   ArrowLeftIcon,
-} from "lucide-react";
-import Link from "next/link";
+} from 'lucide-react';
+import Link from 'next/link';
 
 interface ItemDetailContainerProps {
   id: string;
@@ -45,12 +45,12 @@ export function ItemDetailContainer({ id }: ItemDetailContainerProps) {
         await toast.promise(deleteMutation.mutateAsync(item.id), {
           loading: `Deleting item ${item.name}...`,
           success: `Item ${item.name} deleted successfully`,
-          error: "Failed to delete item",
+          error: 'Failed to delete item',
         });
-        router.push("/inventory/items");
+        router.push('/inventory/items');
       } catch (err) {
         const apiError = err as ApiError;
-        toast.error(apiError.message || "Failed to delete item");
+        toast.error(apiError.message || 'Failed to delete item');
       }
     }
   };
@@ -87,7 +87,7 @@ export function ItemDetailContainer({ id }: ItemDetailContainerProps) {
         <AlertCircleIcon className="h-4 w-4" />
         <AlertTitle>Error loading item</AlertTitle>
         <AlertDescription>
-          {error instanceof Error ? error.message : "Could not fetch item details."}
+          {error instanceof Error ? error.message : 'Could not fetch item details.'}
         </AlertDescription>
       </Alert>
     );
@@ -95,21 +95,6 @@ export function ItemDetailContainer({ id }: ItemDetailContainerProps) {
 
   return (
     <div className="space-y-4 w-full">
-      <div className="flex items-center">
-        <Button
-          variant="ghost"
-          size="sm"
-          nativeButton={false}
-          className="-ml-2 text-muted-foreground"
-          render={
-            <Link href="/inventory/items">
-              <ArrowLeftIcon className="mr-2 h-4 w-4" />
-              Back to Items
-            </Link>
-          }
-        />
-      </div>
-
       <Card className="w-full overflow-hidden bg-card">
         <CardHeader className="bg-muted/30 pb-6 border-b">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
@@ -119,9 +104,7 @@ export function ItemDetailContainer({ id }: ItemDetailContainerProps) {
               </div>
               <div className="space-y-1">
                 <CardTitle className="text-xl font-bold">{item.name}</CardTitle>
-                <CardDescription className="font-mono text-sm">
-                  {item.code}
-                </CardDescription>
+                <CardDescription className="font-mono text-sm">{item.code}</CardDescription>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -152,7 +135,9 @@ export function ItemDetailContainer({ id }: ItemDetailContainerProps) {
             <div className="space-y-4">
               <div>
                 <h3 className="text-sm font-semibold text-foreground">Specifications</h3>
-                <p className="text-xs text-muted-foreground">Detailed classification and item info.</p>
+                <p className="text-xs text-muted-foreground">
+                  Detailed classification and item info.
+                </p>
               </div>
 
               <div className="space-y-3.5">
@@ -162,7 +147,7 @@ export function ItemDetailContainer({ id }: ItemDetailContainerProps) {
                     Category
                   </span>
                   <Badge variant="secondary" className="capitalize">
-                    {item.category?.name || "No Category"}
+                    {item.category?.name || 'No Category'}
                   </Badge>
                 </div>
 
@@ -188,7 +173,9 @@ export function ItemDetailContainer({ id }: ItemDetailContainerProps) {
             <div className="space-y-4">
               <div>
                 <h3 className="text-sm font-semibold text-foreground">Timeline & History</h3>
-                <p className="text-xs text-muted-foreground">Timestamps tracking item creation and changes.</p>
+                <p className="text-xs text-muted-foreground">
+                  Timestamps tracking item creation and changes.
+                </p>
               </div>
 
               <div className="space-y-3.5">
