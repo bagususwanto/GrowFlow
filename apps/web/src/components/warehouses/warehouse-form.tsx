@@ -75,7 +75,7 @@ export function WarehouseForm({ initialData, onSubmit, isSubmitting }: Warehouse
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="address" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <Label htmlFor="address" optional className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Physical Address
             </Label>
             <div className="relative">
