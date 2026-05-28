@@ -72,7 +72,7 @@ export function StockAdjustForm({ onSubmit, isSubmitting }: StockAdjustFormProps
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6 w-full max-w-xl">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6 w-full">
       <div className="space-y-4">
         {/* Item Selection */}
         <div className="space-y-1.5">
