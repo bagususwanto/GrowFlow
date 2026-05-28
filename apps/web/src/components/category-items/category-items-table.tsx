@@ -36,7 +36,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@web/components/ui/dialog';
 import { CategoryItemForm, CategoryFormValues } from './category-item-form';
 import { toast } from 'sonner';
@@ -47,10 +46,14 @@ import {
   RotateCcwIcon,
   ChevronsLeftIcon,
   ChevronsRightIcon,
-  PlusIcon,
 } from 'lucide-react';
 
-export function CategoryItemsTable() {
+interface CategoryItemsTableProps {
+  isCreateOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export function CategoryItemsTable({ isCreateOpen, onOpenChange }: CategoryItemsTableProps = {}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -73,7 +76,11 @@ export function CategoryItemsTable() {
   const debouncedSearch = useDebounce(search, 500);
 
   // Modal dialog states
-  const [isCreateOpen, setIsCreateOpen] = React.useState(false);
+  const [localCreateOpen, setLocalCreateOpen] = React.useState(false);
+  const isCreateOpenControlled = isCreateOpen !== undefined;
+  const isCreateOpenVal = isCreateOpenControlled ? isCreateOpen : localCreateOpen;
+  const setIsCreateOpenVal = isCreateOpenControlled ? onOpenChange : setLocalCreateOpen;
+
   const [isEditOpen, setIsEditOpen] = React.useState(false);
   const [editingCategory, setEditingCategory] = React.useState<CategoryItem | undefined>(undefined);
 
@@ -150,7 +157,7 @@ export function CategoryItemsTable() {
     try {
       await createMutation.mutateAsync(values);
       toast.success('Category created successfully');
-      setIsCreateOpen(false);
+      setIsCreateOpenVal?.(false);
     } catch (err) {
       const apiError = err as ApiError;
       toast.error(apiError.message || 'Failed to create category');
@@ -277,15 +284,7 @@ export function CategoryItemsTable() {
 
         <div>
           {/* Create Category Modal */}
-          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-            <DialogTrigger
-              render={
-                <Button>
-                  <PlusIcon className="mr-1.5 w-4 h-4" />
-                  Add Category
-                </Button>
-              }
-            />
+          <Dialog open={isCreateOpenVal} onOpenChange={setIsCreateOpenVal}>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Add Category</DialogTitle>
@@ -297,7 +296,7 @@ export function CategoryItemsTable() {
                 <CategoryItemForm
                   onSubmit={handleCreateSubmit}
                   isSubmitting={createMutation.isPending}
-                  onCancel={() => setIsCreateOpen(false)}
+                  onCancel={() => setIsCreateOpenVal?.(false)}
                 />
               </div>
             </DialogContent>
