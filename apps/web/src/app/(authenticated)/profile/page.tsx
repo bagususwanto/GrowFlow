@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function ProfilePage() {
   return (
-    <div className="space-y-6 px-4 lg:px-6 max-w-4xl">
+    <div className="space-y-6 px-4 lg:px-6 w-full">
       <div className="space-y-1">
         <h1 className="font-bold text-foreground text-2xl tracking-tight">My Profile</h1>
         <p className="text-muted-foreground text-sm">

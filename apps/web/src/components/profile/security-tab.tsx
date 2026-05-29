@@ -67,7 +67,7 @@ export function SecurityTab() {
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-4">
-          <div className="space-y-4 max-w-md">
+          <div className="space-y-4 w-full">
             <div className="space-y-1.5">
               <Label htmlFor="currentPassword" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Current Password
