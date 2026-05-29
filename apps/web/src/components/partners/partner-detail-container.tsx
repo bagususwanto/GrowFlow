@@ -8,12 +8,10 @@ import { Button } from '@web/components/ui/button';
 import { Badge } from '@web/components/ui/badge';
 import { Skeleton } from '@web/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@web/components/ui/alert';
-import { Separator } from '@web/components/ui/separator';
 import { toast } from 'sonner';
 import { ApiError } from '@growflow/types';
 import { useConfirm } from '@web/hooks/use-confirm';
 import {
-  UserIcon,
   MailIcon,
   PhoneIcon,
   MapPinIcon,
@@ -38,7 +36,7 @@ export function PartnerDetailContainer({ id }: PartnerDetailContainerProps) {
   const confirm = useConfirm();
 
   const handleEdit = () => {
-    router.push(`/contacts/partners/${id}/edit`);
+    router.push(`/relations/partners/${id}/edit`);
   };
 
   const handleDelete = async () => {
@@ -62,7 +60,7 @@ export function PartnerDetailContainer({ id }: PartnerDetailContainerProps) {
           success: `Partner ${partner.name} deleted successfully`,
           error: 'Failed to delete partner',
         });
-        router.push('/contacts/partners');
+        router.push('/relations/partners');
       } catch (err) {
         const apiError = err as ApiError;
         toast.error(apiError.message || 'Failed to delete partner');

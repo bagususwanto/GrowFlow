@@ -144,14 +144,14 @@ export function PartnersTable() {
 
   const handleView = React.useCallback(
     (partner: { id: string }) => {
-      router.push(`/contacts/partners/${partner.id}`);
+      router.push(`/relations/partners/${partner.id}`);
     },
     [router],
   );
 
   const handleEdit = React.useCallback(
     (partner: { id: string }) => {
-      router.push(`/contacts/partners/${partner.id}/edit`);
+      router.push(`/relations/partners/${partner.id}/edit`);
     },
     [router],
   );

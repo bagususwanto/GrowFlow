@@ -37,6 +37,7 @@ export interface ListPartnersQuery {
   limit?: number;
   search?: string;
   type?: PartnerType;
+  isActive?: boolean;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
 }

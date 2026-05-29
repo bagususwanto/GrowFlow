@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@web/components/ui/dropdown-menu';
-import { EditIcon, EllipsisVerticalIcon, UserIcon, ArrowUpDownIcon, ArrowUpIcon, ArrowDownIcon, EyeIcon, Trash2Icon, ContactIcon } from 'lucide-react';
+import { EditIcon, EllipsisVerticalIcon, UserIcon, ArrowUpDownIcon, ArrowUpIcon, ArrowDownIcon, EyeIcon, Trash2Icon } from 'lucide-react';
 
 interface ColumnActions {
   onView: (partner: Partner) => void;
