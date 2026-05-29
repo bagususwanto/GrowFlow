@@ -14,7 +14,7 @@ export interface Partner {
 }
 
 export interface CreatePartnerRequest {
-  code: string;
+  code?: string;
   name: string;
   type: PartnerType;
   email?: string;

@@ -4,10 +4,10 @@ import { CreatePartnerRequest, PartnerType } from '@growflow/types';
 import { PartnerType as PrismaPartnerType } from '@prisma/client';
 
 export class CreatePartnerDto implements CreatePartnerRequest {
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
-  @IsNotEmpty()
-  code!: string;
+  @IsOptional()
+  code?: string;
 
   @ApiProperty()
   @IsString()

@@ -66,9 +66,31 @@ export class PartnersRepository {
     });
   }
 
-  async create(data: CreatePartnerDto): Promise<Partner> {
+  async findLastByCodePrefix(prefix: string): Promise<Partner | null> {
+    return this.prisma.partner.findFirst({
+      where: {
+        code: {
+          startsWith: prefix,
+          mode: 'insensitive',
+        },
+        deletedAt: null,
+      },
+      orderBy: {
+        code: 'desc',
+      },
+    });
+  }
+
+  async create(data: CreatePartnerDto & { code: string }): Promise<Partner> {
     return this.prisma.partner.create({
-      data,
+      data: {
+        code: data.code,
+        name: data.name,
+        type: data.type,
+        email: data.email,
+        phone: data.phone,
+        address: data.address,
+      },
     });
   }
 

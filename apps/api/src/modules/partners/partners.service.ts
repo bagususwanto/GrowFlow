@@ -50,13 +50,36 @@ export class PartnersService {
     return this.mapToResponse(partner);
   }
 
-  async create(dto: CreatePartnerDto): Promise<PartnerResponseEntity> {
-    const existing = await this.partnersRepository.findByCode(dto.code);
-    if (existing) {
-      throw new ConflictException(`Partner with code ${dto.code} already exists`);
+  private async generateCode(type: string): Promise<string> {
+    const prefix = type === 'SUPPLIER' ? 'SUP-' : type === 'CUSTOMER' ? 'CUS-' : 'PRT-';
+    const lastPartner = await this.partnersRepository.findLastByCodePrefix(prefix);
+    if (!lastPartner) {
+      return `${prefix}0001`;
     }
 
-    const partner = await this.partnersRepository.create(dto);
+    const numericPartStr = lastPartner.code.substring(prefix.length);
+    const numericPart = parseInt(numericPartStr, 10);
+    if (isNaN(numericPart)) {
+      return `${prefix}0001`;
+    }
+
+    const nextNumber = numericPart + 1;
+    const paddedNumber = String(nextNumber).padStart(4, '0');
+    return `${prefix}${paddedNumber}`;
+  }
+
+  async create(dto: CreatePartnerDto): Promise<PartnerResponseEntity> {
+    let code = dto.code;
+    if (!code) {
+      code = await this.generateCode(dto.type);
+    }
+
+    const existing = await this.partnersRepository.findByCode(code);
+    if (existing) {
+      throw new ConflictException(`Partner with code ${code} already exists`);
+    }
+
+    const partner = await this.partnersRepository.create({ ...dto, code });
     return this.mapToResponse(partner);
   }
 
