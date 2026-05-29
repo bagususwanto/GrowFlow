@@ -1,7 +1,9 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthRepository } from './auth.repository';
 import { LoginDto } from './dto/login.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { env } from '../../config/env.schema';
@@ -173,5 +175,33 @@ export class AuthService {
       role: user.role.name as AuthUser['role'],
       isActive: user.isActive,
     };
+  }
+
+  async updateProfile(userId: string, dto: UpdateProfileDto): Promise<AuthUser> {
+    const user = await this.authRepository.updateUser(userId, { name: dto.name });
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role.name as AuthUser['role'],
+      isActive: user.isActive,
+    };
+  }
+
+  async updatePassword(userId: string, dto: UpdatePasswordDto): Promise<void> {
+    const user = await this.authRepository.findUserById(userId);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const isPasswordValid = await bcrypt.compare(dto.currentPassword, user.passwordHash);
+    if (!isPasswordValid) {
+      throw new BadRequestException('Incorrect current password');
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(dto.newPassword, salt);
+
+    await this.authRepository.updateUser(userId, { passwordHash });
   }
 }

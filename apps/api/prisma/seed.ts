@@ -123,11 +123,11 @@ async function main() {
 
   // 5. Seed Partners
   const partnersData = [
-    { code: 'PRT-SUP-001', name: 'PT Multi Kencana Elektronik', type: 'SUPPLIER' as const, email: 'sales@multikencana.co.id', phone: '021-5551234', address: 'Kawasan Industri Jababeka, Cikarang' },
-    { code: 'PRT-SUP-002', name: 'CV Rimba Abadi', type: 'SUPPLIER' as const, email: 'rimba.abadi@gmail.com', phone: '08123456789', address: 'Jl. Raya Jepara KM 7, Jepara' },
-    { code: 'PRT-CUST-001', name: 'PT Solusi Teknologi Nusantara', type: 'CUSTOMER' as const, email: 'procurement@solusitekno.com', phone: '021-8884321', address: 'Sudirman Central Business District, Jakarta' },
-    { code: 'PRT-CUST-002', name: 'Yayasan Harapan Bangsa', type: 'CUSTOMER' as const, email: 'info@harapanbangsa.or.id', phone: '021-7773333', address: 'Jl. Pemuda No. 100, Bandung' },
-    { code: 'PRT-CUST-003', name: 'PT Sinar Makmur Sejahtera', type: 'CUSTOMER' as const, email: 'info@sinarmakmur.com', phone: '021-9990000', address: 'Jl. Gatot Subroto No. 50, Semarang' },
+    { code: 'SUP-0001', name: 'PT Multi Kencana Elektronik', type: 'SUPPLIER' as const, email: 'sales@multikencana.co.id', phone: '021-5551234', address: 'Kawasan Industri Jababeka, Cikarang' },
+    { code: 'SUP-0002', name: 'CV Rimba Abadi', type: 'SUPPLIER' as const, email: 'rimba.abadi@gmail.com', phone: '08123456789', address: 'Jl. Raya Jepara KM 7, Jepara' },
+    { code: 'CUS-0001', name: 'PT Solusi Teknologi Nusantara', type: 'CUSTOMER' as const, email: 'procurement@solusitekno.com', phone: '021-8884321', address: 'Sudirman Central Business District, Jakarta' },
+    { code: 'CUS-0002', name: 'Yayasan Harapan Bangsa', type: 'CUSTOMER' as const, email: 'info@harapanbangsa.or.id', phone: '021-7773333', address: 'Jl. Pemuda No. 100, Bandung' },
+    { code: 'CUS-0003', name: 'PT Sinar Makmur Sejahtera', type: 'CUSTOMER' as const, email: 'info@sinarmakmur.com', phone: '021-9990000', address: 'Jl. Gatot Subroto No. 50, Semarang' },
   ];
 
   for (const partner of partnersData) {

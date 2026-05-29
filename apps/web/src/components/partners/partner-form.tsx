@@ -124,7 +124,7 @@ export function PartnerForm({ initialData, onSubmit, isSubmitting }: PartnerForm
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <Label htmlFor="email" optional className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Email Address
             </Label>
             <div className="relative">
@@ -135,7 +135,7 @@ export function PartnerForm({ initialData, onSubmit, isSubmitting }: PartnerForm
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="phone" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <Label htmlFor="phone" optional className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Phone Number
             </Label>
             <div className="relative">
@@ -146,7 +146,7 @@ export function PartnerForm({ initialData, onSubmit, isSubmitting }: PartnerForm
           </div>
 
           <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="address" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <Label htmlFor="address" optional className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Address
             </Label>
             <div className="relative">
@@ -176,7 +176,9 @@ export function PartnerForm({ initialData, onSubmit, isSubmitting }: PartnerForm
                   >
                     <SelectTrigger className="w-full h-9 relative pl-9" id="isActive">
                       <CheckIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <SelectValue placeholder="Select status" />
+                      <SelectValue placeholder="Select status">
+                        {field.value ? "Active (Visible in transactions)" : "Inactive (Hidden/Suspended)"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="true">Active (Visible in transactions)</SelectItem>

@@ -22,6 +22,7 @@ import {
 } from "@web/components/ui/sidebar"
 import { EllipsisVerticalIcon, CircleUserRoundIcon, CreditCardIcon, BellIcon, LogOutIcon } from "lucide-react"
 
+import Link from "next/link"
 import { useAuthStore } from "@web/stores/auth.store"
 
 export function NavUser({
@@ -93,11 +94,14 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <CircleUserRoundIcon
-                />
-                Account
-              </DropdownMenuItem>
+              <DropdownMenuItem
+                render={
+                  <Link href="/profile">
+                    <CircleUserRoundIcon />
+                    Account
+                  </Link>
+                }
+              />
               <DropdownMenuItem>
                 <CreditCardIcon
                 />

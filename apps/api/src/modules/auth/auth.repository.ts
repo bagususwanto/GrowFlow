@@ -53,4 +53,13 @@ export class AuthRepository {
       data: { revokedAt: new Date() },
     });
   }
+
+  async updateUser(id: string, data: Partial<User>): Promise<(User & { role: Role })> {
+    return this.prisma.user.update({
+      where: { id },
+      data,
+      include: { role: true },
+    });
+  }
 }
+

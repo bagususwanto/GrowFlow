@@ -2,6 +2,7 @@ import {
   Controller,
   Post,
   Get,
+  Patch,
   Body,
   HttpCode,
   HttpStatus,
@@ -14,6 +15,8 @@ import { Request, Response } from 'express';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 import { Public } from '../../common/decorators/public.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { env } from '../../config/env.schema';
@@ -105,5 +108,26 @@ export class AuthController {
   @SwaggerResponse({ status: 200, description: 'User info returned' })
   async getMe(@CurrentUser() user: AuthUser): Promise<AuthUser> {
     return this.authService.getMe(user.id);
+  }
+
+  @Patch('me/profile')
+  @ApiOperation({ summary: 'Update current user profile info' })
+  @SwaggerResponse({ status: 200, description: 'Profile updated' })
+  async updateProfile(
+    @CurrentUser() user: AuthUser,
+    @Body() dto: UpdateProfileDto,
+  ): Promise<AuthUser> {
+    return this.authService.updateProfile(user.id, dto);
+  }
+
+  @Patch('me/password')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Update current user password' })
+  @SwaggerResponse({ status: 204, description: 'Password updated' })
+  async updatePassword(
+    @CurrentUser() user: AuthUser,
+    @Body() dto: UpdatePasswordDto,
+  ): Promise<void> {
+    await this.authService.updatePassword(user.id, dto);
   }
 }

@@ -11,7 +11,7 @@ export class PartnerResponseEntity implements Partner {
   @ApiProperty()
   name!: string;
 
-  @ApiProperty({ enum: ['SUPPLIER', 'CUSTOMER', 'BOTH'] })
+  @ApiProperty({ enum: ['SUPPLIER', 'CUSTOMER'] })
   type!: PartnerType;
 
   @ApiPropertyOptional({ nullable: true })

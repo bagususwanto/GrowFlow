@@ -11,6 +11,7 @@ interface AuthStore {
   login: (credentials: LoginRequest) => Promise<void>;
   logout: () => Promise<void>;
   initialize: () => Promise<void>;
+  updateUser: (user: AuthUser) => void;
 }
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
@@ -101,5 +102,9 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         isInitialized: true,
       });
     }
+  },
+
+  updateUser: (user: AuthUser) => {
+    set({ user });
   },
 }));

@@ -23,3 +23,13 @@ export interface LoginResponse {
 }
 
 export type RoleName = 'superadmin' | 'manager' | 'staff' | 'finance' | 'warehouse';
+
+export interface UpdateProfileRequest {
+  name: string;
+}
+
+export interface UpdatePasswordRequest {
+  currentPassword?: string;
+  newPassword: string;
+}
+
