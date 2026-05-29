@@ -8,13 +8,15 @@ datasource db {
 }
 
 model Role {
-  id          String   @id @default(uuid())
-  name        String   @unique // superadmin | manager | staff | finance | warehouse
-  permissions Json     @default("[]")
+  id          String    @id @default(uuid())
+  name        String    @unique // superadmin | manager | staff | finance | warehouse
+  permissions Json      @default("[]")
+  isActive    Boolean   @default(true) @map("is_active")
+  deletedAt   DateTime? @map("deleted_at")
   users       User[]
 
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("roles")
 }
@@ -27,14 +29,14 @@ model User {
   isActive     Boolean   @default(true) @map("is_active")
   deletedAt    DateTime? @map("deleted_at")
 
-  roleId       String    @map("role_id")
-  role         Role      @relation(fields: [roleId], references: [id])
+  roleId String @map("role_id")
+  role   Role   @relation(fields: [roleId], references: [id])
 
   refreshTokens  RefreshToken[]
   stockMutations StockMutation[]
 
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("users")
 }
@@ -47,40 +49,41 @@ model RefreshToken {
   expiresAt DateTime  @map("expires_at")
   revokedAt DateTime? @map("revoked_at")
 
-  createdAt DateTime  @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@map("refresh_tokens")
 }
 
 model Warehouse {
-  id            String         @id @default(uuid())
-  name          String
-  address       String?
-  isActive      Boolean        @default(true) @map("is_active")
-  deletedAt     DateTime?      @map("deleted_at")
-  stockBalances StockBalance[]
+  id             String          @id @default(uuid())
+  name           String
+  address        String?
+  isActive       Boolean         @default(true) @map("is_active")
+  deletedAt      DateTime?       @map("deleted_at")
+  stockBalances  StockBalance[]
   stockMutations StockMutation[]
 
-  createdAt     DateTime       @default(now()) @map("created_at")
-  updatedAt     DateTime       @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("warehouses")
 }
 
 model Item {
-  id            String         @id @default(uuid())
-  code          String         @unique
-  name          String
-  unit          String
-  categoryId    String?        @map("category_id")
-  category      CategoryItem?  @relation(fields: [categoryId], references: [id])
-  minStock      Int            @default(0) @map("min_stock")
-  deletedAt     DateTime?      @map("deleted_at")
-  stockBalances StockBalance[]
+  id             String          @id @default(uuid())
+  code           String          @unique
+  name           String
+  unit           String
+  categoryId     String?         @map("category_id")
+  category       CategoryItem?   @relation(fields: [categoryId], references: [id])
+  minStock       Int             @default(0) @map("min_stock")
+  isActive       Boolean         @default(true) @map("is_active")
+  deletedAt      DateTime?       @map("deleted_at")
+  stockBalances  StockBalance[]
   stockMutations StockMutation[]
 
-  createdAt     DateTime       @default(now()) @map("created_at")
-  updatedAt     DateTime       @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("items")
 }
@@ -89,10 +92,12 @@ model CategoryItem {
   id          String    @id @default(uuid())
   name        String    @unique
   description String?
+  isActive    Boolean   @default(true) @map("is_active")
+  deletedAt   DateTime? @map("deleted_at")
   items       Item[]
 
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("category_items")
 }
@@ -113,8 +118,8 @@ model Partner {
   isActive  Boolean     @default(true) @map("is_active")
   deletedAt DateTime?   @map("deleted_at")
 
-  createdAt DateTime    @default(now()) @map("created_at")
-  updatedAt DateTime    @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("partners")
 }
@@ -127,8 +132,8 @@ model StockBalance {
   warehouseId String    @map("warehouse_id")
   warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
 
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([itemId, warehouseId])
   @@map("stock_balances")
@@ -149,14 +154,14 @@ model StockMutation {
   referenceId   String?      @map("reference_id")
   note          String?
 
-  itemId        String       @map("item_id")
-  item          Item         @relation(fields: [itemId], references: [id])
-  warehouseId   String       @map("warehouse_id")
-  warehouse     Warehouse    @relation(fields: [warehouseId], references: [id])
-  createdById   String?      @map("created_by_id")
-  createdBy     User?        @relation(fields: [createdById], references: [id])
+  itemId      String    @map("item_id")
+  item        Item      @relation(fields: [itemId], references: [id])
+  warehouseId String    @map("warehouse_id")
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+  createdById String?   @map("created_by_id")
+  createdBy   User?     @relation(fields: [createdById], references: [id])
 
-  createdAt     DateTime     @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@map("stock_mutations")
 }
@@ -171,4 +176,3 @@ model DocumentSequence {
   @@unique([type, year, month])
   @@map("document_sequences")
 }
-
