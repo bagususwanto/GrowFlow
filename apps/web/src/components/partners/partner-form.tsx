@@ -20,7 +20,7 @@ import { Loader2Icon, UserIcon, MailIcon, PhoneIcon, MapPinIcon, CheckIcon, Shie
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  type: z.enum(['SUPPLIER', 'CUSTOMER', 'BOTH'] as const, {
+  type: z.enum(['SUPPLIER', 'CUSTOMER'] as const, {
     required_error: 'Type is required',
   }),
   email: z.string().email('Invalid email format').optional().or(z.literal('')),
@@ -101,14 +101,13 @@ export function PartnerForm({ initialData, onSubmit, isSubmitting }: PartnerForm
                   <SelectContent>
                     <SelectItem value="SUPPLIER">Supplier</SelectItem>
                     <SelectItem value="CUSTOMER">Customer</SelectItem>
-                    <SelectItem value="BOTH">Both (Supplier & Customer)</SelectItem>
                   </SelectContent>
                 </Select>
               )}
             />
             {errors.type && <p className="text-xs text-destructive">{errors.type.message}</p>}
             {!isEdit && (
-              <p className="text-[10px] text-muted-foreground">Code prefix will be: SUPPLIER (SUP-), CUSTOMER (CUS-), BOTH (PRT-)</p>
+              <p className="text-[10px] text-muted-foreground">Code prefix will be: SUPPLIER (SUP-), CUSTOMER (CUS-)</p>
             )}
           </div>
         </div>

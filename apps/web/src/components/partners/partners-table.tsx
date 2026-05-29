@@ -259,14 +259,12 @@ export function PartnersTable() {
                 {type === 'all' && 'All Types'}
                 {type === 'SUPPLIER' && 'Supplier'}
                 {type === 'CUSTOMER' && 'Customer'}
-                {type === 'BOTH' && 'Both'}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Types</SelectItem>
               <SelectItem value="SUPPLIER">Supplier</SelectItem>
               <SelectItem value="CUSTOMER">Customer</SelectItem>
-              <SelectItem value="BOTH">Both</SelectItem>
             </SelectContent>
           </Select>
 

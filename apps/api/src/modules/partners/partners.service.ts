@@ -51,7 +51,7 @@ export class PartnersService {
   }
 
   private async generateCode(type: string): Promise<string> {
-    const prefix = type === 'SUPPLIER' ? 'SUP-' : type === 'CUSTOMER' ? 'CUS-' : 'PRT-';
+    const prefix = type === 'SUPPLIER' ? 'SUP-' : 'CUS-';
     const lastPartner = await this.partnersRepository.findLastByCodePrefix(prefix);
     if (!lastPartner) {
       return `${prefix}0001`;

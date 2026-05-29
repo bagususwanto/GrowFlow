@@ -1,4 +1,4 @@
-export type PartnerType = 'SUPPLIER' | 'CUSTOMER' | 'BOTH';
+export type PartnerType = 'SUPPLIER' | 'CUSTOMER';
 
 export interface Partner {
   id: string;
