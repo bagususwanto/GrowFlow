@@ -2,6 +2,8 @@ export interface RoleResponse {
   id: string;
   name: string;
   permissions: any[]; // Or a specific type if permissions have a defined structure
+  isActive: boolean;
+  deletedAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -14,6 +16,7 @@ export interface CreateRoleRequest {
 export interface UpdateRoleRequest {
   name?: string;
   permissions?: any[];
+  isActive?: boolean;
 }
 
 export interface ListRolesQuery {
@@ -22,5 +25,6 @@ export interface ListRolesQuery {
   search?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+  status?: 'all' | 'active' | 'inactive';
 }
 

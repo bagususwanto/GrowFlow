@@ -11,6 +11,12 @@ export class RoleResponseEntity implements RoleResponse {
   @ApiProperty({ description: 'List of permissions assigned to the role', type: [String] })
   permissions!: any[];
 
+  @ApiProperty({ description: 'Whether the role is active', example: true })
+  isActive!: boolean;
+
+  @ApiProperty({ description: 'Soft deletion date of the role', required: false, nullable: true })
+  deletedAt?: string | null;
+
   @ApiProperty({ description: 'Creation date of the role' })
   createdAt!: string;
 

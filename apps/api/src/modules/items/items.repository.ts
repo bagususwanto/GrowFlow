@@ -25,6 +25,12 @@ export class ItemsRepository {
       where.categoryId = query.categoryId;
     }
 
+    if (query.status === 'active') {
+      where.isActive = true;
+    } else if (query.status === 'inactive') {
+      where.isActive = false;
+    }
+
     return where;
   }
 
@@ -51,7 +57,7 @@ export class ItemsRepository {
   }
 
   async findById(id: string): Promise<ItemWithCategory | null> {
-    return this.prisma.item.findUnique({
+    return this.prisma.item.findFirst({
       where: { id, deletedAt: null },
       include: { category: true },
     });

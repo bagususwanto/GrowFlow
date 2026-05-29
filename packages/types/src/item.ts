@@ -2,6 +2,8 @@ export interface CategoryItem {
   id: string;
   name: string;
   description: string | null;
+  isActive: boolean;
+  deletedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -14,6 +16,8 @@ export interface Item {
   categoryId: string | null;
   category?: CategoryItem | null;
   minStock: number;
+  isActive: boolean;
+  deletedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -32,6 +36,7 @@ export interface UpdateItemRequest {
   unit?: string;
   categoryId?: string | null;
   minStock?: number;
+  isActive?: boolean;
 }
 
 export interface ListItemsQuery {
@@ -41,6 +46,7 @@ export interface ListItemsQuery {
   categoryId?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+  status?: 'all' | 'active' | 'inactive';
 }
 
 export interface ItemStockByWarehouse {
@@ -57,6 +63,7 @@ export interface CreateCategoryItemRequest {
 export interface UpdateCategoryItemRequest {
   name?: string;
   description?: string;
+  isActive?: boolean;
 }
 
 export interface ListCategoryItemsQuery {
@@ -65,4 +72,5 @@ export interface ListCategoryItemsQuery {
   search?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+  status?: 'all' | 'active' | 'inactive';
 }

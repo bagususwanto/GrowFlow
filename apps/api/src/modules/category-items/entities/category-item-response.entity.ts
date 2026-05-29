@@ -11,6 +11,12 @@ export class CategoryItemResponseEntity implements CategoryItem {
   @ApiProperty({ nullable: true })
   description!: string | null;
 
+  @ApiProperty({ description: 'Whether the category is active', example: true })
+  isActive!: boolean;
+
+  @ApiProperty({ description: 'Soft deletion date of the category', required: false, nullable: true })
+  deletedAt!: string | null;
+
   @ApiProperty()
   createdAt!: string;
 

@@ -10,13 +10,21 @@ export class CategoryItemsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   buildWhereClause(query: ListCategoryItemsQueryDto): Prisma.CategoryItemWhereInput {
-    const where: Prisma.CategoryItemWhereInput = {};
+    const where: Prisma.CategoryItemWhereInput = {
+      deletedAt: null,
+    };
 
     if (query.search) {
       where.OR = [
         { name: { contains: query.search, mode: 'insensitive' } },
         { description: { contains: query.search, mode: 'insensitive' } },
       ];
+    }
+
+    if (query.status === 'active') {
+      where.isActive = true;
+    } else if (query.status === 'inactive') {
+      where.isActive = false;
     }
 
     return where;
@@ -44,14 +52,14 @@ export class CategoryItemsRepository {
   }
 
   async findById(id: string): Promise<CategoryItem | null> {
-    return this.prisma.categoryItem.findUnique({
-      where: { id },
+    return this.prisma.categoryItem.findFirst({
+      where: { id, deletedAt: null },
     });
   }
 
   async findByName(name: string): Promise<CategoryItem | null> {
     return this.prisma.categoryItem.findFirst({
-      where: { name },
+      where: { name, deletedAt: null },
     });
   }
 
@@ -68,9 +76,16 @@ export class CategoryItemsRepository {
     });
   }
 
-  async delete(id: string): Promise<CategoryItem> {
-    return this.prisma.categoryItem.delete({
+  async softDelete(id: string): Promise<CategoryItem> {
+    return this.prisma.categoryItem.update({
       where: { id },
+      data: { deletedAt: new Date() },
+    });
+  }
+
+  async countActiveItems(id: string): Promise<number> {
+    return this.prisma.item.count({
+      where: { categoryId: id, deletedAt: null },
     });
   }
 }

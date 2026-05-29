@@ -38,4 +38,9 @@ export class ListRolesQueryDto implements ListRolesQuery {
   @IsOptional()
   @IsEnum(SortOrder)
   sortOrder?: SortOrder = SortOrder.DESC;
+
+  @ApiPropertyOptional({ description: 'Filter by active status', enum: ['all', 'active', 'inactive'], default: 'all' })
+  @IsOptional()
+  @IsIn(['all', 'active', 'inactive'])
+  status?: 'all' | 'active' | 'inactive' = 'all';
 }

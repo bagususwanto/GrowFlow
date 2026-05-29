@@ -39,4 +39,9 @@ export class ListCategoryItemsQueryDto implements ListCategoryItemsQuery {
   @IsOptional()
   @IsEnum(SortOrder)
   sortOrder?: 'asc' | 'desc' = 'desc';
+
+  @ApiPropertyOptional({ description: 'Filter by active status', enum: ['all', 'active', 'inactive'], default: 'all' })
+  @IsOptional()
+  @IsIn(['all', 'active', 'inactive'])
+  status?: 'all' | 'active' | 'inactive' = 'all';
 }

@@ -24,6 +24,12 @@ export class ItemResponseEntity implements Item {
   @ApiProperty()
   minStock!: number;
 
+  @ApiProperty({ description: 'Whether the item is active', example: true })
+  isActive!: boolean;
+
+  @ApiProperty({ description: 'Soft deletion date of the item', required: false, nullable: true })
+  deletedAt!: string | null;
+
   @ApiProperty()
   createdAt!: string;
 

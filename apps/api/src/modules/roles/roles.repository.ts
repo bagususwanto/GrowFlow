@@ -10,12 +10,19 @@ export class RolesRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   buildWhereClause(query: ListRolesQueryDto): Prisma.RoleWhereInput {
-    const where: Prisma.RoleWhereInput = {};
+    const where: Prisma.RoleWhereInput = {
+      deletedAt: null,
+    };
     if (query.search) {
       where.name = {
         contains: query.search,
         mode: 'insensitive',
       };
+    }
+    if (query.status === 'active') {
+      where.isActive = true;
+    } else if (query.status === 'inactive') {
+      where.isActive = false;
     }
     return where;
   }
@@ -42,14 +49,14 @@ export class RolesRepository {
   }
 
   async findById(id: string): Promise<Role | null> {
-    return this.prisma.role.findUnique({
-      where: { id },
+    return this.prisma.role.findFirst({
+      where: { id, deletedAt: null },
     });
   }
 
   async findByName(name: string): Promise<Role | null> {
-    return this.prisma.role.findUnique({
-      where: { name },
+    return this.prisma.role.findFirst({
+      where: { name, deletedAt: null },
     });
   }
 
@@ -68,13 +75,17 @@ export class RolesRepository {
       data: {
         ...(data.name && { name: data.name }),
         ...(data.permissions && { permissions: data.permissions }),
+        ...(typeof data.isActive === 'boolean' && { isActive: data.isActive }),
       },
     });
   }
 
   async remove(id: string): Promise<Role> {
-    return this.prisma.role.delete({
+    return this.prisma.role.update({
       where: { id },
+      data: {
+        deletedAt: new Date(),
+      },
     });
   }
 }

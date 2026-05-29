@@ -16,6 +16,8 @@ export class CategoryItemsService {
       id: categoryItem.id,
       name: categoryItem.name,
       description: categoryItem.description,
+      isActive: categoryItem.isActive,
+      deletedAt: categoryItem.deletedAt ? categoryItem.deletedAt.toISOString() : null,
       createdAt: categoryItem.createdAt.toISOString(),
       updatedAt: categoryItem.updatedAt.toISOString(),
     };
@@ -76,15 +78,12 @@ export class CategoryItemsService {
     if (!category) {
       throw new NotFoundException(`Category with ID ${id} not found`);
     }
-    // Check if category is used by any items
-    // Wait, since we have relation, we can check if it has items. However, our CategoryItemsRepository does not check this. We can do it via Prisma or we can just try to delete and let DB constraints throw error. Let's do a simple check.
-    // Actually, DB constraints will raise a foreign key constraint violation. Let's catch it, or just let NestJS exception filter handle it.
-    // Let's implement a clean delete.
-    try {
-      await this.categoryItemsRepository.delete(id);
-    } catch (error) {
-      // Prisma error for foreign key constraint violation is P2003
+
+    const activeItemsCount = await this.categoryItemsRepository.countActiveItems(id);
+    if (activeItemsCount > 0) {
       throw new ConflictException('Cannot delete category because it is being used by one or more items.');
     }
+
+    await this.categoryItemsRepository.softDelete(id);
   }
 }

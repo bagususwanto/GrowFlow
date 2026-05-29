@@ -17,6 +17,8 @@ export class RolesService {
       id: role.id,
       name: role.name,
       permissions: role.permissions as any[],
+      isActive: role.isActive,
+      deletedAt: role.deletedAt ? role.deletedAt.toISOString() : null,
       createdAt: role.createdAt.toISOString(),
       updatedAt: role.updatedAt.toISOString(),
     };
