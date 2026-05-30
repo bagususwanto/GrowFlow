@@ -7,3 +7,4 @@ export * from './stock';
 export * from './user';
 export * from './role';
 export * from './purchase-order';
+export * from './goods-receipt';
