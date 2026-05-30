@@ -14,6 +14,8 @@ import { CategoryItemsModule } from './modules/category-items/category-items.mod
 import { PartnersModule } from './modules/partners/partners.module';
 import { PurchaseOrdersModule } from './modules/purchase-orders/purchase-orders.module';
 import { GoodsReceiptsModule } from './modules/goods-receipts/goods-receipts.module';
+import { SalesOrdersModule } from './modules/sales-orders/sales-orders.module';
+import { DeliveryNotesModule } from './modules/delivery-notes/delivery-notes.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 
@@ -36,6 +38,8 @@ import { RolesGuard } from './common/guards/roles.guard';
     PartnersModule,
     PurchaseOrdersModule,
     GoodsReceiptsModule,
+    SalesOrdersModule,
+    DeliveryNotesModule,
   ],
   controllers: [AppController],
   providers: [

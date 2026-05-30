@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@web/components/ui/select';
+import { Combobox } from '@web/components/ui/combobox';
 
 const lineItemSchema = z.object({
   itemId: z.string().min(1, 'Item is required'),
@@ -46,6 +47,14 @@ export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: Purch
 
   const { data: suppliersData } = usePartners({ type: 'SUPPLIER', isActive: true, limit: 100 });
   const { data: itemsData } = useItems({ status: 'active', limit: 100 });
+
+  const itemOptions = React.useMemo(() => {
+    return itemsData?.data.map((item) => ({
+      value: item.id,
+      label: `${item.name} (${item.code})`,
+      searchKeywords: `${item.name} ${item.code}`,
+    })) || [];
+  }, [itemsData]);
 
   const {
     register,
@@ -195,18 +204,14 @@ export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: Purch
                         name={`lineItems.${index}.itemId`}
                         control={control}
                         render={({ field: selectField }) => (
-                          <Select value={selectField.value} onValueChange={selectField.onChange}>
-                            <SelectTrigger className="h-9">
-                              <SelectValue placeholder="Select item" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {itemsData?.data.map((item) => (
-                                <SelectItem key={item.id} value={item.id}>
-                                  {item.name} ({item.code})
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <Combobox
+                            value={selectField.value}
+                            onChange={selectField.onChange}
+                            options={itemOptions}
+                            placeholder="Select item"
+                            searchPlaceholder="Search item..."
+                            emptyMessage="No items found"
+                          />
                         )}
                       />
                       {errors.lineItems?.[index]?.itemId && (
