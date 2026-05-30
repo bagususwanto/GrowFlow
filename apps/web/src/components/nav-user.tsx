@@ -20,7 +20,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@web/components/ui/sidebar"
-import { EllipsisVerticalIcon, CircleUserRoundIcon, CreditCardIcon, BellIcon, LogOutIcon } from "lucide-react"
+import { EllipsisVerticalIcon, CircleUserRoundIcon, LogOutIcon } from "lucide-react"
 
 import Link from "next/link"
 import { useAuthStore } from "@web/stores/auth.store"
@@ -102,16 +102,6 @@ export function NavUser({
                   </Link>
                 }
               />
-              <DropdownMenuItem>
-                <CreditCardIcon
-                />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <BellIcon
-                />
-                Notifications
-              </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => logout()}>
