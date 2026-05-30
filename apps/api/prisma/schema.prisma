@@ -38,6 +38,9 @@ model User {
   createdPurchaseOrders  PurchaseOrder[] @relation("POCreatedBy")
   approvedPurchaseOrders PurchaseOrder[] @relation("POApprovedBy")
   createdGoodsReceipts   GoodsReceipt[]  @relation("GRNCreatedBy")
+  createdSalesOrders     SalesOrder[]    @relation("SOCreatedBy")
+  confirmedSalesOrders   SalesOrder[]    @relation("SOConfirmedBy")
+  createdDeliveryNotes   DeliveryNote[]  @relation("DNCreatedBy")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -67,6 +70,7 @@ model Warehouse {
   stockBalances  StockBalance[]
   stockMutations StockMutation[]
   goodsReceipts  GoodsReceipt[]
+  salesOrders    SalesOrder[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -88,6 +92,8 @@ model Item {
   stockMutations StockMutation[]
   poLineItems    PurchaseOrderLineItem[]
   grLineItems    GoodsReceiptLineItem[]
+  soLineItems    SalesOrderLineItem[]
+  dnLineItems    DeliveryNoteLineItem[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -125,6 +131,7 @@ model Partner {
   isActive       Boolean         @default(true) @map("is_active")
   deletedAt      DateTime?       @map("deleted_at")
   purchaseOrders PurchaseOrder[]
+  salesOrders    SalesOrder[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -281,4 +288,101 @@ model GoodsReceiptLineItem {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("goods_receipt_line_items")
+}
+
+enum SalesOrderStatus {
+  DRAFT
+  CONFIRMED
+  PARTIAL
+  DONE
+  CANCELLED
+}
+
+model SalesOrder {
+  id          String           @id @default(uuid())
+  number      String           @unique // SO-YYYYMM-XXXX
+  customerId  String           @map("customer_id")
+  customer    Partner          @relation(fields: [customerId], references: [id])
+  warehouseId String           @map("warehouse_id")
+  warehouse   Warehouse        @relation(fields: [warehouseId], references: [id])
+  status      SalesOrderStatus @default(DRAFT)
+  note        String?
+  totalAmount Decimal          @default(0) @map("total_amount") @db.Decimal(18, 2)
+  orderDate   DateTime         @default(now()) @map("order_date")
+
+  createdById   String?   @map("created_by_id")
+  createdBy     User?     @relation("SOCreatedBy", fields: [createdById], references: [id])
+  confirmedById String?   @map("confirmed_by_id")
+  confirmedBy   User?     @relation("SOConfirmedBy", fields: [confirmedById], references: [id])
+  confirmedAt   DateTime? @map("confirmed_at")
+  cancelledAt   DateTime? @map("cancelled_at")
+
+  lineItems     SalesOrderLineItem[]
+  deliveryNotes DeliveryNote[]
+
+  deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@map("sales_orders")
+}
+
+model SalesOrderLineItem {
+  id           String     @id @default(uuid())
+  salesOrderId String     @map("sales_order_id")
+  salesOrder   SalesOrder @relation(fields: [salesOrderId], references: [id])
+  itemId       String     @map("item_id")
+  item         Item       @relation(fields: [itemId], references: [id])
+  qty          Int
+  unitPrice    Decimal    @map("unit_price") @db.Decimal(18, 2)
+  totalPrice   Decimal    @map("total_price") @db.Decimal(18, 2) // qty * unitPrice
+  qtyDelivered Int        @default(0) @map("qty_delivered") // tracking DN
+  dnLineItems  DeliveryNoteLineItem[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("sales_order_line_items")
+}
+
+enum DeliveryNoteStatus {
+  DRAFT
+  CONFIRMED
+}
+
+model DeliveryNote {
+  id           String             @id @default(uuid())
+  number       String             @unique // DN-YYYYMM-XXXX
+  salesOrderId String             @map("sales_order_id")
+  salesOrder   SalesOrder         @relation(fields: [salesOrderId], references: [id])
+  status       DeliveryNoteStatus @default(DRAFT)
+  deliveryDate DateTime           @default(now()) @map("delivery_date")
+  note         String?
+
+  createdById String? @map("created_by_id")
+  createdBy   User?   @relation("DNCreatedBy", fields: [createdById], references: [id])
+
+  lineItems DeliveryNoteLineItem[]
+
+  deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@map("delivery_notes")
+}
+
+model DeliveryNoteLineItem {
+  id             String             @id @default(uuid())
+  deliveryNoteId String             @map("delivery_note_id")
+  deliveryNote   DeliveryNote       @relation(fields: [deliveryNoteId], references: [id])
+  soLineItemId   String             @map("so_line_item_id")
+  soLineItem     SalesOrderLineItem @relation(fields: [soLineItemId], references: [id])
+  itemId         String             @map("item_id")
+  item           Item               @relation(fields: [itemId], references: [id])
+  qty            Int
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("delivery_note_line_items")
 }

@@ -8,3 +8,5 @@ export * from './user';
 export * from './role';
 export * from './purchase-order';
 export * from './goods-receipt';
+export * from './sales-order';
+export * from './delivery-note';
