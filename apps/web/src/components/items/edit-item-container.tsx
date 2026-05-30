@@ -28,6 +28,7 @@ export function EditItemContainer({ id }: EditItemContainerProps) {
         unit: data.unit,
         categoryId: data.categoryId || null,
         minStock: data.minStock,
+        isActive: data.isActive,
       });
       toast.success("Item updated successfully");
       router.push("/inventory/items");

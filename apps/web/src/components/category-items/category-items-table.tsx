@@ -64,6 +64,7 @@ export function CategoryItemsTable({ isCreateOpen, onOpenChange }: CategoryItems
   const urlPage = searchParams.get('cat_page');
   const urlLimit = searchParams.get('cat_limit');
   const urlSearch = searchParams.get('cat_search');
+  const urlStatus = searchParams.get('cat_status');
   const urlSortBy = searchParams.get('cat_sortBy');
   const urlSortOrder = searchParams.get('cat_sortOrder');
 
@@ -72,6 +73,7 @@ export function CategoryItemsTable({ isCreateOpen, onOpenChange }: CategoryItems
   const limit = urlLimit ? parseInt(urlLimit, 10) : 10;
   const sortBy = urlSortBy || 'createdAt';
   const sortOrder = urlSortOrder === 'asc' || urlSortOrder === 'desc' ? urlSortOrder : 'desc';
+  const status = (urlStatus === 'active' || urlStatus === 'inactive') ? urlStatus : 'all';
 
   // Search input uses a local state for instant typing response
   const [search, setSearch] = React.useState(urlSearch || '');
@@ -147,8 +149,9 @@ export function CategoryItemsTable({ isCreateOpen, onOpenChange }: CategoryItems
       sortOrder,
     };
     if (debouncedSearch) q.search = debouncedSearch;
+    if (status !== 'all') q.status = status;
     return q;
-  }, [page, limit, debouncedSearch, sortBy, sortOrder]);
+  }, [page, limit, debouncedSearch, sortBy, sortOrder, status]);
 
   const { data, isLoading, isError, error } = useCategoryItems(query);
   const createMutation = useCreateCategoryItem();
@@ -255,7 +258,7 @@ export function CategoryItemsTable({ isCreateOpen, onOpenChange }: CategoryItems
   const hasPreviousPage = page > 1;
   const hasNextPage = page < totalPages;
 
-  const isFilterActive = urlSearch && urlSearch !== '';
+  const isFilterActive = (urlSearch && urlSearch !== '') || (urlStatus && urlStatus !== 'all' && urlStatus !== '');
 
   const handleResetFilters = () => {
     setSearch('');
@@ -283,6 +286,27 @@ export function CategoryItemsTable({ isCreateOpen, onOpenChange }: CategoryItems
               className="pl-8 h-9"
             />
           </div>
+
+          <Select
+            value={status}
+            onValueChange={(val) => {
+              const queryString = createQueryString({ cat_status: val || null, cat_page: 1 });
+              router.replace(`${pathname}?${queryString}`, { scroll: false });
+            }}
+          >
+            <SelectTrigger className="w-full sm:w-40 h-9">
+              <SelectValue placeholder="Filter by Status">
+                {status === 'all' && 'All Status'}
+                {status === 'active' && 'Active Only'}
+                {status === 'inactive' && 'Inactive Only'}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="active">Active Only</SelectItem>
+              <SelectItem value="inactive">Inactive Only</SelectItem>
+            </SelectContent>
+          </Select>
 
           {isFilterActive && (
             <Button

@@ -1,5 +1,6 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { CategoryItem } from '@growflow/types';
+import { Badge } from '@web/components/ui/badge';
 import { Button } from '@web/components/ui/button';
 import {
   DropdownMenu,
@@ -68,6 +69,18 @@ export const getColumns = ({ onEdit, onDelete, sortBy, sortOrder, onSort }: Colu
     header: 'Created At',
     cell: ({ row }) => {
       return <span className="text-sm">{new Date(row.original.createdAt).toLocaleString()}</span>;
+    },
+  },
+  {
+    accessorKey: 'isActive',
+    header: 'Status',
+    cell: ({ row }) => {
+      const isActive = row.original.isActive;
+      return (
+        <Badge variant={isActive ? 'default' : 'destructive'} className="w-fit font-medium">
+          {isActive ? 'Active' : 'Inactive'}
+        </Badge>
+      );
     },
   },
   {

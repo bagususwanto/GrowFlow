@@ -22,6 +22,7 @@ import {
   ClockIcon,
   ScaleIcon,
   InboxIcon,
+  CheckCircleIcon,
 } from 'lucide-react';
 
 interface ItemDetailContainerProps {
@@ -177,6 +178,16 @@ export function ItemDetailContainer({ id }: ItemDetailContainerProps) {
                     Minimum Stock
                   </span>
                   <span className="text-sm font-mono font-semibold">{item.minStock}</span>
+                </div>
+
+                <div className="flex items-center justify-between py-2 border-b">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <CheckCircleIcon className="w-3.5 h-3.5 text-muted-foreground" />
+                    Status
+                  </span>
+                  <Badge variant={item.isActive ? 'default' : 'destructive'} className="w-fit font-medium">
+                    {item.isActive ? 'Active' : 'Inactive'}
+                  </Badge>
                 </div>
               </div>
             </div>

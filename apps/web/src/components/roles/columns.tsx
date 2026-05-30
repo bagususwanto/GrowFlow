@@ -127,6 +127,18 @@ export const getColumns = ({ onView, onEdit, onDelete, sortBy, sortOrder, onSort
     },
   },
   {
+    accessorKey: 'isActive',
+    header: 'Status',
+    cell: ({ row }) => {
+      const isActive = row.original.isActive;
+      return (
+        <Badge variant={isActive ? 'default' : 'destructive'} className="w-fit font-medium">
+          {isActive ? 'Active' : 'Inactive'}
+        </Badge>
+      );
+    },
+  },
+  {
     accessorKey: 'createdAt',
     header: () => {
       const isSorted = sortBy === 'createdAt';

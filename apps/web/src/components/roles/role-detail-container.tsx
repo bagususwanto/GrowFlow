@@ -182,6 +182,15 @@ export function RoleDetailContainer({ id }: RoleDetailContainerProps) {
             <div className="space-y-3.5 border rounded-lg p-4 bg-muted/10">
               <div className="flex items-center justify-between py-1 border-b">
                 <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Status
+                </span>
+                <Badge variant={role.isActive ? 'default' : 'destructive'} className="w-fit font-medium">
+                  {role.isActive ? 'Active' : 'Inactive'}
+                </Badge>
+              </div>
+
+              <div className="flex items-center justify-between py-1 border-b">
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Created At
                 </span>
                 <span className="text-sm flex items-center gap-1.5 text-foreground">

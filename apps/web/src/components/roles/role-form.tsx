@@ -17,7 +17,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@web/components/ui/dropdown-menu";
-import { Loader2Icon, ShieldIcon, CheckSquareIcon, XIcon } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@web/components/ui/select";
+import { Loader2Icon, ShieldIcon, CheckSquareIcon, XIcon, CheckIcon } from "lucide-react";
 import { normalizePermissions } from "./columns";
 
 const AVAILABLE_PERMISSIONS = [
@@ -39,6 +46,7 @@ const getFormSchema = () => {
   return z.object({
     name: z.string().min(1, "Role name is required"),
     permissions: z.array(z.string()).default([]),
+    isActive: z.boolean().default(true),
   });
 };
 
@@ -66,6 +74,7 @@ export function RoleForm({ initialData, onSubmit, isSubmitting }: RoleFormProps)
     defaultValues: {
       name: initialData?.name || "",
       permissions: normalizePermissions(initialData?.permissions),
+      isActive: initialData?.isActive ?? true,
     },
   });
 
@@ -196,6 +205,47 @@ export function RoleForm({ initialData, onSubmit, isSubmitting }: RoleFormProps)
           </div>
         )}
       </div>
+
+      {isEdit && (
+        <>
+          <Separator className="my-2" />
+          {/* Section 3: Status */}
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">Status</h3>
+              <p className="text-xs text-muted-foreground">Enable or disable this role for users.</p>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="isActive" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Role Status
+              </Label>
+              <Controller
+                name="isActive"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    value={field.value ? "true" : "false"}
+                    onValueChange={(val) => field.onChange(val === "true")}
+                  >
+                    <SelectTrigger className="w-full h-9 relative pl-9" id="isActive">
+                      <CheckIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <SelectValue placeholder="Select status">
+                        {field.value ? "Active (Available)" : "Inactive (Disabled)"}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="true">Active (Available)</SelectItem>
+                      <SelectItem value="false">Inactive (Disabled)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.isActive && <p className="text-xs text-destructive">{errors.isActive.message}</p>}
+            </div>
+          </div>
+        </>
+      )}
 
       <div className="pt-2 flex justify-end">
         <Button type="submit" disabled={isSubmitting} className="w-full sm:w-40 h-9">

@@ -41,6 +41,7 @@ export function ItemsTable() {
   const urlLimit = searchParams.get('limit');
   const urlSearch = searchParams.get('search');
   const urlCategoryId = searchParams.get('categoryId');
+  const urlStatus = searchParams.get('status');
   const urlSortBy = searchParams.get('sortBy');
   const urlSortOrder = searchParams.get('sortOrder');
 
@@ -50,6 +51,7 @@ export function ItemsTable() {
   const categoryId = urlCategoryId || 'all';
   const sortBy = urlSortBy || 'createdAt';
   const sortOrder = (urlSortOrder === 'asc' || urlSortOrder === 'desc') ? urlSortOrder : 'desc';
+  const status = (urlStatus === 'active' || urlStatus === 'inactive') ? urlStatus : 'all';
 
   // Search input uses a local state for instant typing response
   const [search, setSearch] = React.useState(urlSearch || '');
@@ -125,8 +127,9 @@ export function ItemsTable() {
     };
     if (debouncedSearch) q.search = debouncedSearch;
     if (categoryId && categoryId !== 'all') q.categoryId = categoryId;
+    if (status !== 'all') q.status = status;
     return q;
-  }, [page, limit, debouncedSearch, categoryId, sortBy, sortOrder]);
+  }, [page, limit, debouncedSearch, categoryId, sortBy, sortOrder, status]);
 
   const { data, isLoading, isError, error } = useItems(query);
   const { data: categoriesData } = useCategoryItems({ limit: 100 });
@@ -216,7 +219,8 @@ export function ItemsTable() {
 
   const isFilterActive =
     (urlSearch && urlSearch !== '') ||
-    (urlCategoryId && urlCategoryId !== 'all');
+    (urlCategoryId && urlCategoryId !== 'all') ||
+    (urlStatus && urlStatus !== 'all' && urlStatus !== '');
 
   const handleResetFilters = () => {
     setSearch('');
@@ -256,6 +260,27 @@ export function ItemsTable() {
                 {cat.name}
               </SelectItem>
             ))}
+          </SelectContent>
+        </Select>
+
+        <Select
+          value={status}
+          onValueChange={(val) => {
+            const queryString = createQueryString({ status: val || null, page: 1 });
+            router.replace(`${pathname}?${queryString}`, { scroll: false });
+          }}
+        >
+          <SelectTrigger className="w-full sm:w-40 h-9">
+            <SelectValue placeholder="Filter by Status">
+              {status === 'all' && 'All Status'}
+              {status === 'active' && 'Active Only'}
+              {status === 'inactive' && 'Inactive Only'}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="active">Active Only</SelectItem>
+            <SelectItem value="inactive">Inactive Only</SelectItem>
           </SelectContent>
         </Select>
 

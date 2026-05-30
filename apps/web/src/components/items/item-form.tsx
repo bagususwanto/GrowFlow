@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@web/components/ui/select";
 import { Separator } from "@web/components/ui/separator";
-import { Loader2Icon, PackageIcon, FileTextIcon, LayersIcon, ScaleIcon, InboxIcon } from "lucide-react";
+import { Loader2Icon, PackageIcon, FileTextIcon, LayersIcon, ScaleIcon, InboxIcon, CheckIcon } from "lucide-react";
 
 const itemFormSchema = z.object({
   code: z.string().min(1, "Code is required").max(50, "Code must be at most 50 characters"),
@@ -25,6 +25,7 @@ const itemFormSchema = z.object({
   unit: z.string().min(1, "Unit is required").max(20, "Unit must be at most 20 characters"),
   categoryId: z.string().nullable().optional().or(z.literal("")),
   minStock: z.coerce.number().min(0, "Minimum stock must be at least 0"),
+  isActive: z.boolean().default(true),
 });
 
 export type ItemFormValues = z.infer<typeof itemFormSchema>;
@@ -52,6 +53,7 @@ export function ItemForm({ initialData, onSubmit, isSubmitting }: ItemFormProps)
       unit: initialData?.unit || "",
       categoryId: initialData?.categoryId || "",
       minStock: initialData?.minStock ?? 0,
+      isActive: initialData?.isActive ?? true,
     },
   });
 
@@ -164,6 +166,47 @@ export function ItemForm({ initialData, onSubmit, isSubmitting }: ItemFormProps)
           </div>
         </div>
       </div>
+
+      {isEdit && (
+        <>
+          <Separator className="my-2" />
+          {/* Section 3: Status */}
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">Status</h3>
+              <p className="text-xs text-muted-foreground">Enable or disable this item for transactions.</p>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="isActive" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Item Status
+              </Label>
+              <Controller
+                name="isActive"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    value={field.value ? "true" : "false"}
+                    onValueChange={(val) => field.onChange(val === "true")}
+                  >
+                    <SelectTrigger className="w-full h-9 relative pl-9" id="isActive">
+                      <CheckIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <SelectValue placeholder="Select status">
+                        {field.value ? "Active" : "Inactive"}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="true">Active</SelectItem>
+                      <SelectItem value="false">Inactive</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.isActive && <p className="text-xs text-destructive">{errors.isActive.message}</p>}
+            </div>
+          </div>
+        </>
+      )}
 
       <div className="pt-2 flex justify-end">
         <Button type="submit" disabled={isSubmitting} className="w-full sm:w-40 h-9">

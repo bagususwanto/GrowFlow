@@ -25,6 +25,7 @@ export function EditRoleContainer({ id }: EditRoleContainerProps) {
       await updateMutation.mutateAsync({
         name: data.name,
         permissions: data.permissions,
+        isActive: data.isActive,
       });
       toast.success("Role updated successfully");
       router.push("/administration/roles");
