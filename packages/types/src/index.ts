@@ -6,3 +6,4 @@ export * from './partner';
 export * from './stock';
 export * from './user';
 export * from './role';
+export * from './purchase-order';
