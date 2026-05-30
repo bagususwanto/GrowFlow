@@ -133,14 +133,14 @@ export function DeliveryNotesTable() {
   const handleConfirm = React.useCallback(
     async (dn: { id: string; number: string }) => {
       const ok = await confirm({
-        title: 'Confirm Pengiriman Barang',
-        description: `Confirm Delivery Note ${dn.number}? Tindakan ini akan memotong saldo stok barang fisik di gudang sumber.`,
+        title: 'Confirm Goods Delivery',
+        description: `Confirm Delivery Note ${dn.number}? This action will deduct the physical stock balance in the source warehouse.`,
         confirmText: 'Confirm Delivery',
       });
       if (ok) {
         toast.promise(confirmMutation.mutateAsync(dn.id), {
           loading: `Confirming DN ${dn.number}...`,
-          success: `DN ${dn.number} confirmed successfully. Stok terpotong.`,
+          success: `DN ${dn.number} confirmed successfully. Warehouse stock updated.`,
           error: (err) => err?.response?.data?.message || 'Failed to confirm DN',
         });
       }
@@ -151,7 +151,7 @@ export function DeliveryNotesTable() {
   const handleDelete = React.useCallback(
     async (dn: { id: string; number: string }) => {
       const ok = await confirm({
-        title: 'Hapus Draf Delivery Note',
+        title: 'Delete Delivery Note Draft',
         description: `Are you sure you want to delete DN draft ${dn.number}? This action cannot be undone.`,
         confirmText: 'Delete',
         variant: 'destructive',

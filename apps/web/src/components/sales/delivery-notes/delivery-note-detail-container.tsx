@@ -40,14 +40,14 @@ export function DeliveryNoteDetailContainer() {
 
   const handleConfirm = async () => {
     const ok = await confirm({
-      title: 'Confirm Pengiriman Barang',
-      description: `Confirm Delivery Note ${dn?.number}? Tindakan ini akan langsung memotong saldo stok barang fisik di gudang sumber.`,
+      title: 'Confirm Goods Delivery',
+      description: `Confirm Delivery Note ${dn?.number}? This action will immediately deduct the physical stock balance in the source warehouse.`,
       confirmText: 'Confirm Delivery',
     });
     if (ok) {
       toast.promise(confirmMutation.mutateAsync(id), {
         loading: 'Confirming Delivery Note...',
-        success: 'Delivery Note confirmed. Stok gudang terpotong.',
+        success: 'Delivery Note confirmed. Warehouse stock updated.',
         error: (err) => err?.response?.data?.message || 'Failed to confirm delivery',
       });
     }

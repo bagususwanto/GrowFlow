@@ -55,17 +55,17 @@ async function main() {
 
   // 3. Seed Warehouses
   const warehousesData = [
-    { name: 'Gudang Utama', address: 'Jl. Industri No. 12, Bekasi' },
-    { name: 'Gudang Cabang', address: 'Jl. Rungkut Industri No. 45, Surabaya' },
+    { name: 'Main Warehouse', address: 'Jl. Industri No. 12, Bekasi' },
+    { name: 'Branch Warehouse', address: 'Jl. Rungkut Industri No. 45, Surabaya' },
   ];
 
   const warehouses = [];
   for (const wh of warehousesData) {
     const upsertedWh = await prisma.warehouse.upsert({
-      where: { id: wh.name === 'Gudang Utama' ? 'e9c8a2b5-55ff-4be5-9430-c3d3958c279c' : 'f3dbdf7c-50ab-48d6-9cb3-b2d9de59ee93' },
+      where: { id: wh.name === 'Main Warehouse' ? 'e9c8a2b5-55ff-4be5-9430-c3d3958c279c' : 'f3dbdf7c-50ab-48d6-9cb3-b2d9de59ee93' },
       update: { address: wh.address },
       create: {
-        id: wh.name === 'Gudang Utama' ? 'e9c8a2b5-55ff-4be5-9430-c3d3958c279c' : 'f3dbdf7c-50ab-48d6-9cb3-b2d9de59ee93'        ,
+        id: wh.name === 'Main Warehouse' ? 'e9c8a2b5-55ff-4be5-9430-c3d3958c279c' : 'f3dbdf7c-50ab-48d6-9cb3-b2d9de59ee93'        ,
         name: wh.name,
         address: wh.address,
         isActive: true,

@@ -172,7 +172,7 @@ export class SalesOrdersService {
       const availableQty = balance ? balance.qty : 0;
       if (availableQty < item.qty) {
         throw new UnprocessableEntityException(
-          `Stok barang ${item.item?.name || item.itemId} tidak mencukupi di gudang ${so.warehouse?.name}. Tersedia: ${availableQty}, Dibutuhkan: ${item.qty}`,
+          `Stock for item ${item.item?.name || item.itemId} is insufficient in warehouse ${so.warehouse?.name}. Available: ${availableQty}, Required: ${item.qty}`,
         );
       }
     }

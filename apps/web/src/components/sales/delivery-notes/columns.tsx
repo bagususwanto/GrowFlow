@@ -90,7 +90,7 @@ export const getColumns = ({
   },
   {
     accessorKey: 'warehouse',
-    header: 'Gudang Sumber',
+    header: 'Source Warehouse',
     cell: ({ row }) => {
       return <span>{row.original.salesOrder?.warehouse?.name || '-'}</span>;
     },

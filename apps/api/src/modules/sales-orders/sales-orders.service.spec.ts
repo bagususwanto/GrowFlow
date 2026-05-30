@@ -29,7 +29,7 @@ describe('SalesOrdersService', () => {
     createdAt: mockDate,
     updatedAt: mockDate,
     customer: { id: 'customer-id', code: 'CUST-0001', name: 'Test Customer' },
-    warehouse: { id: 'warehouse-id', name: 'Gudang Utama' },
+    warehouse: { id: 'warehouse-id', name: 'Main Warehouse' },
     createdBy: { id: 'user-id', name: 'Sales Staff' },
     confirmedBy: null,
     lineItems: [

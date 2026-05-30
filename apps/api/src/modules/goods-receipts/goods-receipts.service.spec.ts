@@ -25,7 +25,7 @@ describe('GoodsReceiptsService', () => {
     createdAt: mockDate,
     updatedAt: mockDate,
     purchaseOrder: { id: 'po-id-1', number: 'PO-202605-0001', supplierId: 'supplier-id' },
-    warehouse: { id: 'warehouse-id', name: 'Gudang Utama' },
+    warehouse: { id: 'warehouse-id', name: 'Main Warehouse' },
     createdBy: { id: 'user-id', name: 'Warehouse Staff' },
     lineItems: [
       {

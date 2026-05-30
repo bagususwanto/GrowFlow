@@ -43,7 +43,7 @@ export function SalesOrderDetailContainer() {
   const handleConfirm = async () => {
     const ok = await confirm({
       title: 'Confirm Sales Order',
-      description: `Confirm SO ${so?.number}? Ini akan memvalidasi stok tersedia di gudang ${so?.warehouse?.name} dan mereservasi stok tersebut.`,
+      description: `Confirm SO ${so?.number}? This will validate the available stock in warehouse ${so?.warehouse?.name} and reserve that stock.`,
       confirmText: 'Confirm SO',
     });
     if (ok) {
@@ -104,7 +104,7 @@ export function SalesOrderDetailContainer() {
           )}
 
           {(isConfirmed || isPartial) && isWarehouseOrAdmin && (
-            <Button size="sm" render={<Link href={`/sales/delivery-notes/new?soId=${id}`}><TruckIcon className="w-4 h-4 mr-2" />Kirim Barang (DN)</Link>} />
+            <Button size="sm" render={<Link href={`/sales/delivery-notes/new?soId=${id}`}><TruckIcon className="w-4 h-4 mr-2" />Ship Goods (DN)</Link>} />
           )}
 
           {!['CANCELLED', 'DONE', 'PARTIAL'].includes(so.status) && isSalesStaffOrAdmin && (
@@ -178,7 +178,7 @@ export function SalesOrderDetailContainer() {
             <CardHeader className="pb-2 border-b">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
                 <TruckIcon className="w-4 h-4 text-muted-foreground" />
-                Delivery Notes (Pengiriman)
+                Delivery Notes (Shipment)
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-4">
@@ -191,7 +191,7 @@ export function SalesOrderDetailContainer() {
                           {dn.number}
                         </Link>
                         <div className="text-xs text-muted-foreground mt-0.5">
-                          Tgl Kirim: {formatDate(dn.deliveryDate)} | Oleh: {dn.createdBy?.name || '-'}
+                          Ship Date: {formatDate(dn.deliveryDate)} | By: {dn.createdBy?.name || '-'}
                         </div>
                       </div>
                       <Badge variant={dn.status === 'CONFIRMED' ? 'default' : 'secondary'} className="capitalize">
@@ -202,7 +202,7 @@ export function SalesOrderDetailContainer() {
                 </div>
               ) : (
                 <div className="text-center py-6 text-sm text-muted-foreground">
-                  Belum ada dokumen pengiriman (Delivery Note) untuk SO ini.
+                  No delivery documents (Delivery Notes) found for this SO.
                 </div>
               )}
             </CardContent>
@@ -224,7 +224,7 @@ export function SalesOrderDetailContainer() {
             <Separator />
 
             <div>
-              <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Gudang Sumber</div>
+              <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Source Warehouse</div>
               <div className="font-semibold text-foreground mt-1">{so.warehouse?.name}</div>
             </div>
 
@@ -238,7 +238,7 @@ export function SalesOrderDetailContainer() {
             <Separator />
 
             <div>
-              <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Pembuat (Staff Sales)</div>
+              <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Created By (Sales Staff)</div>
               <div className="font-semibold text-foreground mt-1">{so.createdBy?.name || so.createdById || '-'}</div>
             </div>
 

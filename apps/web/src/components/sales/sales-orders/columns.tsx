@@ -84,7 +84,7 @@ export const getColumns = ({
   },
   {
     accessorKey: 'warehouse',
-    header: 'Gudang',
+    header: 'Warehouse',
     cell: ({ row }) => {
       const so = row.original;
       return <span>{so.warehouse?.name || '-'}</span>;

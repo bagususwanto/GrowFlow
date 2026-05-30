@@ -140,7 +140,7 @@ export class DeliveryNotesService {
         );
       }
 
-      // Validasi ketersediaan stok fisik di gudang saat konfirmasi Delivery Note
+      // Validate physical stock availability in warehouse upon Delivery Note confirmation
       const balance = await this.prisma.stockBalance.findUnique({
         where: {
           itemId_warehouseId: {
@@ -152,7 +152,7 @@ export class DeliveryNotesService {
       const availableQty = balance ? balance.qty : 0;
       if (availableQty < dnItem.qty) {
         throw new UnprocessableEntityException(
-          `Stok fisik tidak mencukupi untuk pengiriman barang. Item ID ${dnItem.itemId} hanya tersedia ${availableQty} unit di gudang.`,
+          `Insufficient physical stock for delivery. Item ID ${dnItem.itemId} only has ${availableQty} units available in the warehouse.`,
         );
       }
     }
