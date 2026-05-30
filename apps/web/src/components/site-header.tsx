@@ -42,7 +42,7 @@ export function SiteHeader() {
       const segment = segments[i]
       currentPath += `/${segment}`
 
-      const noPageSegments = ["inventory", "purchasing", "relations", "administration"]
+      const noPageSegments = ["inventory", "purchasing", "relations", "administration", "sales"]
       if (noPageSegments.includes(segment)) {
         const label = segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ")
         items.push({ label, isPage: false })

@@ -59,6 +59,14 @@ export function SalesOrderForm({ initialData, onSubmit, isSubmitting }: SalesOrd
     })) || [];
   }, [itemsData]);
 
+  const customerOptions = React.useMemo(() => {
+    return customersData?.data.map((customer) => ({
+      value: customer.id,
+      label: `${customer.name} (${customer.code})`,
+      searchKeywords: `${customer.name} ${customer.code}`,
+    })) || [];
+  }, [customersData]);
+
   const {
     register,
     handleSubmit,
@@ -112,19 +120,18 @@ export function SalesOrderForm({ initialData, onSubmit, isSubmitting }: SalesOrd
               name="customerId"
               control={control}
               render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="w-full h-9 relative pl-9" id="customerId">
-                    <UserIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <SelectValue placeholder="Select customer" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {customersData?.data.map((customer) => (
-                      <SelectItem key={customer.id} value={customer.id}>
-                        {customer.name} ({customer.code})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="relative w-full">
+                  <UserIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground z-10 pointer-events-none" />
+                  <Combobox
+                    value={field.value}
+                    onChange={field.onChange}
+                    options={customerOptions}
+                    placeholder="Select customer"
+                    searchPlaceholder="Search customer..."
+                    emptyMessage="No customers found"
+                    triggerClassName="pl-9"
+                  />
+                </div>
               )}
             />
             {errors.customerId && <p className="text-xs text-destructive">{errors.customerId.message}</p>}
