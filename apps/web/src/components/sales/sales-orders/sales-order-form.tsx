@@ -4,14 +4,15 @@ import React from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { PurchaseOrder } from '@growflow/types';
+import { SalesOrder } from '@growflow/types';
 import { Button } from '@web/components/ui/button';
 import { Input } from '@web/components/ui/input';
 import { Label } from '@web/components/ui/label';
 import { Separator } from '@web/components/ui/separator';
 import { usePartners } from '@web/components/partners/use-partners';
 import { useItems } from '@web/components/items/use-items';
-import { Loader2Icon, ShoppingCartIcon, PlusIcon, Trash2Icon, FileTextIcon, UserIcon, CalendarIcon } from 'lucide-react';
+import { useWarehouses } from '@web/components/warehouses/use-warehouses';
+import { Loader2Icon, ShoppingCartIcon, PlusIcon, Trash2Icon, FileTextIcon, UserIcon, CalendarIcon, WarehouseIcon } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -28,25 +29,27 @@ const lineItemSchema = z.object({
 });
 
 const formSchema = z.object({
-  supplierId: z.string().min(1, 'Supplier is required'),
+  customerId: z.string().min(1, 'Customer is required'),
+  warehouseId: z.string().min(1, 'Warehouse is required'),
   note: z.string().optional(),
   orderDate: z.string().optional(),
   lineItems: z.array(lineItemSchema).min(1, 'At least one item is required'),
 });
 
-export type PurchaseOrderFormValues = z.infer<typeof formSchema>;
+export type SalesOrderFormValues = z.infer<typeof formSchema>;
 
-interface PurchaseOrderFormProps {
-  initialData?: PurchaseOrder;
-  onSubmit: (data: PurchaseOrderFormValues) => Promise<void>;
+interface SalesOrderFormProps {
+  initialData?: SalesOrder;
+  onSubmit: (data: SalesOrderFormValues) => Promise<void>;
   isSubmitting: boolean;
 }
 
-export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: PurchaseOrderFormProps) {
+export function SalesOrderForm({ initialData, onSubmit, isSubmitting }: SalesOrderFormProps) {
   const isEdit = !!initialData;
 
-  const { data: suppliersData } = usePartners({ type: 'SUPPLIER', isActive: true, limit: 100 });
+  const { data: customersData } = usePartners({ type: 'CUSTOMER', isActive: true, limit: 100 });
   const { data: itemsData } = useItems({ status: 'active', limit: 100 });
+  const { data: warehousesData } = useWarehouses({ isActive: true, limit: 100 });
 
   const itemOptions = React.useMemo(() => {
     return itemsData?.data.map((item) => ({
@@ -56,24 +59,17 @@ export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: Purch
     })) || [];
   }, [itemsData]);
 
-  const supplierOptions = React.useMemo(() => {
-    return suppliersData?.data.map((supplier) => ({
-      value: supplier.id,
-      label: `${supplier.name} (${supplier.code})`,
-      searchKeywords: `${supplier.name} ${supplier.code}`,
-    })) || [];
-  }, [suppliersData]);
-
   const {
     register,
     handleSubmit,
     control,
     watch,
     formState: { errors },
-  } = useForm<PurchaseOrderFormValues>({
+  } = useForm<SalesOrderFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      supplierId: initialData?.supplierId || '',
+      customerId: initialData?.customerId || '',
+      warehouseId: initialData?.warehouseId || '',
       note: initialData?.note || '',
       orderDate: initialData?.orderDate ? initialData.orderDate.split('T')[0] : new Date().toISOString().split('T')[0],
       lineItems: initialData?.lineItems?.map((li) => ({
@@ -103,34 +99,61 @@ export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: Purch
       {/* Header Info */}
       <div className="space-y-4">
         <div>
-          <h3 className="text-sm font-semibold text-foreground font-semibold">General Information</h3>
-          <p className="text-xs text-muted-foreground">Select supplier details and transaction date.</p>
+          <h3 className="text-sm font-semibold text-foreground">General Information</h3>
+          <p className="text-xs text-muted-foreground">Select customer details, source warehouse, and transaction date.</p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-4">
           <div className="space-y-1.5">
-            <Label htmlFor="supplierId" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Supplier
+            <Label htmlFor="customerId" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Customer
             </Label>
             <Controller
-              name="supplierId"
+              name="customerId"
               control={control}
               render={({ field }) => (
-                <div className="relative w-full">
-                  <UserIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground z-10 pointer-events-none" />
-                  <Combobox
-                    value={field.value}
-                    onChange={field.onChange}
-                    options={supplierOptions}
-                    placeholder="Select supplier"
-                    searchPlaceholder="Search supplier..."
-                    emptyMessage="No suppliers found"
-                    triggerClassName="pl-9"
-                  />
-                </div>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="w-full h-9 relative pl-9" id="customerId">
+                    <UserIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <SelectValue placeholder="Select customer" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {customersData?.data.map((customer) => (
+                      <SelectItem key={customer.id} value={customer.id}>
+                        {customer.name} ({customer.code})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               )}
             />
-            {errors.supplierId && <p className="text-xs text-destructive">{errors.supplierId.message}</p>}
+            {errors.customerId && <p className="text-xs text-destructive">{errors.customerId.message}</p>}
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="warehouseId" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Source Warehouse
+            </Label>
+            <Controller
+              name="warehouseId"
+              control={control}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="w-full h-9 relative pl-9" id="warehouseId">
+                    <WarehouseIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <SelectValue placeholder="Select warehouse" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {warehousesData?.data.map((wh) => (
+                      <SelectItem key={wh.id} value={wh.id}>
+                        {wh.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.warehouseId && <p className="text-xs text-destructive">{errors.warehouseId.message}</p>}
           </div>
 
           <div className="space-y-1.5">
@@ -157,7 +180,7 @@ export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: Purch
               <FileTextIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="note"
-                placeholder="e.g. Terms, descriptions..."
+                placeholder="e.g. Terms, delivery notes..."
                 className="pl-9 h-9"
                 {...register('note')}
               />
@@ -295,7 +318,7 @@ export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: Purch
             ) : (
               <>
                 <ShoppingCartIcon className="w-4 h-4 mr-2" />
-                {isEdit ? 'Update Purchase Order' : 'Create Purchase Order'}
+                {isEdit ? 'Update Sales Order' : 'Create Sales Order'}
               </>
             )}
           </Button>

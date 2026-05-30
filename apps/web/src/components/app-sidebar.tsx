@@ -70,6 +70,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       ],
     },
     {
+      label: "Sales",
+      items: [
+        {
+          title: "Sales Orders",
+          url: "/sales/sales-orders",
+          icon: <ShoppingCart />,
+        },
+      ],
+    },
+    {
       label: "Relations",
       items: [
         {
