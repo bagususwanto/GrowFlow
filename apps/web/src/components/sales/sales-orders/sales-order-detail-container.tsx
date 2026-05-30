@@ -184,7 +184,7 @@ export function SalesOrderDetailContainer() {
             <CardContent className="pt-4">
               {so.deliveryNotes && so.deliveryNotes.length > 0 ? (
                 <div className="border rounded-lg divide-y text-sm">
-                  {so.deliveryNotes.map((dn: any) => (
+                  {so.deliveryNotes.map((dn: { id: string; number: string; deliveryDate: string; createdBy?: { name: string }; status: string }) => (
                     <div key={dn.id} className="flex justify-between items-center p-3 hover:bg-muted/30">
                       <div>
                         <Link href={`/sales/delivery-notes/${dn.id}`} className="font-mono text-primary hover:underline font-semibold">

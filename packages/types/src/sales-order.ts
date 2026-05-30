@@ -52,6 +52,7 @@ export interface SalesOrder {
     name: string;
   };
   lineItems?: SalesOrderLineItem[];
+  deliveryNotes?: any[];
 }
 
 export interface CreateSalesOrderLineItemRequest {

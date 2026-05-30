@@ -11,7 +11,7 @@ import { Separator } from '@web/components/ui/separator';
 import { toast } from 'sonner';
 import { useConfirm } from '@web/hooks/use-confirm';
 import { useAuthStore } from '@web/stores/auth.store';
-import { ArrowLeftIcon, FileTextIcon, CheckCircleIcon, WarehouseIcon, CalendarIcon, UserIcon, ArrowRightIcon } from 'lucide-react';
+import { ArrowLeftIcon, FileTextIcon, CheckCircleIcon, WarehouseIcon, CalendarIcon, UserIcon } from 'lucide-react';
 import { Badge } from '@web/components/ui/badge';
 
 function formatDate(dateStr: string, includeTime = false) {

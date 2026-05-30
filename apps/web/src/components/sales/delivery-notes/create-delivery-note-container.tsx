@@ -2,12 +2,12 @@
 
 import React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCreateDeliveryNote } from '@web/hooks/use-delivery-notes';
 import { useSalesOrders, useSalesOrder } from '@web/hooks/use-sales-orders';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@web/components/ui/card';
+import { Card, CardContent } from '@web/components/ui/card';
 import { Button } from '@web/components/ui/button';
 import { Input } from '@web/components/ui/input';
 import { Label } from '@web/components/ui/label';
@@ -124,9 +124,9 @@ export function CreateDeliveryNoteContainer() {
           })),
       });
       toast.success('Delivery Note created successfully as DRAFT');
-      router.push(`/sales/sales-orders/${data.salesOrderId}`);
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Failed to create Delivery Note');
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to create Delivery Note';
+      toast.error(errorMsg);
     }
   };
 
@@ -297,7 +297,7 @@ export function CreateDeliveryNoteContainer() {
               </Button>
             </div>
           </form>
-        </form>
+        </CardContent>
       </Card>
     </div>
   );

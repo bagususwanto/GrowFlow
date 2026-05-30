@@ -33,8 +33,9 @@ export function EditSalesOrderContainer() {
       });
       toast.success('Sales Order updated successfully');
       router.push(`/sales/sales-orders/${id}`);
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Failed to update Sales Order');
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to update Sales Order';
+      toast.error(errorMsg);
     }
   };
 

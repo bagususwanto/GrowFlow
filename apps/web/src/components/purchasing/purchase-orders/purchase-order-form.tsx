@@ -12,13 +12,6 @@ import { Separator } from '@web/components/ui/separator';
 import { usePartners } from '@web/components/partners/use-partners';
 import { useItems } from '@web/components/items/use-items';
 import { Loader2Icon, ShoppingCartIcon, PlusIcon, Trash2Icon, FileTextIcon, UserIcon, CalendarIcon } from 'lucide-react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@web/components/ui/select';
 import { Combobox } from '@web/components/ui/combobox';
 
 const lineItemSchema = z.object({

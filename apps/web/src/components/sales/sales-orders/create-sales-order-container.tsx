@@ -24,9 +24,9 @@ export function CreateSalesOrderContainer() {
       });
 
       toast.success(`Sales Order ${result.number} created successfully`);
-      router.push(`/sales/sales-orders/${result.id}`);
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Failed to create Sales Order');
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to create Sales Order';
+      toast.error(errorMsg);
     }
   };
 

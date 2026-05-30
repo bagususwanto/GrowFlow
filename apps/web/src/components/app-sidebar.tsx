@@ -77,6 +77,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: "/sales/sales-orders",
           icon: <ShoppingCart />,
         },
+        {
+          title: "Delivery Notes",
+          url: "/sales/delivery-notes",
+          icon: <Boxes />,
+        },
       ],
     },
     {
