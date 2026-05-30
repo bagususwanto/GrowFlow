@@ -17,6 +17,8 @@ import {
 } from '@web/components/ui/table';
 import { Button } from '@web/components/ui/button';
 import { Skeleton } from '@web/components/ui/skeleton';
+import { useDebounce } from '@web/hooks/use-debounce';
+import { Input } from '@web/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -24,7 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@web/components/ui/select';
-import { ChevronLeftIcon, ChevronRightIcon, RotateCcwIcon, ChevronsLeftIcon, ChevronsRightIcon } from 'lucide-react';
+import { ChevronLeftIcon, ChevronRightIcon, SearchIcon, RotateCcwIcon, ChevronsLeftIcon, ChevronsRightIcon } from 'lucide-react';
 
 export function StockMutationsTable() {
   const router = useRouter();
@@ -34,6 +36,7 @@ export function StockMutationsTable() {
   // Read search params from URL
   const urlPage = searchParams.get('page');
   const urlLimit = searchParams.get('limit');
+  const urlSearch = searchParams.get('search');
   const urlWarehouseId = searchParams.get('warehouseId');
   const urlMutationType = searchParams.get('type');
   const urlSortBy = searchParams.get('sortBy');
@@ -46,6 +49,15 @@ export function StockMutationsTable() {
   const mutationType = urlMutationType || 'all';
   const sortBy = urlSortBy || 'createdAt';
   const sortOrder = (urlSortOrder === 'asc' || urlSortOrder === 'desc') ? urlSortOrder : 'desc';
+
+  // Search input uses a local state for instant typing response
+  const [search, setSearch] = React.useState(urlSearch || '');
+  const debouncedSearch = useDebounce(search, 500);
+
+  // Sync local search input with URL search param changes
+  React.useEffect(() => {
+    setSearch(urlSearch || '');
+  }, [urlSearch]);
 
   // Helper to generate search params string
   const createQueryString = React.useCallback(
@@ -64,6 +76,18 @@ export function StockMutationsTable() {
     },
     [searchParams]
   );
+
+  // Sync debounced search to URL
+  React.useEffect(() => {
+    const currentUrlSearch = searchParams.get('search') || '';
+    if (debouncedSearch !== currentUrlSearch && search === debouncedSearch) {
+      const queryString = createQueryString({
+        search: debouncedSearch || null,
+        page: 1, // Reset page on new search
+      });
+      router.replace(`${pathname}?${queryString}`, { scroll: false });
+    }
+  }, [debouncedSearch, search, pathname, router, createQueryString, searchParams]);
 
   // Setters that update URL instead of local state
   const setPage = React.useCallback(
@@ -106,10 +130,11 @@ export function StockMutationsTable() {
       sortBy,
       sortOrder,
     };
+    if (debouncedSearch) q.search = debouncedSearch;
     if (warehouseId && warehouseId !== 'all') q.warehouseId = warehouseId;
     if (mutationType && mutationType !== 'all') q.type = mutationType as MutationType;
     return q;
-  }, [page, limit, warehouseId, mutationType, sortBy, sortOrder]);
+  }, [page, limit, debouncedSearch, warehouseId, mutationType, sortBy, sortOrder]);
 
   const { data, isLoading, isError, error } = useStockMutations(query);
   const { data: warehousesData } = useWarehouses({ limit: 100 });
@@ -155,10 +180,12 @@ export function StockMutationsTable() {
   const hasNextPage = page < totalPages;
 
   const isFilterActive =
+    (urlSearch && urlSearch !== '') ||
     (urlWarehouseId && urlWarehouseId !== 'all') ||
     (urlMutationType && urlMutationType !== 'all');
 
   const handleResetFilters = () => {
+    setSearch('');
     const newParams = new URLSearchParams();
     if (limit !== 10) {
       newParams.set('limit', String(limit));
@@ -168,8 +195,18 @@ export function StockMutationsTable() {
 
   return (
     <div className="space-y-4">
-      {/* Filters section */}
+      {/* Filters and search section */}
       <div className="flex flex-wrap items-center gap-2 w-full">
+        <div className="relative w-full sm:w-64">
+          <SearchIcon className="top-2.5 left-2.5 absolute w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Search item code or name..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-8 h-9"
+          />
+        </div>
+
         <Select value={warehouseId} onValueChange={(val) => setWarehouseId(val || 'all')}>
           <SelectTrigger className="w-full sm:w-48 h-9">
             <SelectValue placeholder="Filter by Warehouse">

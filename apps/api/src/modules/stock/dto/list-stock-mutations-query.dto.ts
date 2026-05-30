@@ -50,6 +50,11 @@ export class ListStockMutationsQueryDto implements ListStockMutationsQuery {
   @IsDateString()
   to?: string;
 
+  @ApiPropertyOptional({ description: 'Search by item name or code' })
+  @IsOptional()
+  @IsString()
+  search?: string;
+
   @ApiPropertyOptional({ description: 'Sort field', enum: ['createdAt', 'qty', 'type'] })
   @IsOptional()
   @IsIn(['createdAt', 'qty', 'type'])

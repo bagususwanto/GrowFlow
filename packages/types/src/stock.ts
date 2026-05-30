@@ -44,6 +44,7 @@ export interface ListStockMutationsQuery {
   type?: MutationType;
   from?: string;
   to?: string;
+  search?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
 }

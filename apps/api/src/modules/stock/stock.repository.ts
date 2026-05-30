@@ -84,6 +84,14 @@ export class StockRepository {
         where.createdAt.lte = new Date(query.to);
       }
     }
+    if (query.search) {
+      where.item = {
+        OR: [
+          { name: { contains: query.search, mode: 'insensitive' } },
+          { code: { contains: query.search, mode: 'insensitive' } },
+        ],
+      };
+    }
     return where;
   }
 
