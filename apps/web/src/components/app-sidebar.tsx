@@ -58,9 +58,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       label: "Transactions",
       items: [
         {
-          title: "Purchase",
-          url: "#",
+          title: "Purchase Orders",
+          url: "/purchasing/purchase-orders",
           icon: <ShoppingCart />,
+        },
+        {
+          title: "Goods Receipts",
+          url: "/purchasing/goods-receipts",
+          icon: <Boxes />,
         },
         {
           title: "Sales Order",
