@@ -1,0 +1,83 @@
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpCode, HttpStatus } from '@nestjs/common';
+import { SalesOrdersService } from './sales-orders.service';
+import { CreateSalesOrderDto } from './dto/create-sales-order.dto';
+import { UpdateSalesOrderDto } from './dto/update-sales-order.dto';
+import { ListSalesOrdersQueryDto } from './dto/list-sales-orders-query.dto';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { AuthUser } from '@growflow/types';
+import { SalesOrderResponseEntity } from './entities/sales-order-response.entity';
+
+@ApiTags('sales-orders')
+@ApiBearerAuth()
+@Controller('sales-orders')
+export class SalesOrdersController {
+  constructor(private readonly service: SalesOrdersService) {}
+
+  @Post()
+  @Roles('superadmin', 'manager', 'staff')
+  @ApiOperation({ summary: 'Create a new Sales Order in DRAFT status' })
+  @ApiResponse({ status: 201, type: SalesOrderResponseEntity })
+  create(
+    @Body() dto: CreateSalesOrderDto,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.service.create(dto, user.id);
+  }
+
+  @Get()
+  @Roles('superadmin', 'manager', 'staff', 'warehouse', 'finance')
+  @ApiOperation({ summary: 'Get all Sales Orders' })
+  @ApiResponse({ status: 200 })
+  findAll(@Query() query: ListSalesOrdersQueryDto) {
+    return this.service.findAll(query);
+  }
+
+  @Get(':id')
+  @Roles('superadmin', 'manager', 'staff', 'warehouse', 'finance')
+  @ApiOperation({ summary: 'Get Sales Order by ID' })
+  @ApiResponse({ status: 200, type: SalesOrderResponseEntity })
+  findOne(@Param('id') id: string) {
+    return this.service.findOne(id);
+  }
+
+  @Patch(':id')
+  @Roles('superadmin', 'manager', 'staff')
+  @ApiOperation({ summary: 'Update a Sales Order (DRAFT only)' })
+  @ApiResponse({ status: 200, type: SalesOrderResponseEntity })
+  update(
+    @Param('id') id: string,
+    @Body() dto: UpdateSalesOrderDto,
+  ) {
+    return this.service.update(id, dto);
+  }
+
+  @Post(':id/confirm')
+  @Roles('superadmin', 'manager', 'staff')
+  @ApiOperation({ summary: 'Confirm a Sales Order (DRAFT -> CONFIRMED, validates stock)' })
+  @ApiResponse({ status: 200, type: SalesOrderResponseEntity })
+  confirm(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.service.confirm(id, user.id);
+  }
+
+  @Post(':id/cancel')
+  @Roles('superadmin', 'manager')
+  @ApiOperation({ summary: 'Cancel a Sales Order' })
+  @ApiResponse({ status: 200, type: SalesOrderResponseEntity })
+  cancel(@Param('id') id: string) {
+    return this.service.cancel(id);
+  }
+
+  @Delete(':id')
+  @Roles('superadmin', 'manager')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Soft delete a Sales Order (DRAFT only)' })
+  @ApiResponse({ status: 204 })
+  remove(@Param('id') id: string) {
+    return this.service.remove(id);
+  }
+}
