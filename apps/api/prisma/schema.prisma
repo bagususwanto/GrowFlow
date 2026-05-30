@@ -35,6 +35,10 @@ model User {
   refreshTokens  RefreshToken[]
   stockMutations StockMutation[]
 
+  createdPurchaseOrders  PurchaseOrder[] @relation("POCreatedBy")
+  approvedPurchaseOrders PurchaseOrder[] @relation("POApprovedBy")
+  createdGoodsReceipts   GoodsReceipt[]  @relation("GRNCreatedBy")
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -62,6 +66,7 @@ model Warehouse {
   deletedAt      DateTime?       @map("deleted_at")
   stockBalances  StockBalance[]
   stockMutations StockMutation[]
+  goodsReceipts  GoodsReceipt[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -70,17 +75,19 @@ model Warehouse {
 }
 
 model Item {
-  id             String          @id @default(uuid())
-  code           String          @unique
+  id             String                  @id @default(uuid())
+  code           String                  @unique
   name           String
   unit           String
-  categoryId     String?         @map("category_id")
-  category       CategoryItem?   @relation(fields: [categoryId], references: [id])
-  minStock       Int             @default(0) @map("min_stock")
-  isActive       Boolean         @default(true) @map("is_active")
-  deletedAt      DateTime?       @map("deleted_at")
+  categoryId     String?                 @map("category_id")
+  category       CategoryItem?           @relation(fields: [categoryId], references: [id])
+  minStock       Int                     @default(0) @map("min_stock")
+  isActive       Boolean                 @default(true) @map("is_active")
+  deletedAt      DateTime?               @map("deleted_at")
   stockBalances  StockBalance[]
   stockMutations StockMutation[]
+  poLineItems    PurchaseOrderLineItem[]
+  grLineItems    GoodsReceiptLineItem[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -108,15 +115,16 @@ enum PartnerType {
 }
 
 model Partner {
-  id        String      @id @default(uuid())
-  code      String      @unique
-  name      String
-  type      PartnerType
-  email     String?
-  phone     String?
-  address   String?
-  isActive  Boolean     @default(true) @map("is_active")
-  deletedAt DateTime?   @map("deleted_at")
+  id             String          @id @default(uuid())
+  code           String          @unique
+  name           String
+  type           PartnerType
+  email          String?
+  phone          String?
+  address        String?
+  isActive       Boolean         @default(true) @map("is_active")
+  deletedAt      DateTime?       @map("deleted_at")
+  purchaseOrders PurchaseOrder[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -175,4 +183,102 @@ model DocumentSequence {
 
   @@unique([type, year, month])
   @@map("document_sequences")
+}
+
+enum PurchaseOrderStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  PARTIAL
+  DONE
+  CANCELLED
+}
+
+model PurchaseOrder {
+  id          String              @id @default(uuid())
+  number      String              @unique // PO-YYYYMM-XXXX
+  supplierId  String              @map("supplier_id")
+  supplier    Partner             @relation(fields: [supplierId], references: [id])
+  status      PurchaseOrderStatus @default(DRAFT)
+  note        String?
+  totalAmount Decimal             @default(0) @map("total_amount") @db.Decimal(18, 2)
+  orderDate   DateTime            @default(now()) @map("order_date")
+
+  createdById  String?   @map("created_by_id")
+  createdBy    User?     @relation("POCreatedBy", fields: [createdById], references: [id])
+  approvedById String?   @map("approved_by_id")
+  approvedBy   User?     @relation("POApprovedBy", fields: [approvedById], references: [id])
+  approvedAt   DateTime? @map("approved_at")
+  cancelledAt  DateTime? @map("cancelled_at")
+
+  lineItems     PurchaseOrderLineItem[]
+  goodsReceipts GoodsReceipt[]
+
+  deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderLineItem {
+  id              String                 @id @default(uuid())
+  purchaseOrderId String                 @map("purchase_order_id")
+  purchaseOrder   PurchaseOrder          @relation(fields: [purchaseOrderId], references: [id])
+  itemId          String                 @map("item_id")
+  item            Item                   @relation(fields: [itemId], references: [id])
+  qty             Int
+  unitPrice       Decimal                @map("unit_price") @db.Decimal(18, 2)
+  totalPrice      Decimal                @map("total_price") @db.Decimal(18, 2) // qty * unitPrice
+  qtyReceived     Int                    @default(0) @map("qty_received") // tracking GRN
+  grLineItems     GoodsReceiptLineItem[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("purchase_order_line_items")
+}
+
+enum GoodsReceiptStatus {
+  DRAFT
+  CONFIRMED
+}
+
+model GoodsReceipt {
+  id              String             @id @default(uuid())
+  number          String             @unique // GRN-YYYYMM-XXXX
+  purchaseOrderId String             @map("purchase_order_id")
+  purchaseOrder   PurchaseOrder      @relation(fields: [purchaseOrderId], references: [id])
+  warehouseId     String             @map("warehouse_id")
+  warehouse       Warehouse          @relation(fields: [warehouseId], references: [id])
+  status          GoodsReceiptStatus @default(DRAFT)
+  receivedDate    DateTime           @default(now()) @map("received_date")
+  note            String?
+
+  createdById String? @map("created_by_id")
+  createdBy   User?   @relation("GRNCreatedBy", fields: [createdById], references: [id])
+
+  lineItems GoodsReceiptLineItem[]
+
+  deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@map("goods_receipts")
+}
+
+model GoodsReceiptLineItem {
+  id             String                @id @default(uuid())
+  goodsReceiptId String                @map("goods_receipt_id")
+  goodsReceipt   GoodsReceipt          @relation(fields: [goodsReceiptId], references: [id])
+  poLineItemId   String                @map("po_line_item_id")
+  poLineItem     PurchaseOrderLineItem @relation(fields: [poLineItemId], references: [id])
+  itemId         String                @map("item_id")
+  item           Item                  @relation(fields: [itemId], references: [id])
+  qty            Int
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("goods_receipt_line_items")
 }
