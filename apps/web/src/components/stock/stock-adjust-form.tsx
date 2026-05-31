@@ -18,6 +18,7 @@ import {
 import { useItems } from '../items/use-items';
 import { useWarehouses } from '../warehouses/use-warehouses';
 import { Loader2Icon, PackageIcon, WarehouseIcon, ArrowUpRightIcon, FileTextIcon } from 'lucide-react';
+import { Combobox } from '@web/components/ui/combobox';
 
 const formSchema = z.object({
   itemId: z.string().min(1, 'Item selection is required'),
@@ -37,6 +38,14 @@ interface StockAdjustFormProps {
 export function StockAdjustForm({ onSubmit, isSubmitting }: StockAdjustFormProps) {
   const { data: itemsData, isLoading: isLoadingItems } = useItems({ limit: 100 });
   const { data: warehousesData, isLoading: isLoadingWarehouses } = useWarehouses({ limit: 100 });
+
+  const itemOptions = React.useMemo(() => {
+    return itemsData?.data?.map((item) => ({
+      value: item.id,
+      label: `${item.name} (${item.code})`,
+      searchKeywords: `${item.name} ${item.code}`,
+    })) || [];
+  }, [itemsData]);
 
   const {
     register,
@@ -83,27 +92,19 @@ export function StockAdjustForm({ onSubmit, isSubmitting }: StockAdjustFormProps
             name="itemId"
             control={control}
             render={({ field }) => (
-              <Select
-                value={field.value}
-                onValueChange={field.onChange}
-                disabled={isLoadingItems}
-              >
-                <SelectTrigger className="w-full h-9 relative pl-9" id="itemId">
-                  <PackageIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <SelectValue placeholder={isLoadingItems ? 'Loading items...' : 'Choose an item'}>
-                    {itemsData?.data?.find((item) => item.id === field.value)
-                      ? `${itemsData.data.find((item) => item.id === field.value)?.name} (${itemsData.data.find((item) => item.id === field.value)?.code})`
-                      : undefined}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {itemsData?.data?.map((item) => (
-                    <SelectItem key={item.id} value={item.id}>
-                      {item.name} ({item.code})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="relative w-full">
+                <PackageIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground z-10 pointer-events-none" />
+                <Combobox
+                  value={field.value}
+                  onChange={field.onChange}
+                  options={itemOptions}
+                  placeholder={isLoadingItems ? 'Loading items...' : 'Choose an item'}
+                  searchPlaceholder="Search item..."
+                  emptyMessage="No items found"
+                  triggerClassName="pl-9"
+                  disabled={isLoadingItems}
+                />
+              </div>
             )}
           />
           {errors.itemId && <p className="text-xs text-destructive">{errors.itemId.message}</p>}
