@@ -12,7 +12,7 @@ import { Separator } from '@web/components/ui/separator';
 import { toast } from 'sonner';
 import { useConfirm } from '@web/hooks/use-confirm';
 import { useAuthStore } from '@web/stores/auth.store';
-import { ArrowLeftIcon, FileTextIcon, CheckSquareIcon, XCircleIcon, TruckIcon, EditIcon } from 'lucide-react';
+import { ChevronLeftIcon, FileTextIcon, CheckSquareIcon, XCircleIcon, TruckIcon, EditIcon } from 'lucide-react';
 import { Badge } from '@web/components/ui/badge';
 
 function formatDate(dateStr: string, includeTime = false) {
@@ -89,14 +89,34 @@ export function SalesOrderDetailContainer() {
 
   return (
     <div className="space-y-6">
-      {/* Action Header */}
-      <div className="flex sm:flex-row flex-col sm:justify-between sm:items-center gap-4">
-        <Button variant="ghost" size="sm" className="w-fit" render={<Link href="/sales/sales-orders"><ArrowLeftIcon className="w-4 h-4 mr-2" />Back to List</Link>} />
+      {/* Header aligned with actions */}
+      <div className="flex sm:flex-row flex-col sm:justify-between sm:items-start gap-4">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="icon"
+            nativeButton={false}
+            render={
+              <Link href="/sales/sales-orders" title="Back to Sales Orders">
+                <ChevronLeftIcon className="h-4 w-4" />
+              </Link>
+            }
+          />
+          <div className="space-y-0.5">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+              Sales Order Details
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Track lifecycle progress and actions for this sales order.
+            </p>
+          </div>
+        </div>
         
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Action Buttons */}
+        <div className="flex flex-wrap items-center gap-2 sm:self-center">
           {isDraft && isSalesStaffOrAdmin && (
             <>
-              <Button variant="outline" size="sm" render={<Link href={`/sales/sales-orders/${id}/edit`}><EditIcon className="w-4 h-4 mr-2" />Edit Draft</Link>} />
+              <Button variant="outline" size="sm" nativeButton={false} render={<Link href={`/sales/sales-orders/${id}/edit`}><EditIcon className="w-4 h-4 mr-2" />Edit Draft</Link>} />
               <Button size="sm" onClick={handleConfirm} disabled={confirmMutation.isPending}>
                 <CheckSquareIcon className="w-4 h-4 mr-2" />Confirm SO
               </Button>
@@ -104,7 +124,7 @@ export function SalesOrderDetailContainer() {
           )}
 
           {(isConfirmed || isPartial) && isWarehouseOrAdmin && (
-            <Button size="sm" render={<Link href={`/sales/delivery-notes/new?soId=${id}`}><TruckIcon className="w-4 h-4 mr-2" />Ship Goods (DN)</Link>} />
+            <Button size="sm" nativeButton={false} render={<Link href={`/sales/delivery-notes/new?soId=${id}`}><TruckIcon className="w-4 h-4 mr-2" />Ship Goods (DN)</Link>} />
           )}
 
           {!['CANCELLED', 'DONE', 'PARTIAL'].includes(so.status) && isSalesStaffOrAdmin && (
@@ -114,6 +134,7 @@ export function SalesOrderDetailContainer() {
           )}
         </div>
       </div>
+
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Main Details */}

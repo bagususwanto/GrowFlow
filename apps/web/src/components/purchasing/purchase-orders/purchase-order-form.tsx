@@ -317,7 +317,7 @@ export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: Purch
         </div>
 
         <div className="flex justify-end gap-3 w-full sm:w-auto">
-          <Button type="submit" disabled={isSubmitting} className="w-full sm:w-48 h-9 font-semibold">
+          <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto h-10 px-6 font-semibold">
             {isSubmitting ? (
               <>
                 <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
@@ -325,7 +325,7 @@ export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: Purch
               </>
             ) : (
               <>
-                <ShoppingCartIcon className="w-4 h-4 mr-2" />
+                <ShoppingCartIcon className="w-4 h-4 mr-2.5" />
                 {isEdit ? 'Update Purchase Order' : 'Create Purchase Order'}
               </>
             )}

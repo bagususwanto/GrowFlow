@@ -69,7 +69,7 @@ export function GoodsReceiptDetailContainer() {
     <div className="space-y-6">
       {/* Action Header */}
       <div className="flex sm:flex-row flex-col sm:justify-between sm:items-center gap-4">
-        <Button variant="ghost" size="sm" className="w-fit" render={<Link href="/purchasing/goods-receipts"><ArrowLeftIcon className="w-4 h-4 mr-2" />Back to List</Link>} />
+        <Button variant="ghost" size="sm" className="w-fit" nativeButton={false} render={<Link href="/purchasing/goods-receipts"><ArrowLeftIcon className="w-4 h-4 mr-2" />Back to List</Link>} />
         
         <div className="flex flex-wrap items-center gap-2">
           {isDraft && isWarehouseOrAdmin && (

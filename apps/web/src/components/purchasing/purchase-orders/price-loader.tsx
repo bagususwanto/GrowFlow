@@ -9,10 +9,12 @@ interface PriceLoaderProps {
 
 export function PriceLoader({ itemId, onPriceLoaded, onReferenceMessage }: PriceLoaderProps) {
   const { data, isLoading } = useItemLastPrice(itemId, 'purchase');
+  const lastLoadedItemRef = React.useRef<string | null>(null);
 
   React.useEffect(() => {
-    if (isLoading) return;
+    if (isLoading || lastLoadedItemRef.current === itemId) return;
 
+    lastLoadedItemRef.current = itemId;
     if (data?.unitPrice !== undefined && data?.unitPrice !== null) {
       onPriceLoaded(data.unitPrice);
       const formattedPrice = new Intl.NumberFormat('id-ID', {

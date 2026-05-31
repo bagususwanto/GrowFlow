@@ -2,12 +2,15 @@
 
 import React from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
 import { usePurchaseOrder, useUpdatePurchaseOrder } from '@web/hooks/use-purchase-orders';
 import { PurchaseOrderForm, PurchaseOrderFormValues } from './purchase-order-form';
 import { Card, CardContent } from '@web/components/ui/card';
+import { Button } from '@web/components/ui/button';
 import { Skeleton } from '@web/components/ui/skeleton';
 import { toast } from 'sonner';
 import { ApiError } from '@growflow/types';
+import { ChevronLeftIcon } from 'lucide-react';
 
 export function EditPurchaseOrderContainer() {
   const router = useRouter();
@@ -30,7 +33,7 @@ export function EditPurchaseOrderContainer() {
         })),
       });
       toast.success('Purchase Order updated successfully');
-      router.push('/purchasing/purchase-orders');
+      router.push(`/purchasing/purchase-orders/${id}`);
     } catch (error) {
       const apiError = error as ApiError;
       toast.error(apiError.message || 'Failed to update Purchase Order');
@@ -58,14 +61,38 @@ export function EditPurchaseOrderContainer() {
   }
 
   return (
-    <Card className="w-full">
-      <CardContent className="p-6">
-        <PurchaseOrderForm
-          initialData={po}
-          onSubmit={handleSubmit}
-          isSubmitting={updateMutation.isPending}
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <Button
+          variant="outline"
+          size="icon"
+          nativeButton={false}
+          render={
+            <Link href={`/purchasing/purchase-orders/${id}`} title="Back to Purchase Order Details">
+              <ChevronLeftIcon className="h-4 w-4" />
+            </Link>
+          }
         />
-      </CardContent>
-    </Card>
+        <div className="space-y-0.5">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+            Edit Purchase Order
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Modify the items or pricing details of this draft order.
+          </p>
+        </div>
+      </div>
+
+      <Card className="w-full">
+        <CardContent className="p-6">
+          <PurchaseOrderForm
+            initialData={po}
+            onSubmit={handleSubmit}
+            isSubmitting={updateMutation.isPending}
+          />
+        </CardContent>
+      </Card>
+    </div>
   );
 }
+

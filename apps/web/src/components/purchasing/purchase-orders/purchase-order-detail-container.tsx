@@ -12,7 +12,7 @@ import { Separator } from '@web/components/ui/separator';
 import { toast } from 'sonner';
 import { useConfirm } from '@web/hooks/use-confirm';
 import { useAuthStore } from '@web/stores/auth.store';
-import { ArrowLeftIcon, FileTextIcon, SendIcon, CheckSquareIcon, XCircleIcon, ShoppingBagIcon, EditIcon } from 'lucide-react';
+import { FileTextIcon, SendIcon, CheckSquareIcon, XCircleIcon, ShoppingBagIcon, EditIcon, ChevronLeftIcon } from 'lucide-react';
 
 function formatDate(dateStr: string, includeTime = false) {
   try {
@@ -105,14 +105,34 @@ export function PurchaseOrderDetailContainer() {
 
   return (
     <div className="space-y-6">
-      {/* Action Header */}
-      <div className="flex sm:flex-row flex-col sm:justify-between sm:items-center gap-4">
-        <Button variant="ghost" size="sm" className="w-fit" render={<Link href="/purchasing/purchase-orders"><ArrowLeftIcon className="w-4 h-4 mr-2" />Back to List</Link>} />
-        
-        <div className="flex flex-wrap items-center gap-2">
+      {/* Header aligned with actions */}
+      <div className="flex sm:flex-row flex-col sm:justify-between sm:items-start gap-4">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="icon"
+            nativeButton={false}
+            render={
+              <Link href="/purchasing/purchase-orders" title="Back to Purchase Orders">
+                <ChevronLeftIcon className="h-4 w-4" />
+              </Link>
+            }
+          />
+          <div className="space-y-0.5">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+              Purchase Order Details
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Track lifecycle progress and actions for this purchase order.
+            </p>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-wrap items-center gap-2 sm:self-center">
           {isDraft && (
             <>
-              <Button variant="outline" size="sm" render={<Link href={`/purchasing/purchase-orders/${id}/edit`}><EditIcon className="w-4 h-4 mr-2" />Edit Draft</Link>} />
+              <Button variant="outline" size="sm" nativeButton={false} render={<Link href={`/purchasing/purchase-orders/${id}/edit`}><EditIcon className="w-4 h-4 mr-2" />Edit Draft</Link>} />
               <Button size="sm" onClick={handleSubmit} disabled={submitMutation.isPending}>
                 <SendIcon className="w-4 h-4 mr-2" />Submit PO
               </Button>
@@ -126,7 +146,7 @@ export function PurchaseOrderDetailContainer() {
           )}
 
           {(isApproved || isPartial) && isWarehouseOrAdmin && (
-            <Button size="sm" render={<Link href={`/purchasing/goods-receipts/new?poId=${id}`}><ShoppingBagIcon className="w-4 h-4 mr-2" />Receive Items (GRN)</Link>} />
+            <Button size="sm" nativeButton={false} render={<Link href={`/purchasing/goods-receipts/new?poId=${id}`}><ShoppingBagIcon className="w-4 h-4 mr-2" />Receive Items (GRN)</Link>} />
           )}
 
           {!['CANCELLED', 'DONE', 'PARTIAL'].includes(po.status) && isManagerOrAdmin && (
