@@ -114,12 +114,54 @@ export class GoodsReceiptsService {
       }
     }
 
-    const gr = await this.prisma.$transaction(async (tx) => {
-      // 1. Create Goods Receipt record (directly as CONFIRMED in repository)
-      const newGr = await this.repository.create(dto, userId, tx);
+    const gr = await this.repository.create(dto, userId);
+    return this.mapToResponse(gr);
+  }
 
-      for (const item of dto.lineItems) {
-        // 2. Tambahkan qtyReceived di PO Line Items
+  async confirm(id: string, userId: string): Promise<GoodsReceiptResponseEntity> {
+    const gr = await this.repository.findById(id);
+    if (!gr) {
+      throw new NotFoundException(`Goods Receipt with ID ${id} not found`);
+    }
+
+    if (gr.status !== GoodsReceiptStatus.DRAFT) {
+      throw new BadRequestException(`Goods Receipt is already ${gr.status}`);
+    }
+
+    const po = await this.prisma.purchaseOrder.findFirst({
+      where: { id: gr.purchaseOrderId, deletedAt: null },
+      include: { lineItems: true },
+    });
+
+    if (!po) {
+      throw new BadRequestException(`Purchase Order with ID ${gr.purchaseOrderId} not found`);
+    }
+
+    if (po.status !== PurchaseOrderStatus.APPROVED && po.status !== PurchaseOrderStatus.PARTIAL) {
+      throw new BadRequestException(`Cannot confirm Goods Receipt for Purchase Order with status ${po.status}`);
+    }
+
+    for (const item of gr.lineItems) {
+      const poLine = po.lineItems.find((l) => l.id === item.poLineItemId);
+      if (!poLine) {
+        throw new BadRequestException(`PO Line Item ${item.poLineItemId} does not belong to PO ${gr.purchaseOrderId}`);
+      }
+
+      const remaining = poLine.qty - poLine.qtyReceived;
+      if (item.qty > remaining) {
+        throw new UnprocessableEntityException(
+          `Cannot receive ${item.qty} units of item ${item.item.name}. Only ${remaining} units remaining on PO.`,
+        );
+      }
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.goodsReceipt.update({
+        where: { id },
+        data: { status: GoodsReceiptStatus.CONFIRMED },
+      });
+
+      for (const item of gr.lineItems) {
         await tx.purchaseOrderLineItem.update({
           where: { id: item.poLineItemId },
           data: {
@@ -129,26 +171,24 @@ export class GoodsReceiptsService {
           },
         });
 
-        // 3. Catat stock mutation
         await tx.stockMutation.create({
           data: {
             itemId: item.itemId,
-            warehouseId: dto.warehouseId,
+            warehouseId: gr.warehouseId,
             qty: item.qty,
             type: MutationType.IN,
             referenceType: 'GRN',
-            referenceId: newGr.id,
+            referenceId: gr.id,
             createdById: userId,
-            note: dto.note || `Received via GRN: ${newGr.number}`,
+            note: gr.note || `Received via GRN: ${gr.number}`,
           },
         });
 
-        // 4. Update stock balance (upsert)
         await tx.stockBalance.upsert({
           where: {
             itemId_warehouseId: {
               itemId: item.itemId,
-              warehouseId: dto.warehouseId,
+              warehouseId: gr.warehouseId,
             },
           },
           update: {
@@ -158,33 +198,26 @@ export class GoodsReceiptsService {
           },
           create: {
             itemId: item.itemId,
-            warehouseId: dto.warehouseId,
+            warehouseId: gr.warehouseId,
             qty: item.qty,
           },
         });
       }
 
-      // 5. Update PO status (PARTIAL / DONE)
       const updatedLines = await tx.purchaseOrderLineItem.findMany({
-        where: { purchaseOrderId: dto.purchaseOrderId },
+        where: { purchaseOrderId: gr.purchaseOrderId },
       });
 
       const allReceived = updatedLines.every((line) => line.qtyReceived >= line.qty);
       const poStatus = allReceived ? PurchaseOrderStatus.DONE : PurchaseOrderStatus.PARTIAL;
 
       await tx.purchaseOrder.update({
-        where: { id: dto.purchaseOrderId },
+        where: { id: gr.purchaseOrderId },
         data: { status: poStatus },
       });
-
-      return newGr;
     });
 
-    return this.findOne(gr.id);
-  }
-
-  async confirm(id: string, userId: string): Promise<GoodsReceiptResponseEntity> {
-    throw new BadRequestException('Goods Receipts are automatically confirmed upon creation.');
+    return this.findOne(id);
   }
 
   async remove(id: string): Promise<void> {

@@ -173,7 +173,7 @@ export class GoodsReceiptsRepository {
         warehouseId: dto.warehouseId,
         note: dto.note,
         receivedDate: dto.receivedDate ? new Date(dto.receivedDate) : new Date(),
-        status: GoodsReceiptStatus.CONFIRMED,
+        status: GoodsReceiptStatus.DRAFT,
         createdById: userId,
         lineItems: {
           create: dto.lineItems.map((item) => ({

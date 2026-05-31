@@ -120,12 +120,69 @@ export class DeliveryNotesService {
       }
     }
 
-    const dn = await this.prisma.$transaction(async (tx) => {
-      // 1. Create Delivery Note record directly as CONFIRMED in repository
-      const newDn = await this.repository.create(dto, userId, tx);
+    const dn = await this.repository.create(dto, userId);
+    return this.mapToResponse(dn);
+  }
 
-      for (const item of dto.lineItems) {
-        // 2. Tambahkan qtyDelivered di SO Line Items
+  async confirm(id: string, userId: string): Promise<DeliveryNoteResponseEntity> {
+    const dn = await this.repository.findById(id);
+    if (!dn) {
+      throw new NotFoundException(`Delivery Note with ID ${id} not found`);
+    }
+
+    if (dn.status !== DeliveryNoteStatus.DRAFT) {
+      throw new BadRequestException(`Delivery Note is already ${dn.status}`);
+    }
+
+    const so = await this.prisma.salesOrder.findFirst({
+      where: { id: dn.salesOrderId, deletedAt: null },
+      include: { lineItems: true },
+    });
+
+    if (!so) {
+      throw new BadRequestException(`Sales Order with ID ${dn.salesOrderId} not found`);
+    }
+
+    if (so.status !== SalesOrderStatus.CONFIRMED && so.status !== SalesOrderStatus.PARTIAL) {
+      throw new BadRequestException(`Cannot confirm Delivery Note for Sales Order with status ${so.status}`);
+    }
+
+    for (const item of dn.lineItems) {
+      const soLine = so.lineItems.find((l) => l.id === item.soLineItemId);
+      if (!soLine) {
+        throw new BadRequestException(`SO Line Item ${item.soLineItemId} does not belong to SO ${dn.salesOrderId}`);
+      }
+
+      const remaining = soLine.qty - soLine.qtyDelivered;
+      if (item.qty > remaining) {
+        throw new UnprocessableEntityException(
+          `Cannot deliver ${item.qty} units of item ${item.item.name}. Only ${remaining} units remaining on SO.`,
+        );
+      }
+
+      const balance = await this.prisma.stockBalance.findUnique({
+        where: {
+          itemId_warehouseId: {
+            itemId: item.itemId,
+            warehouseId: so.warehouseId,
+          },
+        },
+      });
+      const availableQty = balance ? balance.qty : 0;
+      if (availableQty < item.qty) {
+        throw new UnprocessableEntityException(
+          `Insufficient physical stock for delivery. Item ${item.item.name} only has ${availableQty} units available in the warehouse.`,
+        );
+      }
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.deliveryNote.update({
+        where: { id },
+        data: { status: DeliveryNoteStatus.CONFIRMED },
+      });
+
+      for (const item of dn.lineItems) {
         await tx.salesOrderLineItem.update({
           where: { id: item.soLineItemId },
           data: {
@@ -135,7 +192,6 @@ export class DeliveryNotesService {
           },
         });
 
-        // 3. Catat stock mutation OUT
         await tx.stockMutation.create({
           data: {
             itemId: item.itemId,
@@ -143,13 +199,12 @@ export class DeliveryNotesService {
             qty: item.qty,
             type: MutationType.OUT,
             referenceType: 'DN',
-            referenceId: newDn.id,
+            referenceId: dn.id,
             createdById: userId,
-            note: dto.note || `Delivered via DN: ${newDn.number}`,
+            note: dn.note || `Delivered via DN: ${dn.number}`,
           },
         });
 
-        // 4. Update stock balance
         await tx.stockBalance.update({
           where: {
             itemId_warehouseId: {
@@ -165,27 +220,20 @@ export class DeliveryNotesService {
         });
       }
 
-      // 5. Update SO status (PARTIAL / DONE)
       const updatedLines = await tx.salesOrderLineItem.findMany({
-        where: { salesOrderId: dto.salesOrderId },
+        where: { salesOrderId: dn.salesOrderId },
       });
 
       const allDelivered = updatedLines.every((line) => line.qtyDelivered >= line.qty);
       const soStatus = allDelivered ? SalesOrderStatus.DONE : SalesOrderStatus.PARTIAL;
 
       await tx.salesOrder.update({
-        where: { id: dto.salesOrderId },
+        where: { id: dn.salesOrderId },
         data: { status: soStatus },
       });
-
-      return newDn;
     });
 
-    return this.findOne(dn.id);
-  }
-
-  async confirm(id: string, userId: string): Promise<DeliveryNoteResponseEntity> {
-    throw new BadRequestException('Delivery Notes are automatically confirmed upon creation.');
+    return this.findOne(id);
   }
 
   async remove(id: string): Promise<void> {

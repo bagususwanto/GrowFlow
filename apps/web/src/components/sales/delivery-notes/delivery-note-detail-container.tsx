@@ -3,13 +3,15 @@
 import React from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { useDeliveryNote } from '@web/hooks/use-delivery-notes';
+import { useDeliveryNote, useConfirmDeliveryNote } from '@web/hooks/use-delivery-notes';
 import { Card, CardContent, CardHeader, CardTitle } from '@web/components/ui/card';
 import { Button } from '@web/components/ui/button';
 import { Skeleton } from '@web/components/ui/skeleton';
 import { Separator } from '@web/components/ui/separator';
-import { ChevronLeftIcon, FileTextIcon, WarehouseIcon, CalendarIcon, UserIcon } from 'lucide-react';
+import { ChevronLeftIcon, FileTextIcon, WarehouseIcon, CalendarIcon, UserIcon, CheckSquareIcon } from 'lucide-react';
 import { Badge } from '@web/components/ui/badge';
+import { useConfirm } from '@web/hooks/use-confirm';
+import { toast } from 'sonner';
 
 function formatDate(dateStr: string, includeTime = false) {
   try {
@@ -30,7 +32,24 @@ export function DeliveryNoteDetailContainer() {
   const params = useParams();
   const id = params.id as string;
 
+  const confirm = useConfirm();
+  const confirmMutation = useConfirmDeliveryNote();
   const { data: dn, isLoading, isError, error } = useDeliveryNote(id);
+
+  const handleConfirm = async () => {
+    const ok = await confirm({
+      title: 'Confirm Goods Delivery',
+      description: `Confirm ${dn?.number}? This action will deduct the physical stock balance in the source warehouse.`,
+      confirmText: 'Confirm Delivery',
+    });
+    if (ok) {
+      toast.promise(confirmMutation.mutateAsync(id), {
+        loading: 'Confirming Delivery Note...',
+        success: 'Delivery Note confirmed successfully. Warehouse stock updated.',
+        error: (err) => err?.response?.data?.message || 'Failed to confirm DN',
+      });
+    }
+  };
 
   if (isLoading) return <Skeleton className="w-full h-96" />;
   if (isError || !dn) {
@@ -68,6 +87,11 @@ export function DeliveryNoteDetailContainer() {
 
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-2 sm:self-center">
+          {dn.status === 'DRAFT' && (
+            <Button size="sm" onClick={handleConfirm} disabled={confirmMutation.isPending}>
+              <CheckSquareIcon className="w-4 h-4 mr-2" />Confirm Delivery
+            </Button>
+          )}
         </div>
       </div>
 

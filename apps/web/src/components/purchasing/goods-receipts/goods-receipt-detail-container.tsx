@@ -3,13 +3,15 @@
 import React from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { useGoodsReceipt } from '@web/hooks/use-goods-receipts';
+import { useGoodsReceipt, useConfirmGoodsReceipt } from '@web/hooks/use-goods-receipts';
 import { GoodsReceiptStatusBadge } from './status-badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@web/components/ui/card';
 import { Button } from '@web/components/ui/button';
 import { Skeleton } from '@web/components/ui/skeleton';
 import { Separator } from '@web/components/ui/separator';
-import { ChevronLeftIcon, FileTextIcon, WarehouseIcon, CalendarIcon, UserIcon } from 'lucide-react';
+import { ChevronLeftIcon, FileTextIcon, WarehouseIcon, CalendarIcon, UserIcon, CheckSquareIcon } from 'lucide-react';
+import { useConfirm } from '@web/hooks/use-confirm';
+import { toast } from 'sonner';
 
 function formatDate(dateStr: string, includeTime = false) {
   try {
@@ -30,7 +32,24 @@ export function GoodsReceiptDetailContainer() {
   const params = useParams();
   const id = params.id as string;
 
+  const confirm = useConfirm();
+  const confirmMutation = useConfirmGoodsReceipt();
   const { data: gr, isLoading, isError, error } = useGoodsReceipt(id);
+
+  const handleConfirm = async () => {
+    const ok = await confirm({
+      title: 'Confirm Goods Receipt',
+      description: `Confirm receipt for ${gr?.number}? This will add items to stock balance and cannot be undone.`,
+      confirmText: 'Confirm Receipt',
+    });
+    if (ok) {
+      toast.promise(confirmMutation.mutateAsync(id), {
+        loading: 'Confirming Goods Receipt...',
+        success: 'Goods Receipt confirmed successfully. Stock balances updated',
+        error: 'Failed to confirm Goods Receipt',
+      });
+    }
+  };
 
   if (isLoading) return <Skeleton className="w-full h-96" />;
   if (isError || !gr) {
@@ -68,6 +87,11 @@ export function GoodsReceiptDetailContainer() {
 
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-2 sm:self-center">
+          {gr.status === 'DRAFT' && (
+            <Button size="sm" onClick={handleConfirm} disabled={confirmMutation.isPending}>
+              <CheckSquareIcon className="w-4 h-4 mr-2" />Confirm Receipt
+            </Button>
+          )}
         </div>
       </div>
 

@@ -182,7 +182,7 @@ export class DeliveryNotesRepository {
         salesOrderId: dto.salesOrderId,
         note: dto.note,
         deliveryDate: dto.deliveryDate ? new Date(dto.deliveryDate) : new Date(),
-        status: DeliveryNoteStatus.CONFIRMED,
+        status: DeliveryNoteStatus.DRAFT,
         createdById: userId,
         lineItems: {
           create: dto.lineItems.map((item) => ({
