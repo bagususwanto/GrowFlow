@@ -129,6 +129,7 @@ describe('GoodsReceiptsService', () => {
       repository.findById.mockResolvedValueOnce(mockGrDb).mockResolvedValueOnce({ ...mockGrDb, status: GoodsReceiptStatus.CONFIRMED });
       prisma.purchaseOrder.findFirst.mockResolvedValue({
         id: 'po-id-1',
+        status: PurchaseOrderStatus.APPROVED,
         lineItems: [{ id: 'po-li-id-1', itemId: 'item-id-1', qty: 10, qtyReceived: 0 }],
       } as any);
       prisma.purchaseOrderLineItem.findMany.mockResolvedValue([

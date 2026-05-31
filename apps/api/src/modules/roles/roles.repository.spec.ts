@@ -20,6 +20,7 @@ describe('RolesRepository', () => {
       findMany: jest.fn(),
       count: jest.fn(),
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
@@ -57,6 +58,7 @@ describe('RolesRepository', () => {
         skip: 0,
         take: 10,
         where: {
+          deletedAt: null,
           name: {
             contains: 'staff',
             mode: 'insensitive',
@@ -66,6 +68,7 @@ describe('RolesRepository', () => {
       });
       expect(prisma.role.count).toHaveBeenCalledWith({
         where: {
+          deletedAt: null,
           name: {
             contains: 'staff',
             mode: 'insensitive',
@@ -78,18 +81,18 @@ describe('RolesRepository', () => {
 
   describe('findById', () => {
     it('should find a role by ID', async () => {
-      prisma.role.findUnique.mockResolvedValue(mockRole);
+      prisma.role.findFirst.mockResolvedValue(mockRole);
       const result = await repository.findById('role-id');
-      expect(prisma.role.findUnique).toHaveBeenCalledWith({ where: { id: 'role-id' } });
+      expect(prisma.role.findFirst).toHaveBeenCalledWith({ where: { id: 'role-id', deletedAt: null } });
       expect(result).toEqual(mockRole);
     });
   });
 
   describe('findByName', () => {
     it('should find a role by name', async () => {
-      prisma.role.findUnique.mockResolvedValue(mockRole);
+      prisma.role.findFirst.mockResolvedValue(mockRole);
       const result = await repository.findByName('staff');
-      expect(prisma.role.findUnique).toHaveBeenCalledWith({ where: { name: 'staff' } });
+      expect(prisma.role.findFirst).toHaveBeenCalledWith({ where: { name: 'staff', deletedAt: null } });
       expect(result).toEqual(mockRole);
     });
   });
@@ -121,9 +124,12 @@ describe('RolesRepository', () => {
 
   describe('remove', () => {
     it('should delete a role', async () => {
-      prisma.role.delete.mockResolvedValue(mockRole);
+      prisma.role.update.mockResolvedValue(mockRole);
       const result = await repository.remove('role-id');
-      expect(prisma.role.delete).toHaveBeenCalledWith({ where: { id: 'role-id' } });
+      expect(prisma.role.update).toHaveBeenCalledWith({
+        where: { id: 'role-id' },
+        data: { deletedAt: expect.any(Date) },
+      });
       expect(result).toEqual(mockRole);
     });
   });

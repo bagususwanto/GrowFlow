@@ -8,8 +8,21 @@ describe('ItemsService', () => {
   let repository: any;
 
   const mockDate = new Date();
-  const mockItem = { id: 'i-id', code: 'ITM1', name: 'Item 1', unit: 'pcs', category: 'Cat', minStock: 10, createdAt: mockDate, updatedAt: mockDate, deletedAt: null };
-  const mockResponse = { id: 'i-id', code: 'ITM1', name: 'Item 1', unit: 'pcs', category: 'Cat', minStock: 10, createdAt: mockDate.toISOString(), updatedAt: mockDate.toISOString() };
+  const mockCategory = { id: 'c-id', name: 'Cat', description: null, isActive: true, deletedAt: null, createdAt: mockDate, updatedAt: mockDate };
+  const mockItem = { id: 'i-id', code: 'ITM1', name: 'Item 1', unit: 'pcs', categoryId: 'c-id', category: mockCategory, minStock: 10, isActive: true, deletedAt: null, createdAt: mockDate, updatedAt: mockDate };
+  const mockResponse = {
+    id: 'i-id',
+    code: 'ITM1',
+    name: 'Item 1',
+    unit: 'pcs',
+    categoryId: 'c-id',
+    category: { id: 'c-id', name: 'Cat', description: null, isActive: true, deletedAt: null, createdAt: mockDate.toISOString(), updatedAt: mockDate.toISOString() },
+    minStock: 10,
+    isActive: true,
+    deletedAt: null,
+    createdAt: mockDate.toISOString(),
+    updatedAt: mockDate.toISOString(),
+  };
 
   const mockRepository = {
     findAll: jest.fn(),

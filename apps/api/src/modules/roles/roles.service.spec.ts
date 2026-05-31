@@ -13,6 +13,8 @@ describe('RolesService', () => {
     id: 'role-id',
     name: 'staff',
     permissions: ['read:items'],
+    isActive: true,
+    deletedAt: null,
     createdAt: mockDate,
     updatedAt: mockDate,
   };
@@ -21,6 +23,8 @@ describe('RolesService', () => {
     id: 'role-id',
     name: 'staff',
     permissions: ['read:items'],
+    isActive: true,
+    deletedAt: null,
     createdAt: mockDate.toISOString(),
     updatedAt: mockDate.toISOString(),
   };

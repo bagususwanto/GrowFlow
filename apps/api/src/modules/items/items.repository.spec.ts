@@ -79,7 +79,7 @@ describe('ItemsRepository', () => {
 
   describe('findById', () => {
     it('should find active item by id', async () => {
-      prisma.item.findUnique.mockResolvedValue(mockItem);
+      prisma.item.findFirst.mockResolvedValue(mockItem);
       const res = await repository.findById('i-id');
       expect(res).toEqual(mockItem);
     });

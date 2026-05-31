@@ -84,6 +84,10 @@ describe('StockRepository', () => {
         take: 10,
         where: { itemId: 'i-id' },
         orderBy: { qty: 'asc' },
+        include: {
+          item: true,
+          warehouse: true,
+        },
       });
       expect(prisma.stockMutation.count).toHaveBeenCalledWith({
         where: { itemId: 'i-id' },
