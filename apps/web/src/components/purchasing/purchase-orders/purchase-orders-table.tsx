@@ -143,7 +143,7 @@ export function PurchaseOrdersTable() {
     async (po: { id: string; number: string }) => {
       const ok = await confirm({
         title: 'Submit Purchase Order',
-        description: `Are you sure you want to submit Purchase Order ${po.number}? You won't be able to edit it unless cancelled.`,
+        description: `Are you sure you want to submit ${po.number}? You won't be able to edit it unless cancelled.`,
         confirmText: 'Submit PO',
       });
       if (ok) {
@@ -161,7 +161,7 @@ export function PurchaseOrdersTable() {
     async (po: { id: string; number: string }) => {
       const ok = await confirm({
         title: 'Approve Purchase Order',
-        description: `Are you sure you want to approve Purchase Order ${po.number}? This will make the order eligible for stock receipt.`,
+        description: `Are you sure you want to approve ${po.number}? This will make the order eligible for stock receipt.`,
         confirmText: 'Approve PO',
       });
       if (ok) {
@@ -179,7 +179,7 @@ export function PurchaseOrdersTable() {
     async (po: { id: string; number: string }) => {
       const ok = await confirm({
         title: 'Delete Purchase Order',
-        description: `Are you sure you want to delete PO draft ${po.number}? This action cannot be undone.`,
+        description: `Are you sure you want to delete draft ${po.number}? This action cannot be undone.`,
         confirmText: 'Delete',
         variant: 'destructive',
       });

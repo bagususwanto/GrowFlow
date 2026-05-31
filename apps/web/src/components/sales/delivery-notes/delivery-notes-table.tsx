@@ -134,7 +134,7 @@ export function DeliveryNotesTable() {
     async (dn: { id: string; number: string }) => {
       const ok = await confirm({
         title: 'Confirm Goods Delivery',
-        description: `Confirm Delivery Note ${dn.number}? This action will deduct the physical stock balance in the source warehouse.`,
+        description: `Confirm ${dn.number}? This action will deduct the physical stock balance in the source warehouse.`,
         confirmText: 'Confirm Delivery',
       });
       if (ok) {
@@ -152,7 +152,7 @@ export function DeliveryNotesTable() {
     async (dn: { id: string; number: string }) => {
       const ok = await confirm({
         title: 'Delete Delivery Note Draft',
-        description: `Are you sure you want to delete DN draft ${dn.number}? This action cannot be undone.`,
+        description: `Are you sure you want to delete draft ${dn.number}? This action cannot be undone.`,
         confirmText: 'Delete',
         variant: 'destructive',
       });

@@ -140,7 +140,7 @@ export function SalesOrdersTable() {
     async (so: { id: string; number: string }) => {
       const ok = await confirm({
         title: 'Confirm Sales Order',
-        description: `Are you sure you want to confirm Sales Order ${so.number}? This will validate stock availability and reserve the items.`,
+        description: `Are you sure you want to confirm ${so.number}? This will validate stock availability and reserve the items.`,
         confirmText: 'Confirm SO',
       });
       if (ok) {
@@ -158,7 +158,7 @@ export function SalesOrdersTable() {
     async (so: { id: string; number: string }) => {
       const ok = await confirm({
         title: 'Delete Sales Order',
-        description: `Are you sure you want to delete SO draft ${so.number}? This action cannot be undone.`,
+        description: `Are you sure you want to delete draft ${so.number}? This action cannot be undone.`,
         confirmText: 'Delete',
         variant: 'destructive',
       });
