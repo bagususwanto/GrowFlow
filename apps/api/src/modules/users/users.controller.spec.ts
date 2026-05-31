@@ -63,8 +63,8 @@ describe('UsersController', () => {
       const paginatedResponse = { data: [mockUserResponse], total: 1, page: 2, limit: 5 };
       service.findAll.mockResolvedValue(paginatedResponse);
 
-      const result = await controller.findAll(2, 5);
-      expect(service.findAll).toHaveBeenCalledWith(2, 5);
+      const result = await controller.findAll({ page: 2, limit: 5 });
+      expect(service.findAll).toHaveBeenCalledWith({ page: 2, limit: 5 });
       expect(result).toEqual(paginatedResponse);
     });
   });

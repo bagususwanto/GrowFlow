@@ -54,7 +54,7 @@ describe('UsersRepository', () => {
     it('should return paginated active users', async () => {
       prisma.user.findMany.mockResolvedValue([mockUserWithRole]);
 
-      const result = await repository.findAll(0, 10);
+      const result = await repository.findAll({}, 0, 10);
       expect(prisma.user.findMany).toHaveBeenCalledWith({
         skip: 0,
         take: 10,
@@ -69,7 +69,7 @@ describe('UsersRepository', () => {
   describe('count', () => {
     it('should return count of active users', async () => {
       prisma.user.count.mockResolvedValue(5);
-      const result = await repository.count();
+      const result = await repository.count({});
       expect(prisma.user.count).toHaveBeenCalledWith({ where: { deletedAt: null } });
       expect(result).toEqual(5);
     });

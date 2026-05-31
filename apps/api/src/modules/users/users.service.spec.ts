@@ -66,8 +66,8 @@ describe('UsersService', () => {
       repository.findAll.mockResolvedValue([mockUserWithRole]);
       repository.count.mockResolvedValue(1);
 
-      const result = await service.findAll(1, 10);
-      expect(repository.findAll).toHaveBeenCalledWith(0, 10);
+      const result = await service.findAll({ page: 1, limit: 10 });
+      expect(repository.findAll).toHaveBeenCalledWith({ page: 1, limit: 10 }, 0, 10);
       expect(result).toEqual({
         data: [mockUserResponse],
         total: 1,

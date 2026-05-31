@@ -14,6 +14,8 @@ describe('AuthService', () => {
     id: 'role-id',
     name: 'superadmin',
     permissions: '["*"]',
+    isActive: true,
+    deletedAt: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
