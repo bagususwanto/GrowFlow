@@ -37,6 +37,11 @@ export class ListGoodsReceiptsQueryDto implements ListGoodsReceiptsQuery {
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
+  supplierId?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
   warehouseId?: string;
 
   @ApiPropertyOptional()

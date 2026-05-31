@@ -145,7 +145,7 @@ export function PurchaseOrdersTable() {
         title: 'Submit Purchase Order',
         description: (
           <>
-            Are you sure you want to submit <span className="font-bold">{po.number}</span>? You won't be able to edit it unless cancelled.
+            Are you sure you want to submit <span className="font-bold">{po.number}</span>? You won&apos;t be able to edit it unless cancelled.
           </>
         ),
         confirmText: 'Submit PO',

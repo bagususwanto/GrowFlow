@@ -31,6 +31,12 @@ export class DeliveryNotesRepository {
       where.salesOrderId = query.salesOrderId;
     }
 
+    if (query.customerId) {
+      where.salesOrder = {
+        customerId: query.customerId,
+      };
+    }
+
     return where;
   }
 

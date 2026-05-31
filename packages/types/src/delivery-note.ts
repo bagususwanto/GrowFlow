@@ -73,6 +73,7 @@ export interface ListDeliveryNotesQuery {
   search?: string;
   status?: DeliveryNoteStatus;
   salesOrderId?: string;
+  customerId?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
 }

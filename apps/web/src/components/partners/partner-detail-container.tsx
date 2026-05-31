@@ -9,6 +9,7 @@ import { Badge } from '@web/components/ui/badge';
 import { Skeleton } from '@web/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@web/components/ui/alert';
 import { toast } from 'sonner';
+import { PartnerTransactions } from './partner-transactions';
 import { ApiError } from '@growflow/types';
 import { useConfirm } from '@web/hooks/use-confirm';
 import {
@@ -21,9 +22,9 @@ import {
   AlertCircleIcon,
   Loader2Icon,
   ClockIcon,
-  FileTextIcon,
   BriefcaseIcon,
 } from 'lucide-react';
+// ... rest of imports unchanged ...
 
 interface PartnerDetailContainerProps {
   id: string;
@@ -221,23 +222,12 @@ export function PartnerDetailContainer({ id }: PartnerDetailContainerProps) {
         </CardContent>
       </Card>
 
-      {/* Section 3: Related Data Section (Placeholder) */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <FileTextIcon className="w-4 h-4 text-muted-foreground" />
-            Related Transactions
-          </CardTitle>
-          <CardDescription>
-            Historical records, invoices, stock movements, and orders linked to this partner.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="h-32 flex justify-center items-center bg-muted/20 border border-dashed rounded-lg mx-6 mb-6">
-          <p className="text-sm text-muted-foreground/60 italic">
-            No related transaction logs available at this time. Transaction history will automatically populate when stock movements and purchasing/sales orders are implemented.
-          </p>
-        </CardContent>
-      </Card>
+      {/* Section 3: Related Data Section */}
+      <PartnerTransactions
+        partnerId={partner.id}
+        partnerType={partner.type as 'SUPPLIER' | 'CUSTOMER'}
+        partnerName={partner.name}
+      />
     </div>
   );
 }

@@ -31,6 +31,12 @@ export class GoodsReceiptsRepository {
       where.purchaseOrderId = query.purchaseOrderId;
     }
 
+    if (query.supplierId) {
+      where.purchaseOrder = {
+        supplierId: query.supplierId,
+      };
+    }
+
     if (query.warehouseId) {
       where.warehouseId = query.warehouseId;
     }

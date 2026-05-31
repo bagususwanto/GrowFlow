@@ -70,6 +70,7 @@ export interface ListGoodsReceiptsQuery {
   search?: string;
   status?: GoodsReceiptStatus;
   purchaseOrderId?: string;
+  supplierId?: string;
   warehouseId?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';

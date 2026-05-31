@@ -32,6 +32,11 @@ export class ListDeliveryNotesQueryDto implements ListDeliveryNotesQuery {
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
+  customerId?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
   sortBy?: string;
 
   @ApiPropertyOptional({ enum: ['asc', 'desc'] })
