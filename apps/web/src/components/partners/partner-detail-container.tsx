@@ -226,7 +226,6 @@ export function PartnerDetailContainer({ id }: PartnerDetailContainerProps) {
       <PartnerTransactions
         partnerId={partner.id}
         partnerType={partner.type as 'SUPPLIER' | 'CUSTOMER'}
-        partnerName={partner.name}
       />
     </div>
   );

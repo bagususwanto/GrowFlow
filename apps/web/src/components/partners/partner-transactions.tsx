@@ -16,10 +16,9 @@ import { Skeleton } from '@web/components/ui/skeleton';
 interface PartnerTransactionsProps {
   partnerId: string;
   partnerType: 'SUPPLIER' | 'CUSTOMER';
-  partnerName: string;
 }
 
-export function PartnerTransactions({ partnerId, partnerType, partnerName }: PartnerTransactionsProps) {
+export function PartnerTransactions({ partnerId, partnerType }: PartnerTransactionsProps) {
   const isSupplier = partnerType === 'SUPPLIER';
 
   // Fetch POs if supplier
@@ -99,7 +98,7 @@ export function PartnerTransactions({ partnerId, partnerType, partnerName }: Par
         </div>
         <div className="flex justify-end">
           <Link
-            href={`/purchasing/purchase-orders?search=${encodeURIComponent(partnerName)}`}
+            href={`/purchasing/purchase-orders?supplierId=${partnerId}`}
             className="text-xs text-primary flex items-center gap-1 hover:underline"
           >
             View all Purchase Orders
@@ -165,7 +164,7 @@ export function PartnerTransactions({ partnerId, partnerType, partnerName }: Par
         </div>
         <div className="flex justify-end">
           <Link
-            href={`/purchasing/goods-receipts?search=${encodeURIComponent(partnerName)}`}
+            href={`/purchasing/goods-receipts?supplierId=${partnerId}`}
             className="text-xs text-primary flex items-center gap-1 hover:underline"
           >
             View all Goods Receipts
@@ -233,7 +232,7 @@ export function PartnerTransactions({ partnerId, partnerType, partnerName }: Par
         </div>
         <div className="flex justify-end">
           <Link
-            href={`/sales/sales-orders?search=${encodeURIComponent(partnerName)}`}
+            href={`/sales/sales-orders?customerId=${partnerId}`}
             className="text-xs text-primary flex items-center gap-1 hover:underline"
           >
             View all Sales Orders
@@ -297,7 +296,7 @@ export function PartnerTransactions({ partnerId, partnerType, partnerName }: Par
         </div>
         <div className="flex justify-end">
           <Link
-            href={`/sales/delivery-notes?search=${encodeURIComponent(partnerName)}`}
+            href={`/sales/delivery-notes?customerId=${partnerId}`}
             className="text-xs text-primary flex items-center gap-1 hover:underline"
           >
             View all Delivery Notes

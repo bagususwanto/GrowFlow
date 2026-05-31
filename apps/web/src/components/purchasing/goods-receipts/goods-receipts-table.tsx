@@ -44,6 +44,7 @@ export function GoodsReceiptsTable() {
   const urlStatus = searchParams.get('status');
   const urlSortBy = searchParams.get('sortBy');
   const urlSortOrder = searchParams.get('sortOrder');
+  const urlSupplierId = searchParams.get('supplierId');
 
   const page = urlPage ? parseInt(urlPage, 10) : 1;
   const limit = urlLimit ? parseInt(urlLimit, 10) : 10;
@@ -117,8 +118,9 @@ export function GoodsReceiptsTable() {
     };
     if (debouncedSearch) q.search = debouncedSearch;
     if (status && status !== 'all') q.status = status as GoodsReceiptStatus;
+    if (urlSupplierId) q.supplierId = urlSupplierId;
     return q;
-  }, [page, limit, debouncedSearch, status, sortBy, sortOrder]);
+  }, [page, limit, debouncedSearch, status, sortBy, sortOrder, urlSupplierId]);
 
   const { data, isLoading, isError, error } = useGoodsReceipts(query);
   const deleteMutation = useDeleteGoodsReceipt();
@@ -222,7 +224,8 @@ export function GoodsReceiptsTable() {
 
   const isFilterActive =
     (urlSearch && urlSearch !== '') ||
-    (urlStatus && urlStatus !== 'all');
+    (urlStatus && urlStatus !== 'all') ||
+    urlSupplierId;
 
   const handleResetFilters = () => {
     setSearch('');

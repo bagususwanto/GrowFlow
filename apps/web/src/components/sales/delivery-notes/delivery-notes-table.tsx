@@ -43,6 +43,7 @@ export function DeliveryNotesTable() {
   const urlStatus = searchParams.get('status');
   const urlSortBy = searchParams.get('sortBy');
   const urlSortOrder = searchParams.get('sortOrder');
+  const urlCustomerId = searchParams.get('customerId');
 
   const page = urlPage ? parseInt(urlPage, 10) : 1;
   const limit = urlLimit ? parseInt(urlLimit, 10) : 10;
@@ -116,8 +117,9 @@ export function DeliveryNotesTable() {
     };
     if (debouncedSearch) q.search = debouncedSearch;
     if (status && status !== 'all') q.status = status as DeliveryNoteStatus;
+    if (urlCustomerId) q.customerId = urlCustomerId;
     return q;
-  }, [page, limit, debouncedSearch, status, sortBy, sortOrder]);
+  }, [page, limit, debouncedSearch, status, sortBy, sortOrder, urlCustomerId]);
 
   const { data, isLoading, isError, error } = useDeliveryNotes(query);
   const deleteMutation = useDeleteDeliveryNote();
@@ -221,7 +223,8 @@ export function DeliveryNotesTable() {
 
   const isFilterActive =
     (urlSearch && urlSearch !== '') ||
-    (urlStatus && urlStatus !== 'all');
+    (urlStatus && urlStatus !== 'all') ||
+    urlCustomerId;
 
   const handleResetFilters = () => {
     setSearch('');

@@ -44,6 +44,7 @@ export function PurchaseOrdersTable() {
   const urlStatus = searchParams.get('status');
   const urlSortBy = searchParams.get('sortBy');
   const urlSortOrder = searchParams.get('sortOrder');
+  const urlSupplierId = searchParams.get('supplierId');
 
   const page = urlPage ? parseInt(urlPage, 10) : 1;
   const limit = urlLimit ? parseInt(urlLimit, 10) : 10;
@@ -117,8 +118,9 @@ export function PurchaseOrdersTable() {
     };
     if (debouncedSearch) q.search = debouncedSearch;
     if (status && status !== 'all') q.status = status as PurchaseOrderStatus;
+    if (urlSupplierId) q.supplierId = urlSupplierId;
     return q;
-  }, [page, limit, debouncedSearch, status, sortBy, sortOrder]);
+  }, [page, limit, debouncedSearch, status, sortBy, sortOrder, urlSupplierId]);
 
   const { data, isLoading, isError, error } = usePurchaseOrders(query);
   const deleteMutation = useDeletePurchaseOrder();
@@ -254,7 +256,8 @@ export function PurchaseOrdersTable() {
 
   const isFilterActive =
     (urlSearch && urlSearch !== '') ||
-    (urlStatus && urlStatus !== 'all');
+    (urlStatus && urlStatus !== 'all') ||
+    urlSupplierId;
 
   const handleResetFilters = () => {
     setSearch('');

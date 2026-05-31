@@ -42,6 +42,7 @@ export function SalesOrdersTable() {
   const urlStatus = searchParams.get('status');
   const urlSortBy = searchParams.get('sortBy');
   const urlSortOrder = searchParams.get('sortOrder');
+  const urlCustomerId = searchParams.get('customerId');
 
   const page = urlPage ? parseInt(urlPage, 10) : 1;
   const limit = urlLimit ? parseInt(urlLimit, 10) : 10;
@@ -115,8 +116,9 @@ export function SalesOrdersTable() {
     };
     if (debouncedSearch) q.search = debouncedSearch;
     if (status && status !== 'all') q.status = status as SalesOrderStatus;
+    if (urlCustomerId) q.customerId = urlCustomerId;
     return q;
-  }, [page, limit, debouncedSearch, status, sortBy, sortOrder]);
+  }, [page, limit, debouncedSearch, status, sortBy, sortOrder, urlCustomerId]);
 
   const { data, isLoading, isError, error } = useSalesOrders(query);
   const deleteMutation = useDeleteSalesOrder();
@@ -227,7 +229,8 @@ export function SalesOrdersTable() {
 
   const isFilterActive =
     (urlSearch && urlSearch !== '') ||
-    (urlStatus && urlStatus !== 'all');
+    (urlStatus && urlStatus !== 'all') ||
+    urlCustomerId;
 
   const handleResetFilters = () => {
     setSearch('');
