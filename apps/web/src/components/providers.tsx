@@ -33,11 +33,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         <TooltipProvider>
           <ConfirmProvider>
             {children}
-            <Toaster />
+            <Toaster richColors />
           </ConfirmProvider>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
 }
-
