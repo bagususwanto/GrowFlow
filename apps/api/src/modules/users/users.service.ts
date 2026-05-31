@@ -4,7 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FindAllUsersDto } from './dto/find-all-users.dto';
 import * as bcrypt from 'bcrypt';
-import { PaginatedResponse } from '@growflow/types';
+import { PaginatedResponse, RoleName } from '@growflow/types';
 import { UserResponseEntity } from './entities/user-response.entity';
 
 @Injectable()
@@ -19,7 +19,7 @@ export class UsersService {
       roleId: user.roleId,
       role: {
         id: user.role.id,
-        name: user.role.name as any,
+        name: user.role.name as RoleName,
       },
       isActive: user.isActive,
       createdAt: user.createdAt.toISOString(),

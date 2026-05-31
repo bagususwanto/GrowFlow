@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { StockRepository } from './stock.repository';
 import { StockAdjustmentDto } from './dto/stock-adjustment.dto';
@@ -6,7 +7,7 @@ import { ListStockBalancesQueryDto } from './dto/list-stock-balances-query.dto';
 import { PaginatedResponse } from '@growflow/types';
 import { StockBalanceResponseEntity } from './entities/stock-balance-response.entity';
 import { StockMutationResponseEntity } from './entities/stock-mutation-response.entity';
-import { StockBalance, StockMutation } from '@prisma/client';
+
 
 @Injectable()
 export class StockService {

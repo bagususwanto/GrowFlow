@@ -1,4 +1,7 @@
+import { DeliveryNote } from './delivery-note';
+
 export type SalesOrderStatus = 'DRAFT' | 'CONFIRMED' | 'PARTIAL' | 'DONE' | 'CANCELLED';
+
 
 export interface SalesOrderLineItem {
   id: string;
@@ -52,7 +55,7 @@ export interface SalesOrder {
     name: string;
   };
   lineItems?: SalesOrderLineItem[];
-  deliveryNotes?: any[];
+  deliveryNotes?: DeliveryNote[];
 }
 
 export interface CreateSalesOrderLineItemRequest {

@@ -1,7 +1,7 @@
 export interface RoleResponse {
   id: string;
   name: string;
-  permissions: any[]; // Or a specific type if permissions have a defined structure
+  permissions: string[]; // Or a specific type if permissions have a defined structure
   isActive: boolean;
   deletedAt?: string | null;
   createdAt: string;
@@ -10,12 +10,12 @@ export interface RoleResponse {
 
 export interface CreateRoleRequest {
   name: string;
-  permissions?: any[];
+  permissions?: string[];
 }
 
 export interface UpdateRoleRequest {
   name?: string;
-  permissions?: any[];
+  permissions?: string[];
   isActive?: boolean;
 }
 

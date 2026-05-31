@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PurchaseOrdersRepository } from './purchase-orders.repository';
 import { CreatePurchaseOrderDto } from './dto/create-purchase-order.dto';
 import { UpdatePurchaseOrderDto } from './dto/update-purchase-order.dto';

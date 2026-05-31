@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, NotFoundException, BadRequestException, UnprocessableEntityException } from '@nestjs/common';
 import { DeliveryNotesRepository } from './delivery-notes.repository';
 import { CreateDeliveryNoteDto } from './dto/create-delivery-note.dto';

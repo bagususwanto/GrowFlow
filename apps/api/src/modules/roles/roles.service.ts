@@ -16,7 +16,7 @@ export class RolesService {
     return {
       id: role.id,
       name: role.name,
-      permissions: role.permissions as any[],
+      permissions: role.permissions as string[],
       isActive: role.isActive,
       deletedAt: role.deletedAt ? role.deletedAt.toISOString() : null,
       createdAt: role.createdAt.toISOString(),
@@ -82,8 +82,8 @@ export class RolesService {
 
     try {
       await this.rolesRepository.remove(id);
-    } catch (error: any) {
-      if (error.code === 'P2003') {
+    } catch (error) {
+      if (error && typeof error === 'object' && 'code' in error && error.code === 'P2003') {
         throw new BadRequestException('Cannot delete role because it is assigned to existing users.');
       }
       throw error;

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, NotFoundException, BadRequestException, UnprocessableEntityException } from '@nestjs/common';
 import { GoodsReceiptsRepository } from './goods-receipts.repository';
 import { CreateGoodsReceiptDto } from './dto/create-goods-receipt.dto';

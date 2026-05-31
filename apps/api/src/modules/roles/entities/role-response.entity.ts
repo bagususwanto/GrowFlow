@@ -9,7 +9,7 @@ export class RoleResponseEntity implements RoleResponse {
   name!: string;
 
   @ApiProperty({ description: 'List of permissions assigned to the role', type: [String] })
-  permissions!: any[];
+  permissions!: string[];
 
   @ApiProperty({ description: 'Whether the role is active', example: true })
   isActive!: boolean;
