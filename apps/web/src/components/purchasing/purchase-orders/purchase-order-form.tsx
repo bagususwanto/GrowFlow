@@ -13,6 +13,7 @@ import { usePartners } from '@web/components/partners/use-partners';
 import { useItems } from '@web/components/items/use-items';
 import { Loader2Icon, ShoppingCartIcon, PlusIcon, Trash2Icon, FileTextIcon, UserIcon, CalendarIcon } from 'lucide-react';
 import { Combobox } from '@web/components/ui/combobox';
+import { PriceLoader } from './price-loader';
 
 const lineItemSchema = z.object({
   itemId: z.string().min(1, 'Item is required'),
@@ -62,6 +63,7 @@ export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: Purch
     handleSubmit,
     control,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<PurchaseOrderFormValues>({
     resolver: zodResolver(formSchema),
@@ -81,6 +83,9 @@ export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: Purch
     control,
     name: 'lineItems',
   });
+
+  // Track price reference labels for each row
+  const [priceReferences, setPriceReferences] = React.useState<Record<number, string>>({});
 
   const watchLineItems = watch('lineItems');
   const totalAmount = React.useMemo(() => {
@@ -196,23 +201,44 @@ export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: Purch
                 const qty = watch(`lineItems.${index}.qty`) || 0;
                 const unitPrice = watch(`lineItems.${index}.unitPrice`) || 0;
                 const subtotal = qty * unitPrice;
-
                 return (
                   <tr key={field.id}>
                     <td className="p-2 align-top">
                       <Controller
                         name={`lineItems.${index}.itemId`}
                         control={control}
-                        render={({ field: selectField }) => (
-                          <Combobox
-                            value={selectField.value}
-                            onChange={selectField.onChange}
-                            options={itemOptions}
-                            placeholder="Select item"
-                            searchPlaceholder="Search item..."
-                            emptyMessage="No items found"
-                          />
-                        )}
+                        render={({ field: selectField }) => {
+                          return (
+                            <>
+                              <Combobox
+                                value={selectField.value}
+                                onChange={(val) => {
+                                  selectField.onChange(val);
+                                  setPriceReferences((prev) => {
+                                    const copy = { ...prev };
+                                    delete copy[index];
+                                    return copy;
+                                  });
+                                }}
+                                options={itemOptions}
+                                placeholder="Select item"
+                                searchPlaceholder="Search item..."
+                                emptyMessage="No items found"
+                              />
+                              {selectField.value && (
+                                <PriceLoader
+                                  itemId={selectField.value}
+                                  onPriceLoaded={(price) => {
+                                    setValue(`lineItems.${index}.unitPrice`, price);
+                                  }}
+                                  onReferenceMessage={(msg) => {
+                                    setPriceReferences((prev) => ({ ...prev, [index]: msg }));
+                                  }}
+                                />
+                              )}
+                            </>
+                          );
+                        }}
                       />
                       {errors.lineItems?.[index]?.itemId && (
                         <p className="text-[10px] text-destructive mt-1">{errors.lineItems[index].itemId.message}</p>
@@ -237,6 +263,11 @@ export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: Purch
                         className="h-9"
                         {...register(`lineItems.${index}.unitPrice`, { valueAsNumber: true })}
                       />
+                      {priceReferences[index] && (
+                        <p className={`text-[10px] mt-1 font-medium ${priceReferences[index] === 'Belum ada histori harga' ? 'text-orange-500' : 'text-emerald-600'}`}>
+                          {priceReferences[index]}
+                        </p>
+                      )}
                       {errors.lineItems?.[index]?.unitPrice && (
                         <p className="text-[10px] text-destructive mt-1">{errors.lineItems[index].unitPrice.message}</p>
                       )}
@@ -249,7 +280,14 @@ export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: Purch
                         type="button"
                         variant="ghost"
                         size="icon"
-                        onClick={() => remove(index)}
+                        onClick={() => {
+                          remove(index);
+                          setPriceReferences((prev) => {
+                            const copy = { ...prev };
+                            delete copy[index];
+                            return copy;
+                          });
+                        }}
                         disabled={fields.length === 1}
                         className="h-8 w-8 text-destructive hover:bg-destructive/10"
                       >

@@ -74,3 +74,8 @@ export interface ListCategoryItemsQuery {
   sortOrder?: 'asc' | 'desc';
   status?: 'all' | 'active' | 'inactive';
 }
+
+export interface ItemLastPriceResponse {
+  unitPrice: number | null;
+}
+

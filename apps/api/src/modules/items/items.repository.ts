@@ -9,7 +9,7 @@ export type ItemWithCategory = Item & { category: CategoryItem | null };
 
 @Injectable()
 export class ItemsRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(public readonly prisma: PrismaService) {}
 
   buildWhereClause(query: ListItemsQueryDto): Prisma.ItemWhereInput {
     const where: Prisma.ItemWhereInput = { deletedAt: null };

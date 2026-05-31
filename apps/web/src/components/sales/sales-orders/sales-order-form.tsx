@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from '@web/components/ui/select';
 import { Combobox } from '@web/components/ui/combobox';
+import { PriceLoaderSales } from './price-loader-sales';
 
 const lineItemSchema = z.object({
   itemId: z.string().min(1, 'Item is required'),
@@ -72,6 +73,7 @@ export function SalesOrderForm({ initialData, onSubmit, isSubmitting }: SalesOrd
     handleSubmit,
     control,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<SalesOrderFormValues>({
     resolver: zodResolver(formSchema),
@@ -92,6 +94,9 @@ export function SalesOrderForm({ initialData, onSubmit, isSubmitting }: SalesOrd
     control,
     name: 'lineItems',
   });
+
+  // Track price reference labels for each row
+  const [priceReferences, setPriceReferences] = React.useState<Record<number, string>>({});
 
   const watchLineItems = watch('lineItems');
   const totalAmount = React.useMemo(() => {
@@ -240,15 +245,35 @@ export function SalesOrderForm({ initialData, onSubmit, isSubmitting }: SalesOrd
                       <Controller
                         name={`lineItems.${index}.itemId`}
                         control={control}
-                        render={({ field: selectField }) => (
-                          <Combobox
-                            value={selectField.value}
-                            onChange={selectField.onChange}
-                            options={itemOptions}
-                            placeholder="Select item"
-                            searchPlaceholder="Search item..."
-                            emptyMessage="No items found"
-                          />
+                        render={({ field: { value: selectVal, onChange: selectOnChange } }) => (
+                          <>
+                            <Combobox
+                              value={selectVal}
+                              onChange={(val) => {
+                                selectOnChange(val);
+                                setPriceReferences((prev) => {
+                                  const copy = { ...prev };
+                                  delete copy[index];
+                                  return copy;
+                                });
+                              }}
+                              options={itemOptions}
+                              placeholder="Select item"
+                              searchPlaceholder="Search item..."
+                              emptyMessage="No items found"
+                            />
+                            {selectVal && (
+                              <PriceLoaderSales
+                                itemId={selectVal}
+                                onPriceLoaded={(price) => {
+                                  setValue(`lineItems.${index}.unitPrice`, price);
+                                }}
+                                onReferenceMessage={(msg) => {
+                                  setPriceReferences((prev) => ({ ...prev, [index]: msg }));
+                                }}
+                              />
+                            )}
+                          </>
                         )}
                       />
                       {errors.lineItems?.[index]?.itemId && (
@@ -274,6 +299,11 @@ export function SalesOrderForm({ initialData, onSubmit, isSubmitting }: SalesOrd
                         className="h-9"
                         {...register(`lineItems.${index}.unitPrice`, { valueAsNumber: true })}
                       />
+                      {priceReferences[index] && (
+                        <p className={`text-[10px] mt-1 font-medium ${priceReferences[index] === 'Belum ada histori harga' ? 'text-orange-500' : 'text-emerald-600'}`}>
+                          {priceReferences[index]}
+                        </p>
+                      )}
                       {errors.lineItems?.[index]?.unitPrice && (
                         <p className="text-[10px] text-destructive mt-1">{errors.lineItems[index].unitPrice.message}</p>
                       )}
@@ -286,7 +316,14 @@ export function SalesOrderForm({ initialData, onSubmit, isSubmitting }: SalesOrd
                         type="button"
                         variant="ghost"
                         size="icon"
-                        onClick={() => remove(index)}
+                        onClick={() => {
+                          remove(index);
+                          setPriceReferences((prev) => {
+                            const copy = { ...prev };
+                            delete copy[index];
+                            return copy;
+                          });
+                        }}
                         disabled={fields.length === 1}
                         className="h-8 w-8 text-destructive hover:bg-destructive/10"
                       >
