@@ -12,7 +12,7 @@ import { Separator } from '@web/components/ui/separator';
 import { toast } from 'sonner';
 import { useConfirm } from '@web/hooks/use-confirm';
 import { useAuthStore } from '@web/stores/auth.store';
-import { ArrowLeftIcon, FileTextIcon, CheckCircleIcon, WarehouseIcon, CalendarIcon, UserIcon } from 'lucide-react';
+import { ChevronLeftIcon, FileTextIcon, CheckCircleIcon, WarehouseIcon, CalendarIcon, UserIcon } from 'lucide-react';
 
 function formatDate(dateStr: string, includeTime = false) {
   try {
@@ -67,11 +67,31 @@ export function GoodsReceiptDetailContainer() {
 
   return (
     <div className="space-y-6">
-      {/* Action Header */}
-      <div className="flex sm:flex-row flex-col sm:justify-between sm:items-center gap-4">
-        <Button variant="ghost" size="sm" className="w-fit" nativeButton={false} render={<Link href="/purchasing/goods-receipts"><ArrowLeftIcon className="w-4 h-4 mr-2" />Back to List</Link>} />
-        
-        <div className="flex flex-wrap items-center gap-2">
+      {/* Header aligned with actions */}
+      <div className="flex sm:flex-row flex-col sm:justify-between sm:items-start gap-4">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="icon"
+            nativeButton={false}
+            render={
+              <Link href="/purchasing/goods-receipts" title="Back to Goods Receipts">
+                <ChevronLeftIcon className="h-4 w-4" />
+              </Link>
+            }
+          />
+          <div className="space-y-0.5">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+              Goods Receipt Details
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Track physical items received, status approvals, and stock updates.
+            </p>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-wrap items-center gap-2 sm:self-center">
           {isDraft && isWarehouseOrAdmin && (
             <Button size="sm" onClick={handleConfirm} disabled={confirmMutation.isPending} className="bg-primary hover:bg-primary/90">
               <CheckCircleIcon className="w-4 h-4 mr-2" />Confirm Receipt

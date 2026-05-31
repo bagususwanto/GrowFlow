@@ -11,7 +11,7 @@ import { Separator } from '@web/components/ui/separator';
 import { toast } from 'sonner';
 import { useConfirm } from '@web/hooks/use-confirm';
 import { useAuthStore } from '@web/stores/auth.store';
-import { ArrowLeftIcon, FileTextIcon, CheckCircleIcon, WarehouseIcon, CalendarIcon, UserIcon } from 'lucide-react';
+import { ChevronLeftIcon, FileTextIcon, CheckCircleIcon, WarehouseIcon, CalendarIcon, UserIcon } from 'lucide-react';
 import { Badge } from '@web/components/ui/badge';
 
 function formatDate(dateStr: string, includeTime = false) {
@@ -67,15 +67,31 @@ export function DeliveryNoteDetailContainer() {
 
   return (
     <div className="space-y-6">
-      {/* Action Header */}
-      <div className="flex sm:flex-row flex-col sm:justify-between sm:items-center gap-4">
-        <Button variant="ghost" size="sm" className="w-fit" render={
-          <Link href={dn.salesOrderId ? `/sales/sales-orders/${dn.salesOrderId}` : '/sales/sales-orders'}>
-            <ArrowLeftIcon className="w-4 h-4 mr-2" />Back to Sales Order
-          </Link>
-        } />
-        
-        <div className="flex flex-wrap items-center gap-2">
+      {/* Header aligned with actions */}
+      <div className="flex sm:flex-row flex-col sm:justify-between sm:items-start gap-4">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="icon"
+            nativeButton={false}
+            render={
+              <Link href={dn.salesOrderId ? `/sales/sales-orders/${dn.salesOrderId}` : '/sales/sales-orders'} title="Back to Sales Order">
+                <ChevronLeftIcon className="h-4 w-4" />
+              </Link>
+            }
+          />
+          <div className="space-y-0.5">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+              Delivery Note Details
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Track item dispatch progress and manage inventory fulfillment.
+            </p>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-wrap items-center gap-2 sm:self-center">
           {isDraft && isWarehouseOrAdmin && (
             <Button size="sm" onClick={handleConfirm} disabled={confirmMutation.isPending} className="bg-primary hover:bg-primary/90">
               <CheckCircleIcon className="w-4 h-4 mr-2" />Confirm Delivery
