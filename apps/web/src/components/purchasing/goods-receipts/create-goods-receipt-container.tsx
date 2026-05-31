@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@web/components/ui/select';
+import { Combobox } from '@web/components/ui/combobox';
 
 const grLineSchema = z.object({
   poLineItemId: z.string().min(1),
@@ -56,6 +57,14 @@ export function CreateGoodsReceiptContainer() {
   const pendingPos = React.useMemo(() => {
     return posData?.data.filter(po => po.status === 'APPROVED' || po.status === 'PARTIAL') || [];
   }, [posData]);
+
+  const poOptions = React.useMemo(() => {
+    return pendingPos.map((po) => ({
+      value: po.id,
+      label: `${po.number} (${po.supplier?.name})`,
+    }));
+  }, [pendingPos]);
+
 
   const { data: warehousesData } = useWarehouses({ limit: 100 });
   const activeWarehouses = React.useMemo(() => {
@@ -157,19 +166,16 @@ export function CreateGoodsReceiptContainer() {
                 <Label htmlFor="purchaseOrderId" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Purchase Order
                 </Label>
-                <Select value={selectedPoId} onValueChange={handlePoChange}>
-                  <SelectTrigger className="w-full h-9 relative pl-9" id="purchaseOrderId">
-                    <FileTextIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <SelectValue placeholder="Select PO" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {pendingPos.map((po) => (
-                      <SelectItem key={po.id} value={po.id}>
-                        {po.number} ({po.supplier?.name})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="relative w-full">
+                  <FileTextIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground z-10 pointer-events-none" />
+                  <Combobox
+                    options={poOptions}
+                    value={selectedPoId}
+                    onChange={handlePoChange}
+                    placeholder="Select PO"
+                    triggerClassName="pl-9 w-full"
+                  />
+                </div>
                 {errors.purchaseOrderId && <p className="text-xs text-destructive">{errors.purchaseOrderId.message}</p>}
               </div>
 
@@ -184,7 +190,9 @@ export function CreateGoodsReceiptContainer() {
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger className="w-full h-9 relative pl-9" id="warehouseId">
                         <WarehouseIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                        <SelectValue placeholder="Select warehouse" />
+                        <SelectValue placeholder="Select warehouse">
+                          {activeWarehouses.find((w) => w.id === field.value)?.name}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {activeWarehouses.map((w) => (

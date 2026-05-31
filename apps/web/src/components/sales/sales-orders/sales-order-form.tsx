@@ -153,7 +153,9 @@ export function SalesOrderForm({ initialData, onSubmit, isSubmitting }: SalesOrd
                 <Select value={field.value} onValueChange={field.onChange}>
                   <SelectTrigger className="w-full h-9 relative pl-9" id="warehouseId">
                     <WarehouseIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <SelectValue placeholder="Select warehouse" />
+                    <SelectValue placeholder="Select warehouse">
+                      {warehousesData?.data.find((w) => w.id === field.value)?.name}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {warehousesData?.data.map((wh) => (

@@ -90,7 +90,11 @@ export function StockAdjustForm({ onSubmit, isSubmitting }: StockAdjustFormProps
               >
                 <SelectTrigger className="w-full h-9 relative pl-9" id="itemId">
                   <PackageIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <SelectValue placeholder={isLoadingItems ? 'Loading items...' : 'Choose an item'} />
+                  <SelectValue placeholder={isLoadingItems ? 'Loading items...' : 'Choose an item'}>
+                    {itemsData?.data?.find((item) => item.id === field.value)
+                      ? `${itemsData.data.find((item) => item.id === field.value)?.name} (${itemsData.data.find((item) => item.id === field.value)?.code})`
+                      : undefined}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {itemsData?.data?.map((item) => (
@@ -121,7 +125,9 @@ export function StockAdjustForm({ onSubmit, isSubmitting }: StockAdjustFormProps
               >
                 <SelectTrigger className="w-full h-9 relative pl-9" id="warehouseId">
                   <WarehouseIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <SelectValue placeholder={isLoadingWarehouses ? 'Loading warehouses...' : 'Choose a warehouse'} />
+                  <SelectValue placeholder={isLoadingWarehouses ? 'Loading warehouses...' : 'Choose a warehouse'}>
+                    {warehousesData?.data?.find((wh) => wh.id === field.value)?.name}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {warehousesData?.data?.filter(w => w.isActive)?.map((wh) => (
@@ -153,7 +159,13 @@ export function StockAdjustForm({ onSubmit, isSubmitting }: StockAdjustFormProps
                 >
                   <SelectTrigger className="w-full h-9 relative pl-9" id="adjustmentType">
                     <ArrowUpRightIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <SelectValue placeholder="Select type" />
+                    <SelectValue placeholder="Select type">
+                      {field.value === 'INCREASE'
+                        ? 'Stock In (Increase)'
+                        : field.value === 'DECREASE'
+                          ? 'Stock Out (Decrease)'
+                          : undefined}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="INCREASE">Stock In (Increase)</SelectItem>
