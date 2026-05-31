@@ -12,6 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from '@web/components/ui/alert';
 import { toast } from 'sonner';
 import { ApiError } from '@growflow/types';
 import { useConfirm } from '@web/hooks/use-confirm';
+import { useBreadcrumbLabel } from '@web/hooks/use-breadcrumb-label';
 import {
   ShieldIcon,
   CalendarIcon,
@@ -32,6 +33,8 @@ export function RoleDetailContainer({ id }: RoleDetailContainerProps) {
   const { data: role, isLoading, isError, error } = useRole(id);
   const deleteMutation = useDeleteRole();
   const confirm = useConfirm();
+
+  useBreadcrumbLabel(id, role?.name);
 
   const handleEdit = () => {
     router.push(`/administration/roles/${id}/edit`);

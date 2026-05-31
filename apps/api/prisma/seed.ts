@@ -6,16 +6,109 @@ const prisma = new PrismaClient();
 async function main() {
   console.info('🌱 Start seeding...');
 
-  // 1. Seed Roles
+  // ─────────────────────────────────────────────
+  // 1. Roles
+  //
+  // Permissions below are descriptive metadata that reflect
+  // the actual access control enforced via @Roles() decorators
+  // in each controller. Format: "action:resource:sub-action?"
+  // ─────────────────────────────────────────────
   const rolesData = [
-    { name: 'superadmin', permissions: ['*'] },
-    { name: 'manager', permissions: ['read:*', 'write:po:approve', 'write:so:approve'] },
-    { name: 'staff', permissions: ['read:*', 'write:po:create', 'write:so:create'] },
-    { name: 'finance', permissions: ['read:*', 'write:accounting:*', 'write:payroll:*'] },
-    { name: 'warehouse', permissions: ['read:*', 'write:inventory:*', 'write:grn:create'] },
+    {
+      name: 'superadmin',
+      // Full access to all resources and actions
+      permissions: ['*'],
+    },
+    {
+      name: 'manager',
+      // Users: read all, read one
+      // Roles: read all, read one
+      // Warehouses: create, read all, read one, update
+      // Category Items: create, read all, read one, update, delete
+      // Items: create, read all, read one, update (incl. pricing), delete
+      // Partners: create, read all, read one, update
+      // Stock: read balances, read mutations, read low-stock
+      // Purchase Orders: read all, read one, update (draft), submit, approve, cancel, delete
+      // Goods Receipts: create, read all, read one, update (draft), confirm
+      // Sales Orders: read all, read one, update (draft), confirm, cancel, delete
+      // Delivery Notes: create, read all, read one, update (draft), confirm
+      permissions: [
+        'read:users',
+        'read:roles',
+        'create:warehouses', 'read:warehouses', 'update:warehouses',
+        'create:category-items', 'read:category-items', 'update:category-items', 'delete:category-items',
+        'create:items', 'read:items', 'update:items', 'delete:items',
+        'create:partners', 'read:partners', 'update:partners',
+        'read:stock',
+        'read:purchase-orders', 'update:purchase-orders', 'submit:purchase-orders', 'approve:purchase-orders', 'cancel:purchase-orders', 'delete:purchase-orders',
+        'create:goods-receipts', 'read:goods-receipts', 'update:goods-receipts', 'confirm:goods-receipts',
+        'read:sales-orders', 'update:sales-orders', 'confirm:sales-orders', 'cancel:sales-orders', 'delete:sales-orders',
+        'create:delivery-notes', 'read:delivery-notes', 'update:delivery-notes', 'confirm:delivery-notes',
+      ],
+    },
+    {
+      name: 'staff',
+      // Warehouses: read only
+      // Category Items: read only
+      // Items: read all, read one, read with pricing
+      // Partners: read only
+      // Stock: read balances, read low-stock, read mutations
+      // Purchase Orders: create, read all, read one, update (draft), submit
+      // Sales Orders: create, read all, read one, update (draft), confirm
+      permissions: [
+        'read:warehouses',
+        'read:category-items',
+        'read:items',
+        'read:partners',
+        'read:stock',
+        'create:purchase-orders', 'read:purchase-orders', 'update:purchase-orders', 'submit:purchase-orders',
+        'create:sales-orders', 'read:sales-orders', 'update:sales-orders', 'confirm:sales-orders',
+      ],
+    },
+    {
+      name: 'finance',
+      // Read-only access to transactional documents for reporting
+      // Items: read all, read one, read with pricing
+      // Partners: read only
+      // Stock: read mutations only
+      // Purchase Orders: read only
+      // Goods Receipts: read only
+      // Sales Orders: read only
+      // Delivery Notes: read only
+      permissions: [
+        'read:items',
+        'read:partners',
+        'read:stock:mutations',
+        'read:purchase-orders',
+        'read:goods-receipts',
+        'read:sales-orders',
+        'read:delivery-notes',
+      ],
+    },
+    {
+      name: 'warehouse',
+      // Warehouses: read only
+      // Category Items: read only
+      // Items: read all, read one
+      // Stock: read balances, read mutations, read low-stock
+      // Purchase Orders: read only
+      // Goods Receipts: create, read all, read one, update (draft)
+      // Sales Orders: read only
+      // Delivery Notes: create, read all, read one, update (draft), confirm
+      permissions: [
+        'read:warehouses',
+        'read:category-items',
+        'read:items',
+        'read:stock',
+        'read:purchase-orders',
+        'create:goods-receipts', 'read:goods-receipts', 'update:goods-receipts',
+        'read:sales-orders',
+        'create:delivery-notes', 'read:delivery-notes', 'update:delivery-notes', 'confirm:delivery-notes',
+      ],
+    },
   ];
 
-  const roles = [];
+  const roles: { id: string; name: string }[] = [];
   for (const role of rolesData) {
     const upsertedRole = await prisma.role.upsert({
       where: { name: role.name },
@@ -26,12 +119,15 @@ async function main() {
       },
     });
     roles.push(upsertedRole);
-    console.info(`Created role: ${role.name}`);
+    console.info(`  ✔ Role: ${role.name}`);
   }
 
-  // 2. Seed Superadmin User
-  const superadminEmail = 'admin@growflow.com';
-  const superadminRole = roles.find((r) => r.name === 'superadmin');
+  // ─────────────────────────────────────────────
+  // 2. Users
+  // ─────────────────────────────────────────────
+  const superadminRole = roles.find((r) => r.name === 'superadmin')!;
+  const managerRole = roles.find((r) => r.name === 'manager')!;
+  const warehouseRole = roles.find((r) => r.name === 'warehouse')!;
 
   if (!superadminRole) {
     throw new Error('Superadmin role was not created successfully.');
@@ -40,46 +136,78 @@ async function main() {
   const passwordHash = await bcrypt.hash('Admin123!', 10);
 
   const superadmin = await prisma.user.upsert({
-    where: { email: superadminEmail },
+    where: { email: 'admin@growflow.com' },
     update: {},
     create: {
       name: 'Super Admin',
-      email: superadminEmail,
+      email: 'admin@growflow.com',
       passwordHash,
       roleId: superadminRole.id,
       isActive: true,
     },
   });
+  console.info(`  ✔ User: ${superadmin.email} (superadmin)`);
 
-  console.info(`Created superadmin user: ${superadmin.email}`);
+  const manager = await prisma.user.upsert({
+    where: { email: 'manager@growflow.com' },
+    update: {},
+    create: {
+      name: 'Budi Santoso',
+      email: 'manager@growflow.com',
+      passwordHash,
+      roleId: managerRole.id,
+      isActive: true,
+    },
+  });
+  console.info(`  ✔ User: ${manager.email} (manager)`);
 
-  // 3. Seed Warehouses
-  const warehousesData = [
-    { name: 'Main Warehouse', address: 'Jl. Industri No. 12, Bekasi' },
-    { name: 'Branch Warehouse', address: 'Jl. Rungkut Industri No. 45, Surabaya' },
-  ];
+  const warehouseStaff = await prisma.user.upsert({
+    where: { email: 'warehouse@growflow.com' },
+    update: {},
+    create: {
+      name: 'Siti Rahayu',
+      email: 'warehouse@growflow.com',
+      passwordHash,
+      roleId: warehouseRole.id,
+      isActive: true,
+    },
+  });
+  console.info(`  ✔ User: ${warehouseStaff.email} (warehouse)`);
 
-  const warehouses = [];
-  for (const wh of warehousesData) {
-    const upsertedWh = await prisma.warehouse.upsert({
-      where: { id: wh.name === 'Main Warehouse' ? 'e9c8a2b5-55ff-4be5-9430-c3d3958c279c' : 'f3dbdf7c-50ab-48d6-9cb3-b2d9de59ee93' },
-      update: { address: wh.address },
-      create: {
-        id: wh.name === 'Main Warehouse' ? 'e9c8a2b5-55ff-4be5-9430-c3d3958c279c' : 'f3dbdf7c-50ab-48d6-9cb3-b2d9de59ee93'        ,
-        name: wh.name,
-        address: wh.address,
-        isActive: true,
-      },
-    });
-    warehouses.push(upsertedWh);
-    console.info(`Created warehouse: ${wh.name}`);
-  }
+  // ─────────────────────────────────────────────
+  // 3. Warehouses
+  // ─────────────────────────────────────────────
+  const mainWarehouse = await prisma.warehouse.upsert({
+    where: { id: 'e9c8a2b5-55ff-4be5-9430-c3d3958c279c' },
+    update: { name: 'Main Warehouse', address: 'Jl. Industri No. 12, Bekasi' },
+    create: {
+      id: 'e9c8a2b5-55ff-4be5-9430-c3d3958c279c',
+      name: 'Main Warehouse',
+      address: 'Jl. Industri No. 12, Bekasi',
+      isActive: true,
+    },
+  });
+  console.info(`  ✔ Warehouse: ${mainWarehouse.name}`);
 
-  // 4. Seed Category Items
+  const branchWarehouse = await prisma.warehouse.upsert({
+    where: { id: 'f3dbdf7c-50ab-48d6-9cb3-b2d9de59ee93' },
+    update: { name: 'Branch Warehouse', address: 'Jl. Rungkut Industri No. 45, Surabaya' },
+    create: {
+      id: 'f3dbdf7c-50ab-48d6-9cb3-b2d9de59ee93',
+      name: 'Branch Warehouse',
+      address: 'Jl. Rungkut Industri No. 45, Surabaya',
+      isActive: true,
+    },
+  });
+  console.info(`  ✔ Warehouse: ${branchWarehouse.name}`);
+
+  // ─────────────────────────────────────────────
+  // 4. Category Items
+  // ─────────────────────────────────────────────
   const categoriesData = [
-    { name: 'Elektronik', description: 'Barang-barang elektronik dan komputer' },
-    { name: 'Furniture', description: 'Peralatan kantor dan mebel' },
-    { name: 'ATK', description: 'Alat tulis kantor dan kertas' },
+    { name: 'Electronics', description: 'Electronic goods and computers' },
+    { name: 'Furniture', description: 'Office furniture and fixtures' },
+    { name: 'Office Supplies', description: 'Stationery and paper supplies' },
   ];
 
   const categoriesMap: Record<string, string> = {};
@@ -87,25 +215,70 @@ async function main() {
     const upsertedCat = await prisma.categoryItem.upsert({
       where: { name: cat.name },
       update: { description: cat.description },
-      create: {
-        name: cat.name,
-        description: cat.description,
-      },
+      create: { name: cat.name, description: cat.description },
     });
     categoriesMap[cat.name] = upsertedCat.id;
-    console.info(`Created category: ${cat.name}`);
+    console.info(`  ✔ Category: ${cat.name}`);
   }
 
-  // 4b. Seed Items
+  // ─────────────────────────────────────────────
+  // 5. Items
+  // ─────────────────────────────────────────────
   const itemsData = [
-    { code: 'ITEM-EL-001', name: 'Laptop ThinkPad L14', unit: 'pcs', categoryName: 'Elektronik', minStock: 5 },
-    { code: 'ITEM-FT-002', name: 'Meja Kerja Minimalis', unit: 'unit', categoryName: 'Furniture', minStock: 2 },
-    { code: 'ITEM-ATK-003', name: 'Kertas A4 80gr', unit: 'rim', categoryName: 'ATK', minStock: 10 },
+    {
+      code: 'ITEM-EL-001',
+      name: 'Laptop ThinkPad L14',
+      unit: 'pcs',
+      categoryName: 'Electronics',
+      minStock: 5,
+    },
+    {
+      code: 'ITEM-EL-002',
+      name: 'Monitor LG 24"',
+      unit: 'pcs',
+      categoryName: 'Electronics',
+      minStock: 3,
+    },
+    {
+      code: 'ITEM-EL-003',
+      name: 'Wireless Mouse Logitech M185',
+      unit: 'pcs',
+      categoryName: 'Electronics',
+      minStock: 10,
+    },
+    {
+      code: 'ITEM-FT-001',
+      name: 'Minimalist Work Desk',
+      unit: 'unit',
+      categoryName: 'Furniture',
+      minStock: 2,
+    },
+    {
+      code: 'ITEM-FT-002',
+      name: 'Ergonomic Office Chair',
+      unit: 'unit',
+      categoryName: 'Furniture',
+      minStock: 2,
+    },
+    {
+      code: 'ITEM-OS-001',
+      name: 'A4 Paper 80gsm',
+      unit: 'ream',
+      categoryName: 'Office Supplies',
+      minStock: 10,
+    },
+    {
+      code: 'ITEM-OS-002',
+      name: 'Ballpoint Pen (Box)',
+      unit: 'box',
+      categoryName: 'Office Supplies',
+      minStock: 20,
+    },
   ];
 
-  const items = [];
+  const itemsMap: Record<string, string> = {};
   for (const item of itemsData) {
-    const categoryId = categoriesMap[item.categoryName] || null;
+    const categoryId = categoriesMap[item.categoryName] ?? null;
     const upsertedItem = await prisma.item.upsert({
       where: { code: item.code },
       update: { name: item.name, unit: item.unit, categoryId, minStock: item.minStock },
@@ -117,23 +290,67 @@ async function main() {
         minStock: item.minStock,
       },
     });
-    items.push(upsertedItem);
-    console.info(`Created item: ${item.name}`);
+    itemsMap[item.code] = upsertedItem.id;
+    console.info(`  ✔ Item: ${item.name}`);
   }
 
-  // 5. Seed Partners
+  // ─────────────────────────────────────────────
+  // 6. Partners (Suppliers & Customers)
+  // ─────────────────────────────────────────────
   const partnersData = [
-    { code: 'SUP-0001', name: 'PT Multi Kencana Elektronik', type: 'SUPPLIER' as const, email: 'sales@multikencana.co.id', phone: '021-5551234', address: 'Kawasan Industri Jababeka, Cikarang' },
-    { code: 'SUP-0002', name: 'CV Rimba Abadi', type: 'SUPPLIER' as const, email: 'rimba.abadi@gmail.com', phone: '08123456789', address: 'Jl. Raya Jepara KM 7, Jepara' },
-    { code: 'CUS-0001', name: 'PT Solusi Teknologi Nusantara', type: 'CUSTOMER' as const, email: 'procurement@solusitekno.com', phone: '021-8884321', address: 'Sudirman Central Business District, Jakarta' },
-    { code: 'CUS-0002', name: 'Yayasan Harapan Bangsa', type: 'CUSTOMER' as const, email: 'info@harapanbangsa.or.id', phone: '021-7773333', address: 'Jl. Pemuda No. 100, Bandung' },
-    { code: 'CUS-0003', name: 'PT Sinar Makmur Sejahtera', type: 'CUSTOMER' as const, email: 'info@sinarmakmur.com', phone: '021-9990000', address: 'Jl. Gatot Subroto No. 50, Semarang' },
+    {
+      code: 'SUP-0001',
+      name: 'PT Multi Kencana Elektronik',
+      type: 'SUPPLIER' as const,
+      email: 'sales@multikencana.co.id',
+      phone: '021-5551234',
+      address: 'Kawasan Industri Jababeka, Cikarang',
+    },
+    {
+      code: 'SUP-0002',
+      name: 'CV Rimba Abadi',
+      type: 'SUPPLIER' as const,
+      email: 'rimba.abadi@gmail.com',
+      phone: '08123456789',
+      address: 'Jl. Raya Jepara KM 7, Jepara',
+    },
+    {
+      code: 'CUS-0001',
+      name: 'PT Solusi Teknologi Nusantara',
+      type: 'CUSTOMER' as const,
+      email: 'procurement@solusitekno.com',
+      phone: '021-8884321',
+      address: 'Sudirman Central Business District, Jakarta',
+    },
+    {
+      code: 'CUS-0002',
+      name: 'Yayasan Harapan Bangsa',
+      type: 'CUSTOMER' as const,
+      email: 'info@harapanbangsa.or.id',
+      phone: '021-7773333',
+      address: 'Jl. Pemuda No. 100, Bandung',
+    },
+    {
+      code: 'CUS-0003',
+      name: 'PT Sinar Makmur Sejahtera',
+      type: 'CUSTOMER' as const,
+      email: 'info@sinarmakmur.com',
+      phone: '021-9990000',
+      address: 'Jl. Gatot Subroto No. 50, Semarang',
+    },
   ];
 
+  const partnersMap: Record<string, string> = {};
   for (const partner of partnersData) {
-    await prisma.partner.upsert({
+    const upserted = await prisma.partner.upsert({
       where: { code: partner.code },
-      update: { name: partner.name, type: partner.type, email: partner.email, phone: partner.phone, address: partner.address },
+      update: {
+        name: partner.name,
+        type: partner.type,
+        email: partner.email,
+        phone: partner.phone,
+        address: partner.address,
+      },
       create: {
         code: partner.code,
         name: partner.name,
@@ -144,37 +361,261 @@ async function main() {
         isActive: true,
       },
     });
-    console.info(`Created partner: ${partner.name} (${partner.type})`);
+    partnersMap[partner.code] = upserted.id;
+    console.info(`  ✔ Partner: ${partner.name} (${partner.type})`);
   }
 
-  // 6. Seed Stock Balances
-  // Let's seed initial stock in Gudang Utama (first warehouse)
-  const mainWarehouse = warehouses[0];
+  // ─────────────────────────────────────────────
+  // 7. Stock Balances (initial stock)
+  // ─────────────────────────────────────────────
   const stockBalancesData = [
-    { itemId: items[0].id, warehouseId: mainWarehouse.id, qty: 15 },
-    { itemId: items[1].id, warehouseId: mainWarehouse.id, qty: 8 },
-    { itemId: items[2].id, warehouseId: mainWarehouse.id, qty: 50 },
+    { itemCode: 'ITEM-EL-001', warehouseId: mainWarehouse.id, qty: 15 },
+    { itemCode: 'ITEM-EL-002', warehouseId: mainWarehouse.id, qty: 10 },
+    { itemCode: 'ITEM-EL-003', warehouseId: mainWarehouse.id, qty: 40 },
+    { itemCode: 'ITEM-FT-001', warehouseId: mainWarehouse.id, qty: 8 },
+    { itemCode: 'ITEM-FT-002', warehouseId: mainWarehouse.id, qty: 6 },
+    { itemCode: 'ITEM-OS-001', warehouseId: mainWarehouse.id, qty: 50 },
+    { itemCode: 'ITEM-OS-002', warehouseId: mainWarehouse.id, qty: 30 },
+    { itemCode: 'ITEM-EL-001', warehouseId: branchWarehouse.id, qty: 5 },
+    { itemCode: 'ITEM-OS-001', warehouseId: branchWarehouse.id, qty: 20 },
   ];
 
   for (const balance of stockBalancesData) {
+    const itemId = itemsMap[balance.itemCode];
     await prisma.stockBalance.upsert({
       where: {
-        itemId_warehouseId: {
-          itemId: balance.itemId,
-          warehouseId: balance.warehouseId,
-        },
+        itemId_warehouseId: { itemId, warehouseId: balance.warehouseId },
       },
       update: { qty: balance.qty },
-      create: {
-        itemId: balance.itemId,
-        warehouseId: balance.warehouseId,
-        qty: balance.qty,
-      },
+      create: { itemId, warehouseId: balance.warehouseId, qty: balance.qty },
     });
-    console.info(`Set stock balance for item ID ${balance.itemId} at ${mainWarehouse.name} to ${balance.qty}`);
+    console.info(
+      `  ✔ Stock: ${balance.itemCode} @ ${balance.warehouseId === mainWarehouse.id ? 'Main' : 'Branch'} = ${balance.qty}`,
+    );
   }
 
-  console.info('🌱 Seeding finished successfully.');
+  // ─────────────────────────────────────────────
+  // 8. Purchase Order (demo — APPROVED + GRN CONFIRMED)
+  // ─────────────────────────────────────────────
+  const supplierId = partnersMap['SUP-0001'];
+  const laptopId = itemsMap['ITEM-EL-001'];
+  const monitorId = itemsMap['ITEM-EL-002'];
+
+  const existingPO = await prisma.purchaseOrder.findFirst({
+    where: { number: 'PO-202601-0001' },
+  });
+
+  if (!existingPO) {
+    const po = await prisma.purchaseOrder.create({
+      data: {
+        number: 'PO-202601-0001',
+        supplierId,
+        status: 'APPROVED',
+        note: 'Demo purchase order — approved',
+        totalAmount: 45000000,
+        orderDate: new Date('2026-01-15'),
+        createdById: superadmin.id,
+        approvedById: manager.id,
+        approvedAt: new Date('2026-01-16'),
+        lineItems: {
+          create: [
+            {
+              itemId: laptopId,
+              qty: 5,
+              unitPrice: 8000000,
+              totalPrice: 40000000,
+              qtyReceived: 5,
+            },
+            {
+              itemId: monitorId,
+              qty: 5,
+              unitPrice: 1000000,
+              totalPrice: 5000000,
+              qtyReceived: 5,
+            },
+          ],
+        },
+      },
+      include: { lineItems: true },
+    });
+    console.info(`  ✔ PurchaseOrder: ${po.number} (APPROVED)`);
+
+    // GRN for the PO
+    const grn = await prisma.goodsReceipt.create({
+      data: {
+        number: 'GRN-202601-0001',
+        purchaseOrderId: po.id,
+        warehouseId: mainWarehouse.id,
+        status: 'CONFIRMED',
+        receivedDate: new Date('2026-01-18'),
+        note: 'Demo goods receipt — confirmed',
+        createdById: warehouseStaff.id,
+        lineItems: {
+          create: po.lineItems.map((li) => ({
+            poLineItemId: li.id,
+            itemId: li.itemId,
+            qty: li.qty,
+          })),
+        },
+      },
+    });
+    console.info(`  ✔ GoodsReceipt: ${grn.number} (CONFIRMED)`);
+  } else {
+    console.info(`  ↩ PurchaseOrder PO-202601-0001 already exists, skipping.`);
+  }
+
+  // ─────────────────────────────────────────────
+  // 9. Sales Order (demo — CONFIRMED + DN CONFIRMED)
+  // ─────────────────────────────────────────────
+  const customerId = partnersMap['CUS-0001'];
+
+  const existingSO = await prisma.salesOrder.findFirst({
+    where: { number: 'SO-202601-0001' },
+  });
+
+  if (!existingSO) {
+    const so = await prisma.salesOrder.create({
+      data: {
+        number: 'SO-202601-0001',
+        customerId,
+        warehouseId: mainWarehouse.id,
+        status: 'DONE',
+        note: 'Demo sales order — done',
+        totalAmount: 20000000,
+        orderDate: new Date('2026-01-20'),
+        createdById: superadmin.id,
+        confirmedById: manager.id,
+        confirmedAt: new Date('2026-01-21'),
+        lineItems: {
+          create: [
+            {
+              itemId: laptopId,
+              qty: 2,
+              unitPrice: 9500000,
+              totalPrice: 19000000,
+              qtyDelivered: 2,
+            },
+            {
+              itemId: monitorId,
+              qty: 1,
+              unitPrice: 1000000,
+              totalPrice: 1000000,
+              qtyDelivered: 1,
+            },
+          ],
+        },
+      },
+      include: { lineItems: true },
+    });
+    console.info(`  ✔ SalesOrder: ${so.number} (DONE)`);
+
+    // Delivery Note for the SO
+    const dn = await prisma.deliveryNote.create({
+      data: {
+        number: 'DN-202601-0001',
+        salesOrderId: so.id,
+        status: 'CONFIRMED',
+        deliveryDate: new Date('2026-01-22'),
+        note: 'Demo delivery note — confirmed',
+        createdById: warehouseStaff.id,
+        lineItems: {
+          create: so.lineItems.map((li) => ({
+            soLineItemId: li.id,
+            itemId: li.itemId,
+            qty: li.qty,
+          })),
+        },
+      },
+    });
+    console.info(`  ✔ DeliveryNote: ${dn.number} (CONFIRMED)`);
+  } else {
+    console.info(`  ↩ SalesOrder SO-202601-0001 already exists, skipping.`);
+  }
+
+  // ─────────────────────────────────────────────
+  // 10. Draft Purchase Order (for UI testing)
+  // ─────────────────────────────────────────────
+  const mouseId = itemsMap['ITEM-EL-003'];
+  const paperId = itemsMap['ITEM-OS-001'];
+
+  const existingDraftPO = await prisma.purchaseOrder.findFirst({
+    where: { number: 'PO-202602-0001' },
+  });
+
+  if (!existingDraftPO) {
+    const draftPO = await prisma.purchaseOrder.create({
+      data: {
+        number: 'PO-202602-0001',
+        supplierId: partnersMap['SUP-0002'],
+        status: 'DRAFT',
+        note: 'Office supplies restock',
+        totalAmount: 2500000,
+        orderDate: new Date('2026-02-01'),
+        createdById: superadmin.id,
+        lineItems: {
+          create: [
+            {
+              itemId: mouseId,
+              qty: 20,
+              unitPrice: 75000,
+              totalPrice: 1500000,
+              qtyReceived: 0,
+            },
+            {
+              itemId: paperId,
+              qty: 20,
+              unitPrice: 50000,
+              totalPrice: 1000000,
+              qtyReceived: 0,
+            },
+          ],
+        },
+      },
+    });
+    console.info(`  ✔ PurchaseOrder: ${draftPO.number} (DRAFT)`);
+  } else {
+    console.info(`  ↩ PurchaseOrder PO-202602-0001 already exists, skipping.`);
+  }
+
+  // ─────────────────────────────────────────────
+  // 11. Draft Sales Order (for UI testing)
+  // ─────────────────────────────────────────────
+  const chairId = itemsMap['ITEM-FT-002'];
+
+  const existingDraftSO = await prisma.salesOrder.findFirst({
+    where: { number: 'SO-202602-0001' },
+  });
+
+  if (!existingDraftSO) {
+    const draftSO = await prisma.salesOrder.create({
+      data: {
+        number: 'SO-202602-0001',
+        customerId: partnersMap['CUS-0002'],
+        warehouseId: mainWarehouse.id,
+        status: 'DRAFT',
+        note: 'Furniture order for new office',
+        totalAmount: 6000000,
+        orderDate: new Date('2026-02-05'),
+        createdById: superadmin.id,
+        lineItems: {
+          create: [
+            {
+              itemId: chairId,
+              qty: 4,
+              unitPrice: 1500000,
+              totalPrice: 6000000,
+              qtyDelivered: 0,
+            },
+          ],
+        },
+      },
+    });
+    console.info(`  ✔ SalesOrder: ${draftSO.number} (DRAFT)`);
+  } else {
+    console.info(`  ↩ SalesOrder SO-202602-0001 already exists, skipping.`);
+  }
+
+  console.info('\n🌱 Seeding finished successfully.');
 }
 
 main()
@@ -185,4 +626,3 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
-

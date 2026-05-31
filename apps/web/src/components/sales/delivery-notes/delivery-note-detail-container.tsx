@@ -12,6 +12,7 @@ import { ChevronLeftIcon, FileTextIcon, WarehouseIcon, CalendarIcon, UserIcon, C
 import { Badge } from '@web/components/ui/badge';
 import { useConfirm } from '@web/hooks/use-confirm';
 import { toast } from 'sonner';
+import { useBreadcrumbLabel } from '@web/hooks/use-breadcrumb-label';
 
 function formatDate(dateStr: string, includeTime = false) {
   try {
@@ -35,6 +36,8 @@ export function DeliveryNoteDetailContainer() {
   const confirm = useConfirm();
   const confirmMutation = useConfirmDeliveryNote();
   const { data: dn, isLoading, isError, error } = useDeliveryNote(id);
+
+  useBreadcrumbLabel(id, dn?.number);
 
   const handleConfirm = async () => {
     const ok = await confirm({

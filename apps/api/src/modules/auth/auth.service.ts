@@ -42,6 +42,7 @@ export class AuthService {
       email: user.email,
       role: user.role.name as AuthUser['role'],
       isActive: user.isActive,
+      permissions: JSON.parse(user.role.permissions as string || '[]'),
     };
 
     const accessToken = await this.jwtService.signAsync(
@@ -113,6 +114,7 @@ export class AuthService {
         email: user.email,
         role: user.role.name as AuthUser['role'],
         isActive: user.isActive,
+        permissions: JSON.parse(user.role.permissions as string || '[]'),
       };
 
       const accessToken = await this.jwtService.signAsync(
@@ -174,6 +176,7 @@ export class AuthService {
       email: user.email,
       role: user.role.name as AuthUser['role'],
       isActive: user.isActive,
+      permissions: JSON.parse(user.role.permissions as string || '[]'),
     };
   }
 
@@ -185,6 +188,7 @@ export class AuthService {
       email: user.email,
       role: user.role.name as AuthUser['role'],
       isActive: user.isActive,
+      permissions: JSON.parse(user.role.permissions as string || '[]'),
     };
   }
 

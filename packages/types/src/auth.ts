@@ -14,6 +14,7 @@ export interface AuthUser {
   email: string;
   role: RoleName;
   isActive: boolean;
+  permissions?: string[];
 }
 
 export interface LoginResponse {

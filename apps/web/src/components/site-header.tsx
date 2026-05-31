@@ -13,6 +13,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@web/components/ui/breadcrumb"
+import { useBreadcrumbStore } from "@web/stores/breadcrumb.store"
 
 interface BreadcrumbItemType {
   label: string;
@@ -22,6 +23,8 @@ interface BreadcrumbItemType {
 
 export function SiteHeader() {
   const pathname = usePathname()
+  
+  const entityLabels = useBreadcrumbStore((state) => state.entityLabels)
   
   const getBreadcrumbs = React.useMemo(() => {
     if (!pathname) return [{ label: "Dashboard", isPage: true }]
@@ -60,14 +63,7 @@ export function SiteHeader() {
       } else if (segment === "roles") {
         label = "Roles"
       } else if (isCurrentUuid) {
-        const parent = segments[i - 1]
-        if (parent === "users") {
-          label = "User Details"
-        } else if (parent === "roles") {
-          label = "Role Details"
-        } else {
-          label = "Details"
-        }
+        label = entityLabels[segment] ?? "Details"
       } else if (segment === "new") {
         const parent = segments[i - 1]
         label = parent === "users" ? "Create User" : parent === "roles" ? "Create Role" : "New"
@@ -86,7 +82,7 @@ export function SiteHeader() {
     }
 
     return items
-  }, [pathname])
+  }, [pathname, entityLabels])
 
   return (
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">

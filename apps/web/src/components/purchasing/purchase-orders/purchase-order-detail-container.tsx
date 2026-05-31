@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { useConfirm } from '@web/hooks/use-confirm';
 import { useAuthStore } from '@web/stores/auth.store';
 import { FileTextIcon, SendIcon, CheckSquareIcon, XCircleIcon, ShoppingBagIcon, EditIcon, ChevronLeftIcon } from 'lucide-react';
+import { useBreadcrumbLabel } from '@web/hooks/use-breadcrumb-label';
 
 function formatDate(dateStr: string, includeTime = false) {
   try {
@@ -39,6 +40,8 @@ export function PurchaseOrderDetailContainer() {
   const submitMutation = useSubmitPurchaseOrder();
   const approveMutation = useApprovePurchaseOrder();
   const cancelMutation = useCancelPurchaseOrder();
+
+  useBreadcrumbLabel(id, po?.number);
 
   const handleSubmit = async () => {
     const ok = await confirm({

@@ -11,6 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from '@web/components/ui/alert';
 import { toast } from 'sonner';
 import { ApiError } from '@growflow/types';
 import { useConfirm } from '@web/hooks/use-confirm';
+import { useBreadcrumbLabel } from '@web/hooks/use-breadcrumb-label';
 import {
   Warehouse as WarehouseIcon,
   MapPinIcon,
@@ -31,6 +32,8 @@ export function WarehouseDetailContainer({ id }: WarehouseDetailContainerProps) 
   const { data: warehouse, isLoading, isError, error } = useWarehouse(id);
   const deleteMutation = useDeleteWarehouse();
   const confirm = useConfirm();
+
+  useBreadcrumbLabel(id, warehouse?.name);
 
   const handleEdit = () => {
     router.push(`/inventory/warehouses/${id}/edit`);

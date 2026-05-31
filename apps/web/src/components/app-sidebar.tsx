@@ -17,13 +17,24 @@ import {
 import { useAuthStore } from "@web/stores/auth.store"
 import { LayoutDashboard, Package, ShoppingCart, Sprout, Users, Shield, Warehouse, Boxes, Handshake } from "lucide-react"
 
+import { hasPermission } from "@web/lib/permissions"
+
+interface NavItem {
+  title: string
+  url: string
+  icon?: React.ReactNode
+  permission?: string
+}
+
+interface NavGroup {
+  label?: string
+  items: NavItem[]
+}
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const user = useAuthStore((state) => state.user)
 
-  const roleName = user?.role
-  const showUserManagement = roleName === "superadmin" || roleName === "manager"
-
-  const navGroups = [
+  const navGroups: NavGroup[] = [
     {
       label: "Overview",
       items: [
@@ -41,16 +52,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           title: "Items",
           url: "/inventory/items",
           icon: <Package />,
+          permission: "read:items",
         },
         {
           title: "Warehouses",
           url: "/inventory/warehouses",
           icon: <Warehouse />,
+          permission: "read:warehouses",
         },
         {
           title: "Stock",
           url: "/inventory/stock",
           icon: <Boxes />,
+          permission: "read:inventory",
         },
       ],
     },
@@ -61,11 +75,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           title: "Purchase Orders",
           url: "/purchasing/purchase-orders",
           icon: <ShoppingCart />,
+          permission: "read:po",
         },
         {
           title: "Goods Receipts",
           url: "/purchasing/goods-receipts",
           icon: <Boxes />,
+          permission: "read:grn",
         },
       ],
     },
@@ -76,11 +92,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           title: "Sales Orders",
           url: "/sales/sales-orders",
           icon: <ShoppingCart />,
+          permission: "read:so",
         },
         {
           title: "Delivery Notes",
           url: "/sales/delivery-notes",
           icon: <Boxes />,
+          permission: "read:dn",
         },
       ],
     },
@@ -91,29 +109,38 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           title: "Partners",
           url: "/relations/partners",
           icon: <Handshake />,
+          permission: "read:partners",
         },
       ],
     },
-    ...(showUserManagement
-      ? [
-          {
-            label: "Administration",
-            items: [
-              {
-                title: "Users",
-                url: "/administration/users",
-                icon: <Users />,
-              },
-              {
-                title: "Roles",
-                url: "/administration/roles",
-                icon: <Shield />,
-              },
-            ],
-          },
-        ]
-      : []),
+    {
+      label: "Administration",
+      items: [
+        {
+          title: "Users",
+          url: "/administration/users",
+          icon: <Users />,
+          permission: "read:users",
+        },
+        {
+          title: "Roles",
+          url: "/administration/roles",
+          icon: <Shield />,
+          permission: "read:roles",
+        },
+      ],
+    },
   ]
+
+  const userPermissions = user?.permissions || []
+  const filteredNavGroups = navGroups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter(
+        (item) => !item.permission || hasPermission(userPermissions, item.permission)
+      ),
+    }))
+    .filter((group) => group.items.length > 0)
 
   const sidebarUser = {
     name: user?.name || "GrowFlow User",
@@ -139,7 +166,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain groups={navGroups} />
+        <NavMain groups={filteredNavGroups} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={sidebarUser} />

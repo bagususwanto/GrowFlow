@@ -11,6 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from '@web/components/ui/alert';
 import { toast } from 'sonner';
 import { ApiError } from '@growflow/types';
 import { useConfirm } from '@web/hooks/use-confirm';
+import { useBreadcrumbLabel } from '@web/hooks/use-breadcrumb-label';
 import {
   UserIcon,
   MailIcon,
@@ -32,6 +33,8 @@ export function UserDetailContainer({ id }: UserDetailContainerProps) {
   const { data: user, isLoading, isError, error } = useUser(id);
   const deleteMutation = useDeleteUser();
   const confirm = useConfirm();
+
+  useBreadcrumbLabel(id, user?.name);
 
   const handleEdit = () => {
     router.push(`/administration/users/${id}/edit`);

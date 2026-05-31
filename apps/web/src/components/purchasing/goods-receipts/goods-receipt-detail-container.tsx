@@ -12,6 +12,7 @@ import { Separator } from '@web/components/ui/separator';
 import { ChevronLeftIcon, FileTextIcon, WarehouseIcon, CalendarIcon, UserIcon, CheckSquareIcon } from 'lucide-react';
 import { useConfirm } from '@web/hooks/use-confirm';
 import { toast } from 'sonner';
+import { useBreadcrumbLabel } from '@web/hooks/use-breadcrumb-label';
 
 function formatDate(dateStr: string, includeTime = false) {
   try {
@@ -35,6 +36,8 @@ export function GoodsReceiptDetailContainer() {
   const confirm = useConfirm();
   const confirmMutation = useConfirmGoodsReceipt();
   const { data: gr, isLoading, isError, error } = useGoodsReceipt(id);
+
+  useBreadcrumbLabel(id, gr?.number);
 
   const handleConfirm = async () => {
     const ok = await confirm({

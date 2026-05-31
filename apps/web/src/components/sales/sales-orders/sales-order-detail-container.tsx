@@ -14,6 +14,7 @@ import { useConfirm } from '@web/hooks/use-confirm';
 import { useAuthStore } from '@web/stores/auth.store';
 import { ChevronLeftIcon, FileTextIcon, CheckSquareIcon, XCircleIcon, TruckIcon, EditIcon } from 'lucide-react';
 import { Badge } from '@web/components/ui/badge';
+import { useBreadcrumbLabel } from '@web/hooks/use-breadcrumb-label';
 
 function formatDate(dateStr: string, includeTime = false) {
   try {
@@ -39,6 +40,8 @@ export function SalesOrderDetailContainer() {
   const { data: so, isLoading, isError, error } = useSalesOrder(id);
   const confirmMutation = useConfirmSalesOrder();
   const cancelMutation = useCancelSalesOrder();
+
+  useBreadcrumbLabel(id, so?.number);
 
   const handleConfirm = async () => {
     const ok = await confirm({

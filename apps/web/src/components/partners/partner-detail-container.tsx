@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { PartnerTransactions } from './partner-transactions';
 import { ApiError } from '@growflow/types';
 import { useConfirm } from '@web/hooks/use-confirm';
+import { useBreadcrumbLabel } from '@web/hooks/use-breadcrumb-label';
 import {
   MailIcon,
   PhoneIcon,
@@ -35,6 +36,8 @@ export function PartnerDetailContainer({ id }: PartnerDetailContainerProps) {
   const { data: partner, isLoading, isError, error } = usePartner(id);
   const deleteMutation = useDeletePartner();
   const confirm = useConfirm();
+
+  useBreadcrumbLabel(id, partner?.name);
 
   const handleEdit = () => {
     router.push(`/relations/partners/${id}/edit`);

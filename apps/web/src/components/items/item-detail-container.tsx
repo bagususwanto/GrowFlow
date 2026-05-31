@@ -11,6 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from '@web/components/ui/alert';
 import { toast } from 'sonner';
 import { ApiError } from '@growflow/types';
 import { useConfirm } from '@web/hooks/use-confirm';
+import { useBreadcrumbLabel } from '@web/hooks/use-breadcrumb-label';
 import {
   PackageIcon,
   LayersIcon,
@@ -34,6 +35,8 @@ export function ItemDetailContainer({ id }: ItemDetailContainerProps) {
   const { data: item, isLoading, isError, error } = useItem(id);
   const deleteMutation = useDeleteItem();
   const confirm = useConfirm();
+
+  useBreadcrumbLabel(id, item?.name);
 
   const handleEdit = () => {
     router.push(`/inventory/items/${id}/edit`);
