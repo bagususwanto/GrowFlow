@@ -3,15 +3,12 @@
 import React from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { useDeliveryNote, useConfirmDeliveryNote } from '@web/hooks/use-delivery-notes';
+import { useDeliveryNote } from '@web/hooks/use-delivery-notes';
 import { Card, CardContent, CardHeader, CardTitle } from '@web/components/ui/card';
 import { Button } from '@web/components/ui/button';
 import { Skeleton } from '@web/components/ui/skeleton';
 import { Separator } from '@web/components/ui/separator';
-import { toast } from 'sonner';
-import { useConfirm } from '@web/hooks/use-confirm';
-import { useAuthStore } from '@web/stores/auth.store';
-import { ChevronLeftIcon, FileTextIcon, CheckCircleIcon, WarehouseIcon, CalendarIcon, UserIcon } from 'lucide-react';
+import { ChevronLeftIcon, FileTextIcon, WarehouseIcon, CalendarIcon, UserIcon } from 'lucide-react';
 import { Badge } from '@web/components/ui/badge';
 
 function formatDate(dateStr: string, includeTime = false) {
@@ -32,26 +29,8 @@ function formatDate(dateStr: string, includeTime = false) {
 export function DeliveryNoteDetailContainer() {
   const params = useParams();
   const id = params.id as string;
-  const confirm = useConfirm();
-  const user = useAuthStore((state) => state.user);
 
   const { data: dn, isLoading, isError, error } = useDeliveryNote(id);
-  const confirmMutation = useConfirmDeliveryNote();
-
-  const handleConfirm = async () => {
-    const ok = await confirm({
-      title: 'Confirm Goods Delivery',
-      description: `Confirm Delivery Note ${dn?.number}? This action will immediately deduct the physical stock balance in the source warehouse.`,
-      confirmText: 'Confirm Delivery',
-    });
-    if (ok) {
-      toast.promise(confirmMutation.mutateAsync(id), {
-        loading: 'Confirming Delivery Note...',
-        success: 'Delivery Note confirmed. Warehouse stock updated.',
-        error: (err) => err?.response?.data?.message || 'Failed to confirm delivery',
-      });
-    }
-  };
 
   if (isLoading) return <Skeleton className="w-full h-96" />;
   if (isError || !dn) {
@@ -61,9 +40,6 @@ export function DeliveryNoteDetailContainer() {
       </div>
     );
   }
-
-  const isDraft = dn.status === 'DRAFT';
-  const isWarehouseOrAdmin = user?.role === 'superadmin' || user?.role === 'manager' || user?.role === 'warehouse';
 
   return (
     <div className="space-y-6">
@@ -92,11 +68,6 @@ export function DeliveryNoteDetailContainer() {
 
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-2 sm:self-center">
-          {isDraft && isWarehouseOrAdmin && (
-            <Button size="sm" onClick={handleConfirm} disabled={confirmMutation.isPending} className="bg-primary hover:bg-primary/90">
-              <CheckCircleIcon className="w-4 h-4 mr-2" />Confirm Delivery
-            </Button>
-          )}
         </div>
       </div>
 

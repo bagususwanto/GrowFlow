@@ -111,7 +111,7 @@ export function CreateDeliveryNoteContainer() {
     }
 
     try {
-      await createMutation.mutateAsync({
+      const result = await createMutation.mutateAsync({
         salesOrderId: data.salesOrderId,
         note: data.note || undefined,
         deliveryDate: data.deliveryDate || undefined,
@@ -123,7 +123,8 @@ export function CreateDeliveryNoteContainer() {
             qty: item.qty,
           })),
       });
-      toast.success('Delivery Note created successfully as DRAFT');
+      toast.success('Delivery Note created successfully');
+      router.push(`/sales/delivery-notes/${result.id}`);
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to create Delivery Note';
       toast.error(errorMsg);
@@ -150,7 +151,7 @@ export function CreateDeliveryNoteContainer() {
         </Button>
         <div>
           <h2 className="text-xl font-bold tracking-tight">Kirim Barang (Delivery Note)</h2>
-          <p className="text-xs text-muted-foreground">Buat draf surat jalan pengiriman barang berdasarkan Sales Order.</p>
+          <p className="text-xs text-muted-foreground">Buat surat jalan pengiriman barang berdasarkan Sales Order.</p>
         </div>
       </div>
 

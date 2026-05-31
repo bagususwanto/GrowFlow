@@ -3,16 +3,13 @@
 import React from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { useGoodsReceipt, useConfirmGoodsReceipt } from '@web/hooks/use-goods-receipts';
+import { useGoodsReceipt } from '@web/hooks/use-goods-receipts';
 import { GoodsReceiptStatusBadge } from './status-badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@web/components/ui/card';
 import { Button } from '@web/components/ui/button';
 import { Skeleton } from '@web/components/ui/skeleton';
 import { Separator } from '@web/components/ui/separator';
-import { toast } from 'sonner';
-import { useConfirm } from '@web/hooks/use-confirm';
-import { useAuthStore } from '@web/stores/auth.store';
-import { ChevronLeftIcon, FileTextIcon, CheckCircleIcon, WarehouseIcon, CalendarIcon, UserIcon } from 'lucide-react';
+import { ChevronLeftIcon, FileTextIcon, WarehouseIcon, CalendarIcon, UserIcon } from 'lucide-react';
 
 function formatDate(dateStr: string, includeTime = false) {
   try {
@@ -32,26 +29,8 @@ function formatDate(dateStr: string, includeTime = false) {
 export function GoodsReceiptDetailContainer() {
   const params = useParams();
   const id = params.id as string;
-  const confirm = useConfirm();
-  const user = useAuthStore((state) => state.user);
 
   const { data: gr, isLoading, isError, error } = useGoodsReceipt(id);
-  const confirmMutation = useConfirmGoodsReceipt();
-
-  const handleConfirm = async () => {
-    const ok = await confirm({
-      title: 'Confirm Goods Receipt',
-      description: `Confirm Goods Receipt ${gr?.number}? Doing this will update stock balances for received items immediately.`,
-      confirmText: 'Confirm Receipt',
-    });
-    if (ok) {
-      toast.promise(confirmMutation.mutateAsync(id), {
-        loading: 'Confirming Goods Receipt...',
-        success: 'Goods Receipt confirmed. Stock updated.',
-        error: 'Failed to confirm receipt',
-      });
-    }
-  };
 
   if (isLoading) return <Skeleton className="w-full h-96" />;
   if (isError || !gr) {
@@ -61,9 +40,6 @@ export function GoodsReceiptDetailContainer() {
       </div>
     );
   }
-
-  const isDraft = gr.status === 'DRAFT';
-  const isWarehouseOrAdmin = user?.role === 'superadmin' || user?.role === 'manager' || user?.role === 'warehouse';
 
   return (
     <div className="space-y-6">
@@ -92,11 +68,6 @@ export function GoodsReceiptDetailContainer() {
 
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-2 sm:self-center">
-          {isDraft && isWarehouseOrAdmin && (
-            <Button size="sm" onClick={handleConfirm} disabled={confirmMutation.isPending} className="bg-primary hover:bg-primary/90">
-              <CheckCircleIcon className="w-4 h-4 mr-2" />Confirm Receipt
-            </Button>
-          )}
         </div>
       </div>
 

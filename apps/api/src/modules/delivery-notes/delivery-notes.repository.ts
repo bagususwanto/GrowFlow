@@ -138,52 +138,51 @@ export class DeliveryNotesRepository {
     });
   }
 
-  async generateNumber(): Promise<string> {
+  async generateNumber(tx: Prisma.TransactionClient = this.prisma): Promise<string> {
     const date = new Date();
     const year = date.getFullYear();
     const month = date.getMonth() + 1; // 1-12
 
-    return this.prisma.$transaction(async (tx) => {
-      const docSeq = await tx.documentSequence.upsert({
-        where: {
-          type_year_month: {
-            type: 'DN',
-            year,
-            month,
-          },
-        },
-        update: {
-          lastSeq: {
-            increment: 1,
-          },
-        },
-        create: {
+    const docSeq = await tx.documentSequence.upsert({
+      where: {
+        type_year_month: {
           type: 'DN',
           year,
           month,
-          lastSeq: 1,
         },
-      });
-
-      const paddedSeq = String(docSeq.lastSeq).padStart(4, '0');
-      const paddedMonth = String(month).padStart(2, '0');
-      return `DN-${year}${paddedMonth}-${paddedSeq}`;
+      },
+      update: {
+        lastSeq: {
+          increment: 1,
+        },
+      },
+      create: {
+        type: 'DN',
+        year,
+        month,
+        lastSeq: 1,
+      },
     });
+
+    const paddedSeq = String(docSeq.lastSeq).padStart(4, '0');
+    const paddedMonth = String(month).padStart(2, '0');
+    return `DN-${year}${paddedMonth}-${paddedSeq}`;
   }
 
   async create(
     dto: CreateDeliveryNoteDto,
     userId: string,
+    tx: Prisma.TransactionClient = this.prisma,
   ): Promise<any> {
-    const number = await this.generateNumber();
+    const number = await this.generateNumber(tx);
 
-    return this.prisma.deliveryNote.create({
+    return tx.deliveryNote.create({
       data: {
         number,
         salesOrderId: dto.salesOrderId,
         note: dto.note,
         deliveryDate: dto.deliveryDate ? new Date(dto.deliveryDate) : new Date(),
-        status: DeliveryNoteStatus.DRAFT,
+        status: DeliveryNoteStatus.CONFIRMED,
         createdById: userId,
         lineItems: {
           create: dto.lineItems.map((item) => ({

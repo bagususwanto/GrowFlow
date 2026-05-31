@@ -85,7 +85,7 @@ export class DeliveryNotesService {
       throw new BadRequestException(`Cannot create Delivery Note for Sales Order with status ${so.status}`);
     }
 
-    // 2. Validasi line items
+    // 2. Validasi line items dan ketersediaan stok fisik
     for (const item of dto.lineItems) {
       const soLine = so.lineItems.find((l) => l.id === item.soLineItemId);
       if (!soLine) {
@@ -102,76 +102,35 @@ export class DeliveryNotesService {
           `Cannot deliver ${item.qty} units of item ${item.itemId}. Only ${remaining} units remaining on SO.`,
         );
       }
-    }
 
-    const dn = await this.repository.create(dto, userId);
-    return this.mapToResponse(dn);
-  }
-
-  async confirm(id: string, userId: string): Promise<DeliveryNoteResponseEntity> {
-    const dn = await this.repository.findById(id);
-    if (!dn) {
-      throw new NotFoundException(`Delivery Note with ID ${id} not found`);
-    }
-
-    if (dn.status !== DeliveryNoteStatus.DRAFT) {
-      throw new BadRequestException(`Only DRAFT Delivery Notes can be confirmed`);
-    }
-
-    // Cek ulang sisa SO saat konfirmasi (antisipasi double confirm / race conditions)
-    const so = await this.prisma.salesOrder.findFirst({
-      where: { id: dn.salesOrderId },
-      include: { lineItems: true },
-    });
-
-    if (!so) {
-      throw new BadRequestException(`Referenced Sales Order not found`);
-    }
-
-    for (const dnItem of dn.lineItems) {
-      const soLine = so.lineItems.find((l) => l.id === dnItem.soLineItemId);
-      if (!soLine) {
-        throw new BadRequestException(`Invalid SO line reference`);
-      }
-      const remaining = soLine.qty - soLine.qtyDelivered;
-      if (dnItem.qty > remaining) {
-        throw new UnprocessableEntityException(
-          `Over-deliver validation failed at confirmation. Qty to deliver: ${dnItem.qty}, remaining: ${remaining}.`,
-        );
-      }
-
-      // Validate physical stock availability in warehouse upon Delivery Note confirmation
+      // Validasi ketersediaan stok fisik di gudang asal
       const balance = await this.prisma.stockBalance.findUnique({
         where: {
           itemId_warehouseId: {
-            itemId: dnItem.itemId,
+            itemId: item.itemId,
             warehouseId: so.warehouseId,
           },
         },
       });
       const availableQty = balance ? balance.qty : 0;
-      if (availableQty < dnItem.qty) {
+      if (availableQty < item.qty) {
         throw new UnprocessableEntityException(
-          `Insufficient physical stock for delivery. Item ID ${dnItem.itemId} only has ${availableQty} units available in the warehouse.`,
+          `Insufficient physical stock for delivery. Item ID ${item.itemId} only has ${availableQty} units available in the warehouse.`,
         );
       }
     }
 
-    // Jalankan updates dalam transaction
-    await this.prisma.$transaction(async (tx) => {
-      // 1. Update status DN
-      await tx.deliveryNote.update({
-        where: { id },
-        data: { status: DeliveryNoteStatus.CONFIRMED },
-      });
+    const dn = await this.prisma.$transaction(async (tx) => {
+      // 1. Create Delivery Note record directly as CONFIRMED in repository
+      const newDn = await this.repository.create(dto, userId, tx);
 
-      for (const dnItem of dn.lineItems) {
+      for (const item of dto.lineItems) {
         // 2. Tambahkan qtyDelivered di SO Line Items
         await tx.salesOrderLineItem.update({
-          where: { id: dnItem.soLineItemId },
+          where: { id: item.soLineItemId },
           data: {
             qtyDelivered: {
-              increment: dnItem.qty,
+              increment: item.qty,
             },
           },
         });
@@ -179,14 +138,14 @@ export class DeliveryNotesService {
         // 3. Catat stock mutation OUT
         await tx.stockMutation.create({
           data: {
-            itemId: dnItem.itemId,
+            itemId: item.itemId,
             warehouseId: so.warehouseId,
-            qty: dnItem.qty,
+            qty: item.qty,
             type: MutationType.OUT,
             referenceType: 'DN',
-            referenceId: dn.id,
+            referenceId: newDn.id,
             createdById: userId,
-            note: dn.note || `Delivered via DN: ${dn.number}`,
+            note: dto.note || `Delivered via DN: ${newDn.number}`,
           },
         });
 
@@ -194,13 +153,13 @@ export class DeliveryNotesService {
         await tx.stockBalance.update({
           where: {
             itemId_warehouseId: {
-              itemId: dnItem.itemId,
+              itemId: item.itemId,
               warehouseId: so.warehouseId,
             },
           },
           data: {
             qty: {
-              decrement: dnItem.qty,
+              decrement: item.qty,
             },
           },
         });
@@ -208,19 +167,25 @@ export class DeliveryNotesService {
 
       // 5. Update SO status (PARTIAL / DONE)
       const updatedLines = await tx.salesOrderLineItem.findMany({
-        where: { salesOrderId: dn.salesOrderId },
+        where: { salesOrderId: dto.salesOrderId },
       });
 
       const allDelivered = updatedLines.every((line) => line.qtyDelivered >= line.qty);
       const soStatus = allDelivered ? SalesOrderStatus.DONE : SalesOrderStatus.PARTIAL;
 
       await tx.salesOrder.update({
-        where: { id: dn.salesOrderId },
+        where: { id: dto.salesOrderId },
         data: { status: soStatus },
       });
+
+      return newDn;
     });
 
-    return this.findOne(id);
+    return this.findOne(dn.id);
+  }
+
+  async confirm(id: string, userId: string): Promise<DeliveryNoteResponseEntity> {
+    throw new BadRequestException('Delivery Notes are automatically confirmed upon creation.');
   }
 
   async remove(id: string): Promise<void> {

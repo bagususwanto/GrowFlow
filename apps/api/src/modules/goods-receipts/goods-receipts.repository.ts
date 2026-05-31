@@ -128,53 +128,52 @@ export class GoodsReceiptsRepository {
     });
   }
 
-  async generateNumber(): Promise<string> {
+  async generateNumber(tx: Prisma.TransactionClient = this.prisma): Promise<string> {
     const date = new Date();
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
 
-    return this.prisma.$transaction(async (tx) => {
-      const docSeq = await tx.documentSequence.upsert({
-        where: {
-          type_year_month: {
-            type: 'GRN',
-            year,
-            month,
-          },
-        },
-        update: {
-          lastSeq: {
-            increment: 1,
-          },
-        },
-        create: {
+    const docSeq = await tx.documentSequence.upsert({
+      where: {
+        type_year_month: {
           type: 'GRN',
           year,
           month,
-          lastSeq: 1,
         },
-      });
-
-      const paddedSeq = String(docSeq.lastSeq).padStart(4, '0');
-      const paddedMonth = String(month).padStart(2, '0');
-      return `GRN-${year}${paddedMonth}-${paddedSeq}`;
+      },
+      update: {
+        lastSeq: {
+          increment: 1,
+        },
+      },
+      create: {
+        type: 'GRN',
+        year,
+        month,
+        lastSeq: 1,
+      },
     });
+
+    const paddedSeq = String(docSeq.lastSeq).padStart(4, '0');
+    const paddedMonth = String(month).padStart(2, '0');
+    return `GRN-${year}${paddedMonth}-${paddedSeq}`;
   }
 
   async create(
     dto: CreateGoodsReceiptDto,
     userId: string,
+    tx: Prisma.TransactionClient = this.prisma,
   ): Promise<any> {
-    const number = await this.generateNumber();
+    const number = await this.generateNumber(tx);
 
-    return this.prisma.goodsReceipt.create({
+    return tx.goodsReceipt.create({
       data: {
         number,
         purchaseOrderId: dto.purchaseOrderId,
         warehouseId: dto.warehouseId,
         note: dto.note,
         receivedDate: dto.receivedDate ? new Date(dto.receivedDate) : new Date(),
-        status: GoodsReceiptStatus.DRAFT,
+        status: GoodsReceiptStatus.CONFIRMED,
         createdById: userId,
         lineItems: {
           create: dto.lineItems.map((item) => ({

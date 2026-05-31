@@ -114,58 +114,17 @@ export class GoodsReceiptsService {
       }
     }
 
-    const gr = await this.repository.create(dto, userId);
-    return this.mapToResponse(gr);
-  }
+    const gr = await this.prisma.$transaction(async (tx) => {
+      // 1. Create Goods Receipt record (directly as CONFIRMED in repository)
+      const newGr = await this.repository.create(dto, userId, tx);
 
-  async confirm(id: string, userId: string): Promise<GoodsReceiptResponseEntity> {
-    const gr = await this.repository.findById(id);
-    if (!gr) {
-      throw new NotFoundException(`Goods Receipt with ID ${id} not found`);
-    }
-
-    if (gr.status !== GoodsReceiptStatus.DRAFT) {
-      throw new BadRequestException(`Only DRAFT Goods Receipts can be confirmed`);
-    }
-
-    // Cek ulang sisa PO saat konfirmasi (antisipasi double confirm / race conditions)
-    const po = await this.prisma.purchaseOrder.findFirst({
-      where: { id: gr.purchaseOrderId },
-      include: { lineItems: true },
-    });
-
-    if (!po) {
-      throw new BadRequestException(`Referenced Purchase Order not found`);
-    }
-
-    for (const grItem of gr.lineItems) {
-      const poLine = po.lineItems.find((l) => l.id === grItem.poLineItemId);
-      if (!poLine) {
-        throw new BadRequestException(`Invalid PO line reference`);
-      }
-      const remaining = poLine.qty - poLine.qtyReceived;
-      if (grItem.qty > remaining) {
-        throw new UnprocessableEntityException(
-          `Over-receive validation failed at confirmation. Qty to receive: ${grItem.qty}, remaining: ${remaining}.`,
-        );
-      }
-    }
-
-    // Jalankan updates dalam transaction
-    await this.prisma.$transaction(async (tx) => {
-      // 1. Update status GRN
-      await tx.goodsReceipt.update({
-        where: { id },
-        data: { status: GoodsReceiptStatus.CONFIRMED },
-      });
-
-      for (const grItem of gr.lineItems) {
+      for (const item of dto.lineItems) {
         // 2. Tambahkan qtyReceived di PO Line Items
         await tx.purchaseOrderLineItem.update({
-          where: { id: grItem.poLineItemId },
+          where: { id: item.poLineItemId },
           data: {
             qtyReceived: {
-              increment: grItem.qty,
+              increment: item.qty,
             },
           },
         });
@@ -173,14 +132,14 @@ export class GoodsReceiptsService {
         // 3. Catat stock mutation
         await tx.stockMutation.create({
           data: {
-            itemId: grItem.itemId,
-            warehouseId: gr.warehouseId,
-            qty: grItem.qty,
+            itemId: item.itemId,
+            warehouseId: dto.warehouseId,
+            qty: item.qty,
             type: MutationType.IN,
             referenceType: 'GRN',
-            referenceId: gr.id,
+            referenceId: newGr.id,
             createdById: userId,
-            note: gr.note || `Received via GRN: ${gr.number}`,
+            note: dto.note || `Received via GRN: ${newGr.number}`,
           },
         });
 
@@ -188,39 +147,44 @@ export class GoodsReceiptsService {
         await tx.stockBalance.upsert({
           where: {
             itemId_warehouseId: {
-              itemId: grItem.itemId,
-              warehouseId: gr.warehouseId,
+              itemId: item.itemId,
+              warehouseId: dto.warehouseId,
             },
           },
           update: {
             qty: {
-              increment: grItem.qty,
+              increment: item.qty,
             },
           },
           create: {
-            itemId: grItem.itemId,
-            warehouseId: gr.warehouseId,
-            qty: grItem.qty,
+            itemId: item.itemId,
+            warehouseId: dto.warehouseId,
+            qty: item.qty,
           },
         });
       }
 
       // 5. Update PO status (PARTIAL / DONE)
-      // Ambil data PO line item terupdate untuk kalkulasi status akhir
       const updatedLines = await tx.purchaseOrderLineItem.findMany({
-        where: { purchaseOrderId: gr.purchaseOrderId },
+        where: { purchaseOrderId: dto.purchaseOrderId },
       });
 
       const allReceived = updatedLines.every((line) => line.qtyReceived >= line.qty);
       const poStatus = allReceived ? PurchaseOrderStatus.DONE : PurchaseOrderStatus.PARTIAL;
 
       await tx.purchaseOrder.update({
-        where: { id: gr.purchaseOrderId },
+        where: { id: dto.purchaseOrderId },
         data: { status: poStatus },
       });
+
+      return newGr;
     });
 
-    return this.findOne(id);
+    return this.findOne(gr.id);
+  }
+
+  async confirm(id: string, userId: string): Promise<GoodsReceiptResponseEntity> {
+    throw new BadRequestException('Goods Receipts are automatically confirmed upon creation.');
   }
 
   async remove(id: string): Promise<void> {

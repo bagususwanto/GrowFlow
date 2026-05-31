@@ -130,7 +130,7 @@ export function CreateGoodsReceiptContainer() {
     }
 
     try {
-      await createMutation.mutateAsync({
+      const result = await createMutation.mutateAsync({
         purchaseOrderId: data.purchaseOrderId,
         warehouseId: data.warehouseId,
         note: data.note || undefined,
@@ -143,8 +143,8 @@ export function CreateGoodsReceiptContainer() {
             qty: item.qty,
           })),
       });
-      toast.success('Goods Receipt created successfully as DRAFT');
-      router.push('/purchasing/goods-receipts');
+      toast.success('Goods Receipt created successfully');
+      router.push(`/purchasing/goods-receipts/${result.id}`);
     } catch (error) {
       const apiError = error as ApiError;
       toast.error(apiError.message || 'Failed to create Goods Receipt');
