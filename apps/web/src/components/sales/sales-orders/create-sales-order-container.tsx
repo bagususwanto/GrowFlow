@@ -9,6 +9,8 @@ import { toast } from 'sonner';
 import { Button } from '@web/components/ui/button';
 import { ChevronLeftIcon } from 'lucide-react';
 
+import { ApiError } from '@growflow/types';
+
 export function CreateSalesOrderContainer() {
   const router = useRouter();
   const createMutation = useCreateSalesOrder();
@@ -18,14 +20,20 @@ export function CreateSalesOrderContainer() {
       const result = await createMutation.mutateAsync({
         customerId: values.customerId,
         warehouseId: values.warehouseId,
-        note: values.note,
-        orderDate: values.orderDate,
-        lineItems: values.lineItems,
+        note: values.note || undefined,
+        orderDate: values.orderDate || undefined,
+        lineItems: values.lineItems.map((item) => ({
+          itemId: item.itemId,
+          qty: item.qty,
+          unitPrice: item.unitPrice,
+        })),
       });
 
       toast.success(`Sales Order ${result.number} created successfully`);
+      router.push('/sales/sales-orders');
     } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : 'Failed to create Sales Order';
+      const apiError = err as ApiError;
+      const errorMsg = apiError?.message || 'Failed to create Sales Order';
       toast.error(errorMsg);
     }
   };

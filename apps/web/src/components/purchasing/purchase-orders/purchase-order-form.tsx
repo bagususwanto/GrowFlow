@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import { useForm, useFieldArray, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { PurchaseOrder } from '@growflow/types';
@@ -87,7 +87,10 @@ export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: Purch
   // Track price reference labels for each row
   const [priceReferences, setPriceReferences] = React.useState<Record<number, string>>({});
 
-  const watchLineItems = watch('lineItems');
+  const watchLineItems = useWatch({
+    control,
+    name: 'lineItems',
+  });
   const totalAmount = React.useMemo(() => {
     return watchLineItems?.reduce((sum, item) => {
       const qty = Number(item?.qty) || 0;
@@ -229,7 +232,7 @@ export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: Purch
                                 <PriceLoader
                                   itemId={selectField.value}
                                   onPriceLoaded={(price) => {
-                                    setValue(`lineItems.${index}.unitPrice`, price);
+                                    setValue(`lineItems.${index}.unitPrice`, price, { shouldValidate: true, shouldDirty: true });
                                   }}
                                   onReferenceMessage={(msg) => {
                                     setPriceReferences((prev) => ({ ...prev, [index]: msg }));

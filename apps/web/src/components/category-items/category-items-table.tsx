@@ -193,7 +193,7 @@ export function CategoryItemsTable({ isCreateOpen, onOpenChange }: CategoryItems
         description: (
           <>
             Are you sure you want to delete category{' '}
-            <span className="font-semibold text-foreground">{category.name}</span>?
+            <span className="font-bold">{category.name}</span>?
             This action cannot be undone.
           </>
         ),

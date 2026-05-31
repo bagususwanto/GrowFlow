@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCreateDeliveryNote } from '@web/hooks/use-delivery-notes';
@@ -15,13 +15,7 @@ import { Separator } from '@web/components/ui/separator';
 import { Skeleton } from '@web/components/ui/skeleton';
 import { toast } from 'sonner';
 import { Loader2Icon, TruckIcon, FileTextIcon, CalendarIcon, ChevronLeftIcon } from 'lucide-react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@web/components/ui/select';
+import { Combobox } from '@web/components/ui/combobox';
 
 const dnLineSchema = z.object({
   soLineItemId: z.string().min(1),
@@ -53,6 +47,14 @@ export function CreateDeliveryNoteContainer() {
   const pendingSos = React.useMemo(() => {
     return sosData?.data.filter(so => so.status === 'CONFIRMED' || so.status === 'PARTIAL') || [];
   }, [sosData]);
+
+  const soOptions = React.useMemo(() => {
+    return pendingSos.map((so) => ({
+      value: so.id,
+      label: `${so.number} (${so.customer?.name || 'No Customer'})`,
+      searchKeywords: `${so.number} ${so.customer?.name || ''}`,
+    }));
+  }, [pendingSos]);
 
   const { data: soDetails, isLoading: isLoadingSo } = useSalesOrder(selectedSoId);
   const createMutation = useCreateDeliveryNote();
@@ -169,19 +171,27 @@ export function CreateDeliveryNoteContainer() {
                   <Label htmlFor="salesOrderId" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Sales Order
                   </Label>
-                  <Select value={selectedSoId} onValueChange={handleSoChange}>
-                    <SelectTrigger className="w-full h-9 relative pl-9" id="salesOrderId">
-                      <FileTextIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <SelectValue placeholder="Select SO" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {pendingSos.map((so) => (
-                        <SelectItem key={so.id} value={so.id}>
-                          {so.number} ({so.customer?.name})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="salesOrderId"
+                    control={control}
+                    render={({ field }) => (
+                      <div className="relative w-full">
+                        <FileTextIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground z-10 pointer-events-none" />
+                        <Combobox
+                          value={field.value}
+                          onChange={(val) => {
+                            field.onChange(val);
+                            handleSoChange(val);
+                          }}
+                          options={soOptions}
+                          placeholder="Select SO"
+                          searchPlaceholder="Search SO..."
+                          emptyMessage="No confirmed Sales Orders found"
+                          triggerClassName="pl-9"
+                        />
+                      </div>
+                    )}
+                  />
                   {errors.salesOrderId && <p className="text-xs text-destructive">{errors.salesOrderId.message}</p>}
                 </div>
 

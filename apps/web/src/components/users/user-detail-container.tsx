@@ -44,7 +44,7 @@ export function UserDetailContainer({ id }: UserDetailContainerProps) {
       description: (
         <>
           Are you sure you want to delete user{' '}
-          <span className="font-semibold text-foreground">{user.name}</span>?
+          <span className="font-bold">{user.name}</span>?
           This action cannot be undone.
         </>
       ),

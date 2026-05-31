@@ -144,7 +144,7 @@ export function RolesTable() {
         description: (
           <>
             Are you sure you want to delete role{' '}
-            <span className="font-semibold text-foreground">{role.name}</span>?
+            <span className="font-bold">{role.name}</span>?
             This action cannot be undone.
           </>
         ),

@@ -43,7 +43,11 @@ export function PurchaseOrderDetailContainer() {
   const handleSubmit = async () => {
     const ok = await confirm({
       title: 'Submit Purchase Order',
-      description: `Submit ${po?.number}? This will forward the document to manager review.`,
+      description: (
+        <>
+          Submit <span className="font-bold">{po?.number}</span>? This will forward the document to manager review.
+        </>
+      ),
       confirmText: 'Submit PO',
     });
     if (ok) {
@@ -58,7 +62,11 @@ export function PurchaseOrderDetailContainer() {
   const handleApprove = async () => {
     const ok = await confirm({
       title: 'Approve Purchase Order',
-      description: `Approve ${po?.number}? Items will be eligible for GRN receipt.`,
+      description: (
+        <>
+          Approve <span className="font-bold">{po?.number}</span>? Items will be eligible for GRN receipt.
+        </>
+      ),
       confirmText: 'Approve PO',
     });
     if (ok) {
@@ -73,7 +81,11 @@ export function PurchaseOrderDetailContainer() {
   const handleCancel = async () => {
     const ok = await confirm({
       title: 'Cancel Purchase Order',
-      description: `Are you sure you want to cancel ${po?.number}? This action cannot be reversed.`,
+      description: (
+        <>
+          Are you sure you want to cancel <span className="font-bold">{po?.number}</span>? This action cannot be reversed.
+        </>
+      ),
       confirmText: 'Cancel PO',
       variant: 'destructive',
     });

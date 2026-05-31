@@ -6,6 +6,7 @@ import { ThemeProvider } from 'next-themes';
 import { useAuthStore } from '@web/stores/auth.store';
 import { TooltipProvider } from '@web/components/ui/tooltip';
 import { ConfirmProvider } from '@web/hooks/use-confirm';
+import { Toaster } from '@web/components/ui/sonner';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -32,9 +33,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         <TooltipProvider>
           <ConfirmProvider>
             {children}
+            <Toaster />
           </ConfirmProvider>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
 }
+

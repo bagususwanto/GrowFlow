@@ -39,7 +39,11 @@ export function DeliveryNoteDetailContainer() {
   const handleConfirm = async () => {
     const ok = await confirm({
       title: 'Confirm Goods Delivery',
-      description: `Confirm ${dn?.number}? This action will deduct the physical stock balance in the source warehouse.`,
+      description: (
+        <>
+          Confirm <span className="font-bold">{dn?.number}</span>? This action will deduct the physical stock balance in the source warehouse.
+        </>
+      ),
       confirmText: 'Confirm Delivery',
     });
     if (ok) {
@@ -70,7 +74,7 @@ export function DeliveryNoteDetailContainer() {
             size="icon"
             nativeButton={false}
             render={
-              <Link href={dn.salesOrderId ? `/sales/sales-orders/${dn.salesOrderId}` : '/sales/sales-orders'} title="Back to Sales Order">
+              <Link href="/sales/delivery-notes" title="Back to Delivery Notes">
                 <ChevronLeftIcon className="h-4 w-4" />
               </Link>
             }

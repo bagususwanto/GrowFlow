@@ -39,7 +39,11 @@ export function GoodsReceiptDetailContainer() {
   const handleConfirm = async () => {
     const ok = await confirm({
       title: 'Confirm Goods Receipt',
-      description: `Confirm receipt for ${gr?.number}? This will add items to stock balance and cannot be undone.`,
+      description: (
+        <>
+          Confirm receipt for <span className="font-bold">{gr?.number}</span>? This will add items to stock balance and cannot be undone.
+        </>
+      ),
       confirmText: 'Confirm Receipt',
     });
     if (ok) {

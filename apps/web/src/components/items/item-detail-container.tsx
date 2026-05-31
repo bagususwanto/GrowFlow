@@ -46,7 +46,7 @@ export function ItemDetailContainer({ id }: ItemDetailContainerProps) {
       description: (
         <>
           Are you sure you want to delete item{' '}
-          <span className="font-semibold text-foreground">{item.name}</span>?
+          <span className="font-bold">{item.name}</span>?
           This action cannot be undone.
         </>
       ),

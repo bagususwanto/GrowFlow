@@ -163,7 +163,7 @@ export function PartnersTable() {
         description: (
           <>
             Are you sure you want to delete partner{' '}
-            <span className="font-semibold text-foreground">{partner.name}</span>?
+            <span className="font-bold">{partner.name}</span>?
             This action cannot be undone.
           </>
         ),

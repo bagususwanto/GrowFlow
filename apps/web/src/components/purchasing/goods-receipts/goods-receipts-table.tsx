@@ -135,7 +135,11 @@ export function GoodsReceiptsTable() {
     async (gr: { id: string; number: string }) => {
       const ok = await confirm({
         title: 'Confirm Goods Receipt',
-        description: `Confirm receipt for ${gr.number}? This will add items to stock balance and cannot be undone.`,
+        description: (
+          <>
+            Confirm receipt for <span className="font-bold">{gr.number}</span>? This will add items to stock balance and cannot be undone.
+          </>
+        ),
         confirmText: 'Confirm Receipt',
       });
       if (ok) {
@@ -153,7 +157,11 @@ export function GoodsReceiptsTable() {
     async (gr: { id: string; number: string }) => {
       const ok = await confirm({
         title: 'Delete Goods Receipt',
-        description: `Are you sure you want to delete draft ${gr.number}? This action cannot be undone.`,
+        description: (
+          <>
+            Are you sure you want to delete draft <span className="font-bold">{gr.number}</span>? This action cannot be undone.
+          </>
+        ),
         confirmText: 'Delete',
         variant: 'destructive',
       });

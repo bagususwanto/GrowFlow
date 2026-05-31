@@ -43,7 +43,7 @@ export function WarehouseDetailContainer({ id }: WarehouseDetailContainerProps) 
       description: (
         <>
           Are you sure you want to delete warehouse{' '}
-          <span className="font-semibold text-foreground">{warehouse.name}</span>?
+          <span className="font-bold">{warehouse.name}</span>?
           This action cannot be undone.
         </>
       ),

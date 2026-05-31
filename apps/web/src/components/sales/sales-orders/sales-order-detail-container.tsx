@@ -43,7 +43,11 @@ export function SalesOrderDetailContainer() {
   const handleConfirm = async () => {
     const ok = await confirm({
       title: 'Confirm Sales Order',
-      description: `Confirm ${so?.number}? This will validate the available stock in warehouse ${so?.warehouse?.name} and reserve that stock.`,
+      description: (
+        <>
+          Confirm <span className="font-bold">{so?.number}</span>? This will validate the available stock in warehouse <span className="font-bold">{so?.warehouse?.name}</span> and reserve that stock.
+        </>
+      ),
       confirmText: 'Confirm SO',
     });
     if (ok) {
@@ -58,7 +62,11 @@ export function SalesOrderDetailContainer() {
   const handleCancel = async () => {
     const ok = await confirm({
       title: 'Cancel Sales Order',
-      description: `Are you sure you want to cancel ${so?.number}? This action cannot be reversed.`,
+      description: (
+        <>
+          Are you sure you want to cancel <span className="font-bold">{so?.number}</span>? This action cannot be reversed.
+        </>
+      ),
       confirmText: 'Cancel SO',
       variant: 'destructive',
     });
