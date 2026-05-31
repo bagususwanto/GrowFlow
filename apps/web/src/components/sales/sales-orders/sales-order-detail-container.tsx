@@ -259,7 +259,7 @@ export function SalesOrderDetailContainer() {
             <Separator />
 
             <div>
-              <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Created By (Sales Staff)</div>
+              <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Created By</div>
               <div className="font-semibold text-foreground mt-1">{so.createdBy?.name || so.createdById || '-'}</div>
             </div>
 

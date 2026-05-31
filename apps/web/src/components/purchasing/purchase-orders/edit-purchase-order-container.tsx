@@ -2,15 +2,13 @@
 
 import React from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import Link from 'next/link';
 import { usePurchaseOrder, useUpdatePurchaseOrder } from '@web/hooks/use-purchase-orders';
 import { PurchaseOrderForm, PurchaseOrderFormValues } from './purchase-order-form';
 import { Card, CardContent } from '@web/components/ui/card';
-import { Button } from '@web/components/ui/button';
+import { BackButton } from '@web/components/ui/back-button';
 import { Skeleton } from '@web/components/ui/skeleton';
 import { toast } from 'sonner';
 import { ApiError } from '@growflow/types';
-import { ChevronLeftIcon } from 'lucide-react';
 
 export function EditPurchaseOrderContainer() {
   const router = useRouter();
@@ -63,16 +61,7 @@ export function EditPurchaseOrderContainer() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <Button
-          variant="outline"
-          size="icon"
-          nativeButton={false}
-          render={
-            <Link href={`/purchasing/purchase-orders/${id}`} title="Back to Purchase Order Details">
-              <ChevronLeftIcon className="h-4 w-4" />
-            </Link>
-          }
-        />
+        <BackButton fallbackUrl={`/purchasing/purchase-orders/${id}`} />
         <div className="space-y-0.5">
           <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
             Edit Purchase Order

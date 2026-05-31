@@ -1,7 +1,5 @@
-import Link from 'next/link';
 import { EditWarehouseContainer } from '@web/components/warehouses/edit-warehouse-container';
-import { Button } from '@web/components/ui/button';
-import { ChevronLeftIcon } from 'lucide-react';
+import { BackButton } from '@web/components/ui/back-button';
 
 export const metadata = {
   title: 'Edit Warehouse | GrowFlow',
@@ -20,16 +18,7 @@ export default async function EditWarehousePage({ params }: EditWarehousePagePro
   return (
     <div className="space-y-6 px-4 lg:px-6">
       <div className="flex items-center gap-3">
-        <Button
-          variant="outline"
-          size="icon"
-          nativeButton={false}
-          render={
-            <Link href="/inventory/warehouses" title="Back to Warehouses">
-              <ChevronLeftIcon className="h-4 w-4" />
-            </Link>
-          }
-        />
+        <BackButton fallbackUrl="/inventory/warehouses" />
         <div className="space-y-0.5">
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Edit Warehouse</h1>
           <p className="text-sm text-muted-foreground">

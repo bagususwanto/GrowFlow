@@ -7,8 +7,7 @@ import { SalesOrderForm, SalesOrderFormValues } from './sales-order-form';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@web/components/ui/card';
 import { Skeleton } from '@web/components/ui/skeleton';
 import { toast } from 'sonner';
-import { Button } from '@web/components/ui/button';
-import { ChevronLeftIcon } from 'lucide-react';
+import { BackButton } from '@web/components/ui/back-button';
 
 export function EditSalesOrderContainer() {
   const router = useRouter();
@@ -62,15 +61,7 @@ export function EditSalesOrderContainer() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => router.push(`/sales/sales-orders/${id}`)}
-        >
-          <ChevronLeftIcon className="h-4 w-4" />
-          <span className="sr-only">Back</span>
-        </Button>
+        <BackButton fallbackUrl={`/sales/sales-orders/${id}`} className="h-8 w-8" />
         <div>
           <h2 className="text-xl font-bold tracking-tight">Edit Sales Order</h2>
           <p className="text-xs text-muted-foreground">Ubah draf transaksi pemesanan penjualan barang.</p>

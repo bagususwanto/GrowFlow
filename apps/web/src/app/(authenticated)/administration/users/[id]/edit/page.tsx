@@ -1,7 +1,5 @@
-import Link from "next/link";
 import { EditUserContainer } from "@web/components/users/edit-user-container";
-import { Button } from "@web/components/ui/button";
-import { ChevronLeftIcon } from "lucide-react";
+import { BackButton } from "@web/components/ui/back-button";
 
 export const metadata = {
   title: "Edit User | GrowFlow",
@@ -20,16 +18,7 @@ export default async function EditUserPage({ params }: EditUserPageProps) {
   return (
     <div className="space-y-6 px-4 lg:px-6">
       <div className="flex items-center gap-3">
-        <Button
-          variant="outline"
-          size="icon"
-          nativeButton={false}
-          render={
-            <Link href="/administration/users" title="Back to Users">
-              <ChevronLeftIcon className="h-4 w-4" />
-            </Link>
-          }
-        />
+        <BackButton fallbackUrl="/administration/users" />
         <div className="space-y-0.5">
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Edit User

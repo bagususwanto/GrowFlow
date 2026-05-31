@@ -236,7 +236,7 @@ export function PurchaseOrderDetailContainer() {
             <Separator />
 
             <div>
-              <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Creator (Staff)</div>
+              <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Created By</div>
               <div className="font-semibold text-foreground mt-1">{po.createdBy?.name || po.createdById || '-'}</div>
             </div>
 
