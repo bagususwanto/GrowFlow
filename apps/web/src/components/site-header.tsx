@@ -45,14 +45,18 @@ export function SiteHeader() {
       const segment = segments[i]
       currentPath += `/${segment}`
 
+      const isLast = i === segments.length - 1
       const noPageSegments = ["inventory", "purchasing", "relations", "administration", "sales"]
       if (noPageSegments.includes(segment)) {
         const label = segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ")
-        items.push({ label, isPage: false })
+        items.push({
+          label,
+          href: isLast ? undefined : currentPath,
+          isPage: isLast,
+        })
         continue
       }
 
-      const isLast = i === segments.length - 1
       const isCurrentUuid = isUuid(segment)
 
       let label = segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ")
