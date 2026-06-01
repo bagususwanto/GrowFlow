@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { useBreadcrumbLabel } from '@web/hooks/use-breadcrumb-label';
 import { SalesCreditNote, SalesInvoicePayment } from '@growflow/types';
+import { apiClient } from '@web/lib/api-client';
 
 function formatDate(dateStr: string, includeTime = false) {
   try {
@@ -142,7 +143,11 @@ export function SalesInvoiceDetailContainer() {
 
   const handleDownloadPdf = () => {
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
-    window.open(`${apiBaseUrl}/sales-invoices/${id}/pdf`, '_blank');
+    const token = apiClient.getAccessToken();
+    const url = token
+      ? `${apiBaseUrl}/sales-invoices/${id}/pdf?token=${encodeURIComponent(token)}`
+      : `${apiBaseUrl}/sales-invoices/${id}/pdf`;
+    window.open(url, '_blank');
   };
 
   if (isLoading) return <Skeleton className="w-full h-96" />;
