@@ -32,9 +32,10 @@ import { useConfirm } from '@web/hooks/use-confirm';
 
 interface PartnersTableProps {
   fixedType?: 'CUSTOMER' | 'SUPPLIER';
+  hideTypeFilter?: boolean;
 }
 
-export function PartnersTable({ fixedType }: PartnersTableProps = {}) {
+export function PartnersTable({ fixedType, hideTypeFilter }: PartnersTableProps = {}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -230,7 +231,7 @@ export function PartnersTable({ fixedType }: PartnersTableProps = {}) {
 
   const isFilterActive =
     (urlSearch && urlSearch !== '') ||
-    (!fixedType && urlType && urlType !== 'all') ||
+    (!fixedType && !hideTypeFilter && urlType && urlType !== 'all') ||
     (urlIsActive && urlIsActive !== 'all');
 
   const handleResetFilters = () => {
@@ -257,7 +258,7 @@ export function PartnersTable({ fixedType }: PartnersTableProps = {}) {
             />
           </div>
 
-          {!fixedType && (
+          {!fixedType && !hideTypeFilter && (
             <Select value={type} onValueChange={(val) => setType(val || 'all')}>
               <SelectTrigger className="w-full sm:w-40 h-9">
                 <SelectValue placeholder="Filter by Type">

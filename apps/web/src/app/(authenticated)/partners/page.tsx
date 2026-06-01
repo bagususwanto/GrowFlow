@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { PartnersTable } from '@web/components/partners/partners-table';
+import { PartnersDirectoryClient } from '@web/components/partners/partners-directory-client';
 import { Button } from '@web/components/ui/button';
 import { PlusIcon } from 'lucide-react';
 import { Skeleton } from '@web/components/ui/skeleton';
 
 export const metadata = {
-  title: 'Partners Management | GrowFlow',
+  title: 'Partners Directory | GrowFlow',
   description: 'Manage customers and suppliers.',
 };
 
@@ -15,9 +15,9 @@ export default function PartnersPage() {
     <div className="space-y-6 px-4 lg:px-6">
       <div className="flex sm:flex-row flex-col sm:justify-between sm:items-center gap-4">
         <div className="space-y-1">
-          <h1 className="font-bold text-foreground text-2xl tracking-tight">Partners</h1>
+          <h1 className="font-bold text-foreground text-2xl tracking-tight">Partners Directory</h1>
           <p className="text-muted-foreground text-sm">
-            Manage your suppliers, customers, and business contacts.
+            Manage your suppliers, customers, and business contacts in a single centralized master dashboard.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -34,7 +34,7 @@ export default function PartnersPage() {
       </div>
 
       <Suspense fallback={<Skeleton className="w-full h-96" />}>
-        <PartnersTable />
+        <PartnersDirectoryClient />
       </Suspense>
     </div>
   );
