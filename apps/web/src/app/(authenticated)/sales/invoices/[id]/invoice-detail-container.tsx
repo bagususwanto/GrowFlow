@@ -76,7 +76,13 @@ export function SalesInvoiceDetailContainer() {
   const handleSend = async () => {
     const ok = await confirm({
       title: 'Send Invoice',
-      description: `Apakah Anda yakin ingin mengirim invoice ${invoice?.number} ke customer? Ini akan mengubah status ke SENT.`,
+      description: (
+        <>
+          Apakah Anda yakin ingin mengirim invoice{' '}
+          <span className="font-bold">{invoice?.number}</span> ke customer? Tindakan ini akan
+          mengubah status invoice menjadi <span className="font-bold">SENT</span>.
+        </>
+      ),
       confirmText: 'Send Invoice',
     });
     if (ok) {
