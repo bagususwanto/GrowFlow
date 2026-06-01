@@ -108,7 +108,7 @@ class ApiClient {
     return json.data;
   }
 
-  private async performRefresh(): Promise<string> {
+  async performRefresh(): Promise<string> {
     const url = `${this.apiBaseUrl}/auth/refresh`;
     const response = await fetch(url, {
       method: 'POST',

@@ -25,19 +25,18 @@ export default function DashboardError({ error, reset }: ErrorProps) {
 
         <div>
           <h2 className="text-xl font-bold tracking-tight text-foreground">
-            Terjadi Gangguan pada Modul Ini
+            Module Error Occurred
           </h2>
           <p className="mt-3 text-sm text-muted-foreground">
-            Gagal memuat komponen halaman dashboard. Coba muat ulang halaman ini atau hubungi admin
-            jika kendala terus berlanjut.
+            Failed to load this dashboard component. Please try again or contact support if the issue persists.
           </p>
         </div>
 
-        {error.message && (
+        {process.env.NODE_ENV === 'development' && error.message && (
           <Alert variant="destructive" className="text-left">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle className="text-xs font-semibold uppercase tracking-wider">
-              Detail Teknis
+              Technical Details
             </AlertTitle>
             <AlertDescription>
               <code className="text-xs font-mono break-all leading-normal">
@@ -50,14 +49,14 @@ export default function DashboardError({ error, reset }: ErrorProps) {
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button onClick={reset} className="w-full sm:w-auto">
             <RefreshCw className="mr-2 h-4 w-4" />
-            Coba Lagi
+            Try Again
           </Button>
           <Button
             variant="outline"
             onClick={() => window.location.reload()}
             className="w-full sm:w-auto"
           >
-            Muat Ulang Halaman
+            Reload Page
           </Button>
         </div>
       </div>

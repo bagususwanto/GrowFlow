@@ -10,14 +10,4 @@ export interface NavItem {
   disabled?: boolean;
 }
 
-/**
- * Custom wrapper for API Response data.
- */
-export interface ClientResponse<T> {
-  data: T;
-  meta?: {
-    total?: number;
-    page?: number;
-    limit?: number;
-  };
-}
+

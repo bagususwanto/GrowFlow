@@ -28,10 +28,10 @@ export default function GlobalError({ error, reset }: ErrorProps) {
 
           <div className="space-y-3">
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
-              Terjadi Kesalahan Sistem
+              System Error Occurred
             </h1>
             <p className="text-sm text-muted-foreground">
-              Aplikasi mengalami error yang tidak terduga. Kami mohon maaf atas ketidaknyamanan ini.
+              An unexpected system error occurred. We apologize for the inconvenience.
             </p>
           </div>
 
@@ -39,7 +39,7 @@ export default function GlobalError({ error, reset }: ErrorProps) {
             <Alert variant="destructive" className="text-left">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle className="text-xs font-semibold uppercase tracking-wider">
-                Detail Error
+                Error Details
               </AlertTitle>
               <AlertDescription>
                 <code className="text-xs font-mono break-all leading-normal">
@@ -52,7 +52,7 @@ export default function GlobalError({ error, reset }: ErrorProps) {
           <div className="flex flex-col gap-3">
             <Button onClick={() => reset()} className="w-full">
               <RefreshCw className="h-4 w-4" />
-              Coba Lagi
+              Try Again
             </Button>
             <Button
               variant="outline"
@@ -61,7 +61,7 @@ export default function GlobalError({ error, reset }: ErrorProps) {
               render={<Link href="/dashboard" />}
             >
               <LayoutDashboard className="h-4 w-4" />
-              Kembali ke Dashboard
+              Back to Dashboard
             </Button>
           </div>
         </CardContent>

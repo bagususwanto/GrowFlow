@@ -15,6 +15,7 @@ import { Loader2Icon, ShoppingCartIcon, PlusIcon, Trash2Icon, FileTextIcon, User
 import { Combobox } from '@web/components/ui/combobox';
 import { useSearchParams } from 'next/navigation';
 import { PriceLoader } from './price-loader';
+import { DROPDOWN_FETCH_LIMIT } from '@web/lib/constants';
 
 
 const lineItemSchema = z.object({
@@ -183,8 +184,8 @@ export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: Purch
   const [supplierSearch, setSupplierSearch] = React.useState('');
   const [itemSearch, setItemSearch] = React.useState('');
 
-  const { data: suppliersData } = usePartners({ type: 'SUPPLIER', isActive: true, limit: 100, search: supplierSearch });
-  const { data: itemsData } = useItems({ status: 'active', limit: 100, search: itemSearch });
+  const { data: suppliersData } = usePartners({ type: 'SUPPLIER', isActive: true, limit: DROPDOWN_FETCH_LIMIT, search: supplierSearch });
+  const { data: itemsData } = useItems({ status: 'active', limit: DROPDOWN_FETCH_LIMIT, search: itemSearch });
 
   const itemOptions = React.useMemo(() => {
     return itemsData?.data.map((item) => ({

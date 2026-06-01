@@ -63,25 +63,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     set({ isLoading: true });
     try {
       // 1. Get new access token using refresh token cookie
-      const refreshResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api'}/auth/refresh`,
-        {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      if (!refreshResponse.ok) {
-        throw new Error('Refresh failed');
-      }
-
-      const json = await refreshResponse.json();
-      const data = json.data;
-
-      apiClient.setAccessToken(data.accessToken);
+      await apiClient.performRefresh();
 
       // 2. Fetch user information using new access token
       const user = await apiClient.get<AuthUser>('/auth/me');

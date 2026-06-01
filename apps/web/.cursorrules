@@ -1,0 +1,20 @@
+# GrowFlow apps/web Best Practices
+
+## 1. Security & Error Handling
+- **Strict CSP:** Do not introduce `unsafe-eval` or inline scripts.
+- **Error Messages:** Never expose raw `error.message` or technical stack traces to the user in production. Use generic user-friendly messages and log actual errors securely.
+- **Routing:** Always use Next.js `next/link` or `useRouter()` for navigation. Never use direct `window.location.href` or `window.location.replace`.
+
+## 2. Performance & Re-renders (Forms)
+- **React Hook Form:** Avoid using `watch()` at the root level of complex forms, as it triggers full-form re-renders. 
+- **Field Arrays:** Extract list items or table rows (like `useFieldArray` items) into separate child components. Use `useWatch` inside these child components for isolated reactivity.
+
+## 3. Data Fetching & State
+- **Server-Side Filtering:** For dropdowns and lists, use server-side search instead of client-side filtering. Use the `search` and `limit` query parameters via custom hooks (e.g., `usePartners`, `useItems`).
+- **Stable Keys:** Always use stable unique identifiers (e.g., `field.id` from `useFieldArray`) for React `key` props and state mapping. Never use array indexes.
+- **Combobox Component:** Ensure selected values are preserved across searches. Cache selected options locally so the label remains visible even if the underlying search query changes.
+
+## 4. Code Quality & Standards
+- **Constants:** Extract magic numbers (e.g., pagination limits) into named constants.
+- **API Client:** Use the centralized `apiClient` for all data fetching. Reuse built-in token refresh logic (e.g., `apiClient.performRefresh()`); do not duplicate raw `fetch` logic for auth.
+- **TypeScript:** Enforce strict typing. Avoid `any`. Ensure zero ESLint warnings and zero TypeScript errors.

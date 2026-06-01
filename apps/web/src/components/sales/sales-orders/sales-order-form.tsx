@@ -22,6 +22,7 @@ import {
 } from '@web/components/ui/select';
 import { Combobox } from '@web/components/ui/combobox';
 import { PriceLoaderSales } from './price-loader-sales';
+import { DROPDOWN_FETCH_LIMIT } from '@web/lib/constants';
 
 const lineItemSchema = z.object({
   itemId: z.string().min(1, 'Item is required'),
@@ -188,9 +189,9 @@ export function SalesOrderForm({ initialData, onSubmit, isSubmitting }: SalesOrd
   const [customerSearch, setCustomerSearch] = React.useState('');
   const [itemSearch, setItemSearch] = React.useState('');
 
-  const { data: customersData } = usePartners({ type: 'CUSTOMER', isActive: true, limit: 100, search: customerSearch });
-  const { data: itemsData } = useItems({ status: 'active', limit: 100, search: itemSearch });
-  const { data: warehousesData } = useWarehouses({ isActive: true, limit: 100 });
+  const { data: customersData } = usePartners({ type: 'CUSTOMER', isActive: true, limit: DROPDOWN_FETCH_LIMIT, search: customerSearch });
+  const { data: itemsData } = useItems({ status: 'active', limit: DROPDOWN_FETCH_LIMIT, search: itemSearch });
+  const { data: warehousesData } = useWarehouses({ isActive: true, limit: DROPDOWN_FETCH_LIMIT });
 
   const itemOptions = React.useMemo(() => {
     return itemsData?.data.map((item) => ({
