@@ -283,6 +283,16 @@ export function PartnerDetailContainer({ id }: PartnerDetailContainerProps) {
 
                 <div className="flex items-center justify-between py-2 border-b">
                   <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Payment Terms
+                  </span>
+                  <span className="text-sm flex items-center gap-1.5 text-foreground font-semibold">
+                    <CalendarIcon className="w-3.5 h-3.5 text-muted-foreground" />
+                    {partner.paymentTermsDays ?? 30} Days
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between py-2 border-b">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Status
                   </span>
                   <Badge variant={partner.isActive ? 'default' : 'destructive'}>

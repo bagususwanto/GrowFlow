@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from '@web/components/ui/select';
 import { Separator } from '@web/components/ui/separator';
-import { Loader2Icon, UserIcon, MailIcon, PhoneIcon, MapPinIcon, CheckIcon, ShieldCheckIcon } from 'lucide-react';
+import { Loader2Icon, UserIcon, MailIcon, PhoneIcon, MapPinIcon, CheckIcon, ShieldCheckIcon, CalendarIcon } from 'lucide-react';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -26,6 +26,7 @@ const formSchema = z.object({
   email: z.string().email('Invalid email format').optional().or(z.literal('')),
   phone: z.string().optional(),
   address: z.string().optional(),
+  paymentTermsDays: z.coerce.number().int().nonnegative('Payment terms must be non-negative').default(30),
   isActive: z.boolean().default(true),
 });
 
@@ -53,6 +54,7 @@ export function PartnerForm({ initialData, onSubmit, isSubmitting }: PartnerForm
       email: initialData?.email || '',
       phone: initialData?.phone || '',
       address: initialData?.address || '',
+      paymentTermsDays: initialData?.paymentTermsDays ?? 30,
       isActive: initialData?.isActive ?? true,
     },
   });
@@ -143,6 +145,17 @@ export function PartnerForm({ initialData, onSubmit, isSubmitting }: PartnerForm
               <Input id="phone" type="text" placeholder="+62812345678" className="pl-9 h-9" {...register('phone')} />
             </div>
             {errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="paymentTermsDays" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Payment Terms (Days)
+            </Label>
+            <div className="relative">
+              <CalendarIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input id="paymentTermsDays" type="number" placeholder="e.g. 30" className="pl-9 h-9" {...register('paymentTermsDays')} />
+            </div>
+            {errors.paymentTermsDays && <p className="text-xs text-destructive">{errors.paymentTermsDays.message}</p>}
           </div>
 
           <div className="space-y-1.5 sm:col-span-2">

@@ -21,6 +21,7 @@ export class PartnersService {
       phone: partner.phone,
       address: partner.address,
       isActive: partner.isActive,
+      paymentTermsDays: partner.paymentTermsDays,
       createdAt: partner.createdAt.toISOString(),
       updatedAt: partner.updatedAt.toISOString(),
     };

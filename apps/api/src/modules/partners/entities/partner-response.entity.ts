@@ -26,6 +26,9 @@ export class PartnerResponseEntity implements Partner {
   @ApiProperty()
   isActive!: boolean;
 
+  @ApiPropertyOptional({ nullable: true })
+  paymentTermsDays?: number | null;
+
   @ApiProperty()
   createdAt!: string;
 

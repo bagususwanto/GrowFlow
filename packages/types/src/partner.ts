@@ -8,6 +8,7 @@ export interface Partner {
   email: string | null;
   phone: string | null;
   address: string | null;
+  paymentTermsDays?: number | null;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -20,6 +21,7 @@ export interface CreatePartnerRequest {
   email?: string;
   phone?: string;
   address?: string;
+  paymentTermsDays?: number;
 }
 
 export interface UpdatePartnerRequest {
@@ -30,6 +32,7 @@ export interface UpdatePartnerRequest {
   phone?: string;
   address?: string;
   isActive?: boolean;
+  paymentTermsDays?: number;
 }
 
 export interface ListPartnersQuery {

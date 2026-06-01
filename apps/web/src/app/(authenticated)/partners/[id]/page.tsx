@@ -1,7 +1,4 @@
-import Link from 'next/link';
 import { PartnerDetailContainer } from '@web/components/partners/partner-detail-container';
-import { Button } from '@web/components/ui/button';
-import { ChevronLeftIcon } from 'lucide-react';
 
 export const metadata = {
   title: 'Partner Details | GrowFlow',

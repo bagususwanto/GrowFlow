@@ -9,7 +9,7 @@ describe('PartnersService', () => {
 
   const mockDate = new Date();
   const mockPartner = { id: 'p-id', code: 'PRT1', name: 'Partner 1', type: 'SUPPLIER' as any, email: 'a@a.com', phone: '123', address: 'addr', paymentTermsDays: null as number | null, isActive: true, createdAt: mockDate, updatedAt: mockDate, deletedAt: null };
-  const mockResponse = { id: 'p-id', code: 'PRT1', name: 'Partner 1', type: 'SUPPLIER', email: 'a@a.com', phone: '123', address: 'addr', isActive: true, createdAt: mockDate.toISOString(), updatedAt: mockDate.toISOString() };
+  const mockResponse = { id: 'p-id', code: 'PRT1', name: 'Partner 1', type: 'SUPPLIER', email: 'a@a.com', phone: '123', address: 'addr', paymentTermsDays: null as number | null, isActive: true, createdAt: mockDate.toISOString(), updatedAt: mockDate.toISOString() };
 
   const mockRepository = {
     findAll: jest.fn(),

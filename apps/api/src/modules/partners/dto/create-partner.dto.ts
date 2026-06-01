@@ -1,7 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
 import { CreatePartnerRequest, PartnerType } from '@growflow/types';
 import { PartnerType as PrismaPartnerType } from '@prisma/client';
+import { Type } from 'class-transformer';
 
 export class CreatePartnerDto implements CreatePartnerRequest {
   @ApiPropertyOptional()
@@ -33,4 +34,11 @@ export class CreatePartnerDto implements CreatePartnerRequest {
   @IsString()
   @IsOptional()
   address?: string;
+
+  @ApiPropertyOptional()
+  @IsInt()
+  @Min(0)
+  @Type(() => Number)
+  @IsOptional()
+  paymentTermsDays?: number;
 }

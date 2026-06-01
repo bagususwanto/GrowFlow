@@ -90,6 +90,7 @@ export class PartnersRepository {
         email: data.email,
         phone: data.phone,
         address: data.address,
+        paymentTermsDays: data.paymentTermsDays,
       },
     });
   }
