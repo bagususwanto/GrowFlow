@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useForm, useFieldArray, Controller, useWatch } from 'react-hook-form';
+import { useForm, useFieldArray, Controller, useWatch, Control, UseFormRegister, FieldErrors, UseFormSetValue } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { PurchaseOrder } from '@growflow/types';
@@ -31,6 +31,142 @@ const formSchema = z.object({
 });
 
 export type PurchaseOrderFormValues = z.infer<typeof formSchema>;
+
+interface LineItemRowProps {
+  control: Control<PurchaseOrderFormValues>;
+  index: number;
+  field: { id: string };
+  register: UseFormRegister<PurchaseOrderFormValues>;
+  errors: FieldErrors<PurchaseOrderFormValues>;
+  remove: (index: number) => void;
+  fieldsLength: number;
+  itemOptions: Array<{ value: string; label: string; searchKeywords: string }>;
+  priceReferences: Record<string, string>;
+  setPriceReferences: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  setValue: UseFormSetValue<PurchaseOrderFormValues>;
+}
+
+function LineItemRow({
+  control,
+  index,
+  field,
+  register,
+  errors,
+  remove,
+  fieldsLength,
+  itemOptions,
+  priceReferences,
+  setPriceReferences,
+  setValue,
+}: LineItemRowProps) {
+  const qty = useWatch({
+    control,
+    name: `lineItems.${index}.qty`,
+  }) || 0;
+
+  const unitPrice = useWatch({
+    control,
+    name: `lineItems.${index}.unitPrice`,
+  }) || 0;
+
+  const subtotal = qty * unitPrice;
+
+  return (
+    <tr>
+      <td className="p-2 align-top">
+        <Controller
+          name={`lineItems.${index}.itemId`}
+          control={control}
+          render={({ field: selectField }) => {
+            return (
+              <>
+                <Combobox
+                  value={selectField.value}
+                  onChange={(val) => {
+                    selectField.onChange(val);
+                    setPriceReferences((prev) => {
+                      const copy = { ...prev };
+                      delete copy[field.id];
+                      return copy;
+                    });
+                  }}
+                  options={itemOptions}
+                  placeholder="Select item"
+                  searchPlaceholder="Search item..."
+                  emptyMessage="No items found"
+                />
+                {selectField.value && (
+                  <PriceLoader
+                    itemId={selectField.value}
+                    onPriceLoaded={(price) => {
+                      setValue(`lineItems.${index}.unitPrice`, price, { shouldValidate: true, shouldDirty: true });
+                    }}
+                    onReferenceMessage={(msg) => {
+                      setPriceReferences((prev) => ({ ...prev, [field.id]: msg }));
+                    }}
+                  />
+                )}
+              </>
+            );
+          }}
+        />
+        {errors.lineItems?.[index]?.itemId && (
+          <p className="text-[10px] text-destructive mt-1">{errors.lineItems[index].itemId.message}</p>
+        )}
+      </td>
+      <td className="p-2 align-top">
+        <Input
+          type="number"
+          min="1"
+          className="h-9"
+          {...register(`lineItems.${index}.qty`, { valueAsNumber: true })}
+        />
+        {errors.lineItems?.[index]?.qty && (
+          <p className="text-[10px] text-destructive mt-1">{errors.lineItems[index].qty.message}</p>
+        )}
+      </td>
+      <td className="p-2 align-top">
+        <Input
+          type="number"
+          min="0"
+          step="0.01"
+          className="h-9"
+          {...register(`lineItems.${index}.unitPrice`, { valueAsNumber: true })}
+        />
+        {priceReferences[field.id] && (
+          <p className={`text-[10px] mt-1 font-medium ${priceReferences[field.id] === 'Belum ada histori harga' ? 'text-orange-500' : 'text-emerald-600'}`}>
+            {priceReferences[field.id]}
+          </p>
+        )}
+        {errors.lineItems?.[index]?.unitPrice && (
+          <p className="text-[10px] text-destructive mt-1">{errors.lineItems[index].unitPrice.message}</p>
+        )}
+      </td>
+      <td className="p-2 text-right font-medium align-middle">
+        {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(subtotal)}
+      </td>
+      <td className="p-2 text-center align-middle">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => {
+            remove(index);
+            setPriceReferences((prev) => {
+              const copy = { ...prev };
+              delete copy[field.id];
+              return copy;
+            });
+          }}
+          disabled={fieldsLength === 1}
+          className="h-8 w-8 text-destructive hover:bg-destructive/10"
+        >
+          <Trash2Icon className="w-4 h-4" />
+        </Button>
+      </td>
+    </tr>
+  );
+}
 
 interface PurchaseOrderFormProps {
   initialData?: PurchaseOrder;
@@ -90,7 +226,7 @@ export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: Purch
   });
 
   // Track price reference labels for each row
-  const [priceReferences, setPriceReferences] = React.useState<Record<number, string>>({});
+  const [priceReferences, setPriceReferences] = React.useState<Record<string, string>>({});
 
   const watchLineItems = useWatch({
     control,
@@ -109,7 +245,7 @@ export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: Purch
       {/* Header Info */}
       <div className="space-y-4">
         <div>
-          <h3 className="text-sm font-semibold text-foreground font-semibold">General Information</h3>
+          <h3 className="text-sm font-semibold text-foreground">General Information</h3>
           <p className="text-xs text-muted-foreground">Select supplier details and transaction date.</p>
         </div>
 
@@ -205,106 +341,22 @@ export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: Purch
               </tr>
             </thead>
             <tbody className="divide-y">
-              {fields.map((field, index) => {
-                const qty = watch(`lineItems.${index}.qty`) || 0;
-                const unitPrice = watch(`lineItems.${index}.unitPrice`) || 0;
-                const subtotal = qty * unitPrice;
-                return (
-                  <tr key={field.id}>
-                    <td className="p-2 align-top">
-                      <Controller
-                        name={`lineItems.${index}.itemId`}
-                        control={control}
-                        render={({ field: selectField }) => {
-                          return (
-                            <>
-                              <Combobox
-                                value={selectField.value}
-                                onChange={(val) => {
-                                  selectField.onChange(val);
-                                  setPriceReferences((prev) => {
-                                    const copy = { ...prev };
-                                    delete copy[index];
-                                    return copy;
-                                  });
-                                }}
-                                options={itemOptions}
-                                placeholder="Select item"
-                                searchPlaceholder="Search item..."
-                                emptyMessage="No items found"
-                              />
-                              {selectField.value && (
-                                <PriceLoader
-                                  itemId={selectField.value}
-                                  onPriceLoaded={(price) => {
-                                    setValue(`lineItems.${index}.unitPrice`, price, { shouldValidate: true, shouldDirty: true });
-                                  }}
-                                  onReferenceMessage={(msg) => {
-                                    setPriceReferences((prev) => ({ ...prev, [index]: msg }));
-                                  }}
-                                />
-                              )}
-                            </>
-                          );
-                        }}
-                      />
-                      {errors.lineItems?.[index]?.itemId && (
-                        <p className="text-[10px] text-destructive mt-1">{errors.lineItems[index].itemId.message}</p>
-                      )}
-                    </td>
-                    <td className="p-2 align-top">
-                      <Input
-                        type="number"
-                        min="1"
-                        className="h-9"
-                        {...register(`lineItems.${index}.qty`, { valueAsNumber: true })}
-                      />
-                      {errors.lineItems?.[index]?.qty && (
-                        <p className="text-[10px] text-destructive mt-1">{errors.lineItems[index].qty.message}</p>
-                      )}
-                    </td>
-                    <td className="p-2 align-top">
-                      <Input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        className="h-9"
-                        {...register(`lineItems.${index}.unitPrice`, { valueAsNumber: true })}
-                      />
-                      {priceReferences[index] && (
-                        <p className={`text-[10px] mt-1 font-medium ${priceReferences[index] === 'Belum ada histori harga' ? 'text-orange-500' : 'text-emerald-600'}`}>
-                          {priceReferences[index]}
-                        </p>
-                      )}
-                      {errors.lineItems?.[index]?.unitPrice && (
-                        <p className="text-[10px] text-destructive mt-1">{errors.lineItems[index].unitPrice.message}</p>
-                      )}
-                    </td>
-                    <td className="p-2 text-right font-medium align-middle">
-                      {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(subtotal)}
-                    </td>
-                    <td className="p-2 text-center align-middle">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          remove(index);
-                          setPriceReferences((prev) => {
-                            const copy = { ...prev };
-                            delete copy[index];
-                            return copy;
-                          });
-                        }}
-                        disabled={fields.length === 1}
-                        className="h-8 w-8 text-destructive hover:bg-destructive/10"
-                      >
-                        <Trash2Icon className="w-4 h-4" />
-                      </Button>
-                    </td>
-                  </tr>
-                );
-              })}
+              {fields.map((field, index) => (
+                <LineItemRow
+                  key={field.id}
+                  field={field}
+                  index={index}
+                  control={control}
+                  register={register}
+                  errors={errors}
+                  remove={remove}
+                  fieldsLength={fields.length}
+                  itemOptions={itemOptions}
+                  priceReferences={priceReferences}
+                  setPriceReferences={setPriceReferences}
+                  setValue={setValue}
+                />
+              ))}
             </tbody>
           </table>
         </div>
