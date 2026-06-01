@@ -34,11 +34,13 @@ interface ItemFormProps {
   initialData?: Item;
   onSubmit: (data: ItemFormValues) => Promise<void>;
   isSubmitting: boolean;
+  isProduct?: boolean;
 }
 
-export function ItemForm({ initialData, onSubmit, isSubmitting }: ItemFormProps) {
+export function ItemForm({ initialData, onSubmit, isSubmitting, isProduct }: ItemFormProps) {
   const isEdit = !!initialData;
   const { data: categoriesData, isLoading: isLoadingCategories } = useCategoryItems({ limit: 100 });
+  const itemLabel = isProduct ? "Product" : "Item";
 
   const {
     register,
@@ -65,20 +67,20 @@ export function ItemForm({ initialData, onSubmit, isSubmitting }: ItemFormProps)
       <div className="space-y-4">
         <div>
           <h3 className="text-sm font-semibold text-foreground">Basic Information</h3>
-          <p className="text-xs text-muted-foreground">Specify the item&apos;s code, name, and category details.</p>
+          <p className="text-xs text-muted-foreground">Specify the {itemLabel.toLowerCase()}&apos;s code, name, and category details.</p>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="code" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Item Code
+              {itemLabel} Code
             </Label>
             <div className="relative">
               <PackageIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="code"
                 type="text"
-                placeholder="e.g. ITEM-001"
+                placeholder={isProduct ? "e.g. PROD-001" : "e.g. ITEM-001"}
                 className="pl-9 h-9 font-mono"
                 disabled={isEdit} // Disable editing item code
                 {...register("code")}
@@ -89,11 +91,11 @@ export function ItemForm({ initialData, onSubmit, isSubmitting }: ItemFormProps)
 
           <div className="space-y-1.5">
             <Label htmlFor="name" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Item Name
+              {itemLabel} Name
             </Label>
             <div className="relative">
               <FileTextIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input id="name" type="text" placeholder="e.g. Premium Fertilizer" className="pl-9 h-9" {...register("name")} />
+              <Input id="name" type="text" placeholder={isProduct ? "e.g. Premium Item" : "e.g. Premium Fertilizer"} className="pl-9 h-9" {...register("name")} />
             </div>
             {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
           </div>
@@ -106,7 +108,7 @@ export function ItemForm({ initialData, onSubmit, isSubmitting }: ItemFormProps)
       <div className="space-y-4">
         <div>
           <h3 className="text-sm font-semibold text-foreground">Inventory & Classification</h3>
-          <p className="text-xs text-muted-foreground">Define item unit, category group, and safety stock level.</p>
+          <p className="text-xs text-muted-foreground">Define {itemLabel.toLowerCase()} unit, category group, and safety stock level.</p>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -174,12 +176,12 @@ export function ItemForm({ initialData, onSubmit, isSubmitting }: ItemFormProps)
           <div className="space-y-4">
             <div>
               <h3 className="text-sm font-semibold text-foreground">Status</h3>
-              <p className="text-xs text-muted-foreground">Enable or disable this item for transactions.</p>
+              <p className="text-xs text-muted-foreground">Enable or disable this {itemLabel.toLowerCase()} for transactions.</p>
             </div>
 
             <div className="space-y-1.5">
               <Label htmlFor="isActive" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Item Status
+                {itemLabel} Status
               </Label>
               <Controller
                 name="isActive"
@@ -216,7 +218,7 @@ export function ItemForm({ initialData, onSubmit, isSubmitting }: ItemFormProps)
               Saving...
             </>
           ) : (
-            isEdit ? "Update Item" : "Create Item"
+            isEdit ? `Update ${itemLabel}` : `Create ${itemLabel}`
           )}
         </Button>
       </div>

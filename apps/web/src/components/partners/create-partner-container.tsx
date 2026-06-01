@@ -32,12 +32,19 @@ export function CreatePartnerContainer() {
     }
   };
 
+  const defaultType = fromPath === '/sales/customers'
+    ? 'CUSTOMER'
+    : fromPath === '/purchasing/suppliers'
+      ? 'SUPPLIER'
+      : undefined;
+
   return (
     <Card className="w-full">
       <CardContent className="p-6">
         <PartnerForm
           onSubmit={handleSubmit}
           isSubmitting={createMutation.isPending}
+          defaultType={defaultType}
         />
       </CardContent>
     </Card>

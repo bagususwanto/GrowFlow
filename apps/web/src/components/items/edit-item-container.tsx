@@ -64,6 +64,8 @@ export function EditItemContainer({ id }: EditItemContainerProps) {
     );
   }
 
+  const isProduct = fromPath.includes('/products');
+
   return (
     <Card className="w-full">
       <CardContent className="p-6">
@@ -71,6 +73,7 @@ export function EditItemContainer({ id }: EditItemContainerProps) {
           initialData={item}
           onSubmit={handleSubmit}
           isSubmitting={updateMutation.isPending}
+          isProduct={isProduct}
         />
       </CardContent>
     </Card>

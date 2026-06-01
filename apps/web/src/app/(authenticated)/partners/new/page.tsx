@@ -18,6 +18,16 @@ export default async function NewPartnerPage({ searchParams }: NewPartnerPagePro
   const { from } = await searchParams;
   const fallbackUrl = from || '/partners';
 
+  let title = "Add Partner";
+  let description = "Create a new partner profile and details.";
+  if (from === "/sales/customers") {
+    title = "Add Customer";
+    description = "Create a new customer profile and details.";
+  } else if (from === "/purchasing/suppliers") {
+    title = "Add Supplier";
+    description = "Create a new supplier profile and details.";
+  }
+
   return (
     <div className="space-y-6 px-4 lg:px-6">
       <div className="flex items-center gap-3">
@@ -33,10 +43,10 @@ export default async function NewPartnerPage({ searchParams }: NewPartnerPagePro
         />
         <div className="space-y-0.5">
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            Add Partner
+            {title}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Create a new partner profile and details.
+            {description}
           </p>
         </div>
       </div>

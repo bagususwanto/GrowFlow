@@ -31,12 +31,15 @@ export function CreateItemContainer() {
     }
   };
 
+  const isProduct = fromPath.includes('/products');
+
   return (
     <Card className="w-full">
       <CardContent className="p-6">
         <ItemForm
           onSubmit={handleSubmit}
           isSubmitting={createMutation.isPending}
+          isProduct={isProduct}
         />
       </CardContent>
     </Card>

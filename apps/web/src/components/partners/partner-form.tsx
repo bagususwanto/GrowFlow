@@ -36,21 +36,23 @@ interface PartnerFormProps {
   initialData?: Partner;
   onSubmit: (data: PartnerFormValues) => Promise<void>;
   isSubmitting: boolean;
+  defaultType?: 'CUSTOMER' | 'SUPPLIER';
 }
 
-export function PartnerForm({ initialData, onSubmit, isSubmitting }: PartnerFormProps) {
+export function PartnerForm({ initialData, onSubmit, isSubmitting, defaultType }: PartnerFormProps) {
   const isEdit = !!initialData;
 
   const {
     register,
     handleSubmit,
     control,
+    watch,
     formState: { errors },
   } = useForm<PartnerFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: initialData?.name || '',
-      type: initialData?.type || 'SUPPLIER',
+      type: initialData?.type || defaultType || 'SUPPLIER',
       email: initialData?.email || '',
       phone: initialData?.phone || '',
       address: initialData?.address || '',
@@ -59,26 +61,29 @@ export function PartnerForm({ initialData, onSubmit, isSubmitting }: PartnerForm
     },
   });
 
+  const currentType = watch('type');
+  const partnerLabel = currentType === 'CUSTOMER' ? 'Customer' : currentType === 'SUPPLIER' ? 'Supplier' : 'Partner';
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full">
       {/* Section 1: Partner Information */}
       <div className="space-y-4">
         <div>
-          <h3 className="text-sm font-semibold text-foreground">Partner Details</h3>
-          <p className="text-xs text-muted-foreground">Specify the partner name and choose their business classification.</p>
+          <h3 className="text-sm font-semibold text-foreground">{partnerLabel} Details</h3>
+          <p className="text-xs text-muted-foreground">Specify the {partnerLabel.toLowerCase()} name and choose their business classification.</p>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           {isEdit ? (
             <>
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Partner Code</Label>
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{partnerLabel} Code</Label>
                 <Input disabled value={initialData.code} className="h-9 font-mono bg-muted/50" />
               </div>
 
               <div className="space-y-1.5">
                 <Label htmlFor="type" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Partner Type
+                  {partnerLabel} Type
                 </Label>
                 <Controller
                   name="type"
@@ -100,7 +105,7 @@ export function PartnerForm({ initialData, onSubmit, isSubmitting }: PartnerForm
 
               <div className="space-y-1.5 sm:col-span-2">
                 <Label htmlFor="name" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Partner Name
+                  {partnerLabel} Name
                 </Label>
                 <div className="relative">
                   <UserIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -113,7 +118,7 @@ export function PartnerForm({ initialData, onSubmit, isSubmitting }: PartnerForm
             <>
               <div className="space-y-1.5">
                 <Label htmlFor="name" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Partner Name
+                  {partnerLabel} Name
                 </Label>
                 <div className="relative">
                   <UserIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -124,7 +129,7 @@ export function PartnerForm({ initialData, onSubmit, isSubmitting }: PartnerForm
 
               <div className="space-y-1.5">
                 <Label htmlFor="type" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Partner Type
+                  {partnerLabel} Type
                 </Label>
                 <Controller
                   name="type"
@@ -196,7 +201,7 @@ export function PartnerForm({ initialData, onSubmit, isSubmitting }: PartnerForm
           {isEdit && (
             <div className="space-y-1.5">
               <Label htmlFor="isActive" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Partner Status
+                {partnerLabel} Status
               </Label>
               <Controller
                 name="isActive"
@@ -248,7 +253,7 @@ export function PartnerForm({ initialData, onSubmit, isSubmitting }: PartnerForm
               Saving...
             </>
           ) : (
-            isEdit ? 'Update Partner' : 'Create Partner'
+            isEdit ? `Update ${partnerLabel}` : `Create ${partnerLabel}`
           )}
         </Button>
       </div>
