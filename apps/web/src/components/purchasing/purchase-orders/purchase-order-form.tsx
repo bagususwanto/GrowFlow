@@ -13,7 +13,9 @@ import { usePartners } from '@web/components/partners/use-partners';
 import { useItems } from '@web/components/items/use-items';
 import { Loader2Icon, ShoppingCartIcon, PlusIcon, Trash2Icon, FileTextIcon, UserIcon, CalendarIcon } from 'lucide-react';
 import { Combobox } from '@web/components/ui/combobox';
+import { useSearchParams } from 'next/navigation';
 import { PriceLoader } from './price-loader';
+
 
 const lineItemSchema = z.object({
   itemId: z.string().min(1, 'Item is required'),
@@ -58,6 +60,9 @@ export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: Purch
     })) || [];
   }, [suppliersData]);
 
+  const searchParams = useSearchParams();
+  const itemIdParam = searchParams.get('itemId') || '';
+
   const {
     register,
     handleSubmit,
@@ -75,7 +80,7 @@ export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: Purch
         itemId: li.itemId,
         qty: li.qty,
         unitPrice: li.unitPrice,
-      })) || [{ itemId: '', qty: 1, unitPrice: 0 }],
+      })) || [{ itemId: itemIdParam, qty: 1, unitPrice: 0 }],
     },
   });
 

@@ -1,3 +1,4 @@
+import React from 'react';
 import { CreatePurchaseOrderContainer } from '@web/components/purchasing/purchase-orders/create-purchase-order-container';
 
 export const metadata = {
@@ -15,7 +16,10 @@ export default function NewPurchaseOrderPage() {
         </p>
       </div>
 
-      <CreatePurchaseOrderContainer />
+      <React.Suspense fallback={<div className="text-sm text-muted-foreground">Loading form...</div>}>
+        <CreatePurchaseOrderContainer />
+      </React.Suspense>
     </div>
   );
 }
+

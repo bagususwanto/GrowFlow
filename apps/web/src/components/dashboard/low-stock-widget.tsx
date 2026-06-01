@@ -18,13 +18,23 @@ import {
 import { Badge } from "@web/components/ui/badge"
 import { LowStockItem } from "@growflow/types"
 import Link from "next/link"
-import { AlertTriangle } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { AlertTriangle, EllipsisVerticalIcon, WrenchIcon, ShoppingCartIcon } from "lucide-react"
+import { Button } from "@web/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@web/components/ui/dropdown-menu"
+
 
 interface LowStockWidgetProps {
   items: LowStockItem[]
 }
 
 export function LowStockWidget({ items }: LowStockWidgetProps) {
+  const router = useRouter();
   return (
     <Card className="shadow-sm border border-border">
       <CardHeader className="flex flex-row items-center justify-between pb-3">
@@ -82,12 +92,30 @@ export function LowStockWidget({ items }: LowStockWidgetProps) {
                       {item.currentStock} {item.unit}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Link
-                        href={`/inventory/stock/adjust?itemId=${item.itemId}&warehouseId=${item.warehouseId || ''}`}
-                        className="text-xs text-primary font-medium hover:underline"
-                      >
-                        Adjust Stock
-                      </Link>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger
+                          render={
+                            <Button
+                              variant="ghost"
+                              className="flex data-[state=open]:bg-muted p-0 w-8 h-8 text-muted-foreground ml-auto"
+                              size="icon"
+                            >
+                              <EllipsisVerticalIcon className="w-4 h-4" />
+                              <span className="sr-only">Open menu</span>
+                            </Button>
+                          }
+                        />
+                        <DropdownMenuContent align="end" className="w-40">
+                          <DropdownMenuItem onClick={() => router.push(`/inventory/stock/adjust?itemId=${item.itemId}&warehouseId=${item.warehouseId || ''}`)}>
+                            <WrenchIcon className="mr-2 w-4 h-4" />
+                            Adjust Stock
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => router.push(`/purchasing/purchase-orders/new?itemId=${item.itemId}`)}>
+                            <ShoppingCartIcon className="mr-2 w-4 h-4" />
+                            Create PO
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))}
