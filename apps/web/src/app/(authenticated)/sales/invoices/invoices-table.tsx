@@ -26,7 +26,16 @@ import {
   SelectValue,
 } from '@web/components/ui/select';
 import { SalesInvoiceStatusBadge } from '@web/components/sales/sales-orders/invoice-status-badge';
-import { ChevronLeftIcon, ChevronRightIcon, SearchIcon, RotateCcwIcon, ChevronsLeftIcon, ChevronsRightIcon, ArrowRightIcon } from 'lucide-react';
+import { ChevronLeftIcon, ChevronRightIcon, SearchIcon, RotateCcwIcon, ChevronsLeftIcon, ChevronsRightIcon, EllipsisVerticalIcon, EyeIcon } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@web/components/ui/dropdown-menu';
 
 function formatDate(dateStr: string) {
   try {
@@ -275,16 +284,30 @@ export function SalesInvoicesTable() {
                         <SalesInvoiceStatusBadge status={inv.status} />
                       </TableCell>
                       <TableCell className="text-center">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          nativeButton={false}
-                          render={
-                            <Link href={`/sales/invoices/${inv.id}`} title="View Details">
-                              <ArrowRightIcon className="h-4 w-4" />
-                            </Link>
-                          }
-                        />
+                        <DropdownMenu>
+                          <DropdownMenuTrigger
+                            render={
+                              <Button
+                                variant="ghost"
+                                className="flex data-[state=open]:bg-muted p-0 w-8 h-8 text-muted-foreground"
+                                size="icon"
+                              >
+                                <EllipsisVerticalIcon className="w-4 h-4" />
+                                <span className="sr-only">Open menu</span>
+                              </Button>
+                            }
+                          />
+                          <DropdownMenuContent align="end" className="w-40">
+                            <DropdownMenuGroup>
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem onClick={() => router.push(`/sales/invoices/${inv.id}`)}>
+                                <EyeIcon className="mr-2 w-4 h-4" />
+                                View Details
+                              </DropdownMenuItem>
+                            </DropdownMenuGroup>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   );

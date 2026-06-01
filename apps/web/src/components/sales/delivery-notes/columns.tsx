@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { ColumnDef } from '@tanstack/react-table';
 import { DeliveryNote } from '@growflow/types';
 import { Button } from '@web/components/ui/button';
@@ -78,7 +79,16 @@ export const getColumns = ({
     accessorKey: 'salesOrder',
     header: 'Sales Order Ref',
     cell: ({ row }) => {
-      return <span className="font-mono text-xs">{row.original.salesOrder?.number || '-'}</span>;
+      const salesOrder = row.original.salesOrder;
+      if (!salesOrder) return <span className="text-muted-foreground">-</span>;
+      return (
+        <Link
+          href={`/sales/sales-orders/${salesOrder.id}`}
+          className="font-mono text-xs font-semibold text-primary hover:underline"
+        >
+          {salesOrder.number}
+        </Link>
+      );
     },
   },
   {

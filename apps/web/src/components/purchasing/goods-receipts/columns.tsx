@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { ColumnDef } from '@tanstack/react-table';
 import { GoodsReceipt } from '@growflow/types';
 import { Button } from '@web/components/ui/button';
@@ -79,7 +80,15 @@ export const getColumns = ({
     header: 'PO Reference',
     cell: ({ row }) => {
       const gr = row.original;
-      return <span className="font-mono text-xs font-semibold">{gr.purchaseOrder?.number || '-'}</span>;
+      if (!gr.purchaseOrder) return <span className="text-muted-foreground">-</span>;
+      return (
+        <Link
+          href={`/purchasing/purchase-orders/${gr.purchaseOrder.id}`}
+          className="font-mono text-xs font-semibold text-primary hover:underline"
+        >
+          {gr.purchaseOrder.number}
+        </Link>
+      );
     },
   },
   {
