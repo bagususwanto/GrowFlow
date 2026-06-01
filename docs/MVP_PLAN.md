@@ -49,43 +49,67 @@ Siklus pertama: barang masuk.
 - Flow status: `DRAFT → SUBMITTED → APPROVED → CANCELLED`
 - Goods Receipt (GRN): terima barang → stok otomatis bertambah
 - Status PO update otomatis: `PARTIAL / DONE`
-- Jurnal otomatis saat PO approved (hutang dagang)
+- ⚠️ Jurnal hutang dagang **tidak** dibuat saat PO Approved — akan ditrigger oleh Vendor Invoice di Fase 5
 
-**Deliverable:** Bisa buat PO, approve, terima barang, stok bertambah, jurnal terbuat.
+**Deliverable:** Bisa buat PO, approve, terima barang, stok bertambah.
 
 ---
 
-## Fase 4 — Sales (Minggu 7–8)
+## Fase 4 — Sales & Invoice (Minggu 7–8)
 
-Siklus kedua: barang keluar.
+Siklus kedua: barang keluar + penagihan ke customer.
 
 **Target:**
 
 - CRUD Sales Order + line items
-- Flow status: `DRAFT → CONFIRMED → CANCELLED`
+- Flow status SO: `DRAFT → CONFIRMED → PARTIAL/DONE → CLOSED`
+  - SO baru bisa `CLOSED` setelah Invoice terkait berstatus `PAID`
 - Validasi stok tersedia saat SO dikonfirmasi (HTTP 422 jika kurang)
 - Delivery: kirim barang → stok otomatis berkurang
 - Status SO update otomatis: `PARTIAL / DONE`
-- Jurnal otomatis saat SO confirmed (piutang dagang)
 
-**Deliverable:** Bisa buat SO, konfirmasi, kirim barang, stok berkurang, jurnal terbuat.
+**Sales Invoice:**
+
+- Invoice terbit otomatis dari SO setelah Delivery selesai (1 SO = 1 Invoice)
+- Auto-numbering: `INV-YYYYMM-0001`
+- Tanggal invoice & tanggal jatuh tempo (due date / termin)
+- Flow status Invoice: `DRAFT → SENT → PARTIAL → PAID → CANCELLED`
+- Jurnal piutang dagang (AR) otomatis terbentuk saat Invoice `SENT` (bukan saat SO Confirmed)
+- Jurnal kredit piutang saat payment masuk
+- PDF invoice yang bisa di-download / print
+- Rekap outstanding invoice (belum dibayar)
+- Credit note untuk pembatalan sebagian invoice
+
+**Deliverable:** Bisa buat SO, konfirmasi, kirim barang, stok berkurang, invoice terbit otomatis, PDF bisa diunduh, jurnal piutang terbuat saat invoice dikirim.
 
 ---
 
-## Fase 5 — Accounting (Minggu 9–10)
+## Fase 5 — Accounting & Purchase Invoice (Minggu 9–10)
 
-Laporan keuangan dasar dari jurnal yang sudah terkumpul.
+Laporan keuangan dasar + siklus hutang dagang dari vendor.
 
 **Target:**
 
 - Chart of Accounts (COA) dengan hirarki
 - Jurnal manual untuk penyesuaian (role: `finance`)
+
+**Purchase Invoice (Vendor Bill):**
+
+- Vendor Invoice terbit dari GRN (flow: `PO → GRN → Vendor Invoice → Payment`)
+- Auto-numbering: `BILL-YYYYMM-0001`
+- Tanggal invoice vendor & tanggal jatuh tempo
+- Flow status: `DRAFT → RECEIVED → PARTIAL → PAID → CANCELLED`
+- Jurnal hutang dagang (AP) otomatis terbentuk saat Vendor Invoice `RECEIVED`
+- Jurnal kredit hutang saat payment ke vendor dilakukan
+
+**Laporan:**
+
 - Pencatatan pembayaran/pelunasan Hutang & Piutang (AP/AR)
 - Laporan Trial Balance
 - Laporan Laba Rugi sederhana
 - Laporan Saldo & Umur Hutang Piutang (AP/AR Aging)
 
-**Deliverable:** Finance bisa lihat neraca saldo, laba rugi, serta mengelola pelunasan hutang/piutang dari transaksi PO & SO.
+**Deliverable:** Finance bisa input Vendor Invoice dari GRN, jurnal hutang terbuat otomatis, serta lihat neraca saldo, laba rugi, dan aging report AP/AR.
 
 ---
 
@@ -133,29 +157,32 @@ Laporan keuangan dasar dari jurnal yang sudah terkumpul.
 
 ## Ringkasan Timeline
 
-| Fase | Scope                     | Minggu |
-| ---- | ------------------------- | ------ |
-| 1    | Foundation + Auth         | 1–2    |
-| 2    | Inventory + Master Data   | 3–4    |
-| 3    | Purchasing (PO + GRN)     | 5–6    |
-| 4    | Sales (SO + Delivery)     | 7–8    |
-| 5    | Accounting + Laporan      | 9–10   |
-| 6    | HR + Payroll              | 11–12  |
-| 7    | Production + MRP          | 13–14  |
-| 8    | Polish + Production Ready | 15–16  |
+| Fase | Scope                                  | Minggu |
+| ---- | -------------------------------------- | ------ |
+| 1    | Foundation + Auth                      | 1–2    |
+| 2    | Inventory + Master Data                | 3–4    |
+| 3    | Purchasing (PO + GRN)                  | 5–6    |
+| 4    | Sales (SO + Delivery + Sales Invoice)  | 7–8    |
+| 5    | Accounting + Purchase Invoice + Laporan| 9–10   |
+| 6    | HR + Payroll                           | 11–12  |
+| 7    | Production + MRP                       | 13–14  |
+| 8    | Polish + Production Ready              | 15–16  |
 
 **Total estimasi: ~4 bulan** (tim 2–3 developer)
 
 ---
 
-## Kriteria MVP Selesai (Fase 1–4)
+## Kriteria MVP Selesai (Fase 1–5)
 
 MVP dianggap selesai ketika siklus berikut bisa berjalan end-to-end tanpa error:
 
 1. Admin tambah barang & set stok awal
-2. Staff purchasing buat PO → manager approve → warehouse terima barang → stok bertambah
-3. Staff sales buat SO → konfirmasi (validasi stok) → kirim barang → stok berkurang
-4. Finance lihat jurnal otomatis dari kedua transaksi di atas
+2. Staff purchasing buat PO → manager approve → warehouse terima barang (GRN) → stok bertambah
+3. Finance input Vendor Invoice dari GRN → jurnal hutang dagang terbuat otomatis
+4. Staff sales buat SO → konfirmasi (validasi stok) → kirim barang → stok berkurang
+5. Sales Invoice terbit otomatis → dikirim ke customer → jurnal piutang dagang terbuat
+6. Finance catat payment dari customer → piutang lunas → SO closed
+7. Finance lihat Trial Balance, Laba Rugi, dan AP/AR Aging
 
 ---
 
