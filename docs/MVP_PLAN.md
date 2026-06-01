@@ -80,10 +80,12 @@ Laporan keuangan dasar dari jurnal yang sudah terkumpul.
 
 - Chart of Accounts (COA) dengan hirarki
 - Jurnal manual untuk penyesuaian (role: `finance`)
+- Pencatatan pembayaran/pelunasan Hutang & Piutang (AP/AR)
 - Laporan Trial Balance
 - Laporan Laba Rugi sederhana
+- Laporan Saldo & Umur Hutang Piutang (AP/AR Aging)
 
-**Deliverable:** Finance bisa lihat neraca saldo dan laba rugi dari transaksi PO & SO.
+**Deliverable:** Finance bisa lihat neraca saldo, laba rugi, serta mengelola pelunasan hutang/piutang dari transaksi PO & SO.
 
 ---
 
@@ -118,7 +120,7 @@ Laporan keuangan dasar dari jurnal yang sudah terkumpul.
 
 **Target:**
 
-- Dashboard: ringkasan stok, PO pending, SO pending, kas
+- Dashboard: ringkasan stok, PO pending, SO pending, kas, saldo hutang & piutang
 - Notifikasi: stok di bawah minimum, PO/SO butuh approval
 - Export laporan ke PDF/Excel
 - Rate limiting, helmet, CSP headers
