@@ -16,7 +16,7 @@ interface MetricsWidgetProps {
 
 export function MetricsWidget({ data }: MetricsWidgetProps) {
   return (
-    <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
       {data.totalItems !== undefined && (
         <Card className="@container/card shadow-sm border border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
