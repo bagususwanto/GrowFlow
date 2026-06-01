@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { SalesOrderStatus, SalesOrderLineItem } from '@growflow/types';
 import { SalesOrderStatus as PrismaSalesOrderStatus } from '@prisma/client';
 
+
 export class SalesOrderLineItemEntity implements SalesOrderLineItem {
   @ApiProperty()
   id!: string;
@@ -120,4 +121,47 @@ export class SalesOrderResponseEntity {
 
   @ApiPropertyOptional({ type: [SalesOrderLineItemEntity] })
   lineItems?: SalesOrderLineItemEntity[];
+
+  @ApiPropertyOptional({
+    type: 'array',
+    items: {
+      type: 'object',
+      properties: {
+        id: { type: 'string' },
+        number: { type: 'string' },
+        salesOrderId: { type: 'string' },
+        status: { type: 'string', enum: ['DRAFT', 'CONFIRMED'] },
+        deliveryDate: { type: 'string' },
+        note: { type: 'string', nullable: true },
+        createdById: { type: 'string', nullable: true },
+        deletedAt: { type: 'string', nullable: true },
+        createdAt: { type: 'string' },
+        updatedAt: { type: 'string' },
+        createdBy: {
+          type: 'object',
+          nullable: true,
+          properties: {
+            id: { type: 'string' },
+            name: { type: 'string' },
+          },
+        },
+      },
+    },
+  })
+  deliveryNotes?: {
+    id: string;
+    number: string;
+    salesOrderId: string;
+    status: 'DRAFT' | 'CONFIRMED';
+    deliveryDate: string;
+    note: string | null;
+    createdById: string | null;
+    deletedAt: string | null;
+    createdAt: string;
+    updatedAt: string;
+    createdBy?: {
+      id: string;
+      name: string;
+    };
+  }[];
 }

@@ -49,8 +49,22 @@ export class SalesOrdersService {
         updatedAt: li.updatedAt.toISOString(),
         item: li.item,
       })),
+      deliveryNotes: so.deliveryNotes?.map((dn: any) => ({
+        id: dn.id,
+        number: dn.number,
+        salesOrderId: dn.salesOrderId,
+        status: dn.status,
+        deliveryDate: dn.deliveryDate.toISOString(),
+        note: dn.note,
+        createdById: dn.createdById,
+        deletedAt: dn.deletedAt ? dn.deletedAt.toISOString() : null,
+        createdAt: dn.createdAt.toISOString(),
+        updatedAt: dn.updatedAt.toISOString(),
+        createdBy: dn.createdBy,
+      })),
     };
   }
+
 
   async findAll(query: ListSalesOrdersQueryDto): Promise<PaginatedResponse<SalesOrderResponseEntity>> {
     const page = query.page || 1;
