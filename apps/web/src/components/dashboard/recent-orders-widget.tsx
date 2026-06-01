@@ -25,7 +25,7 @@ interface RecentOrdersWidgetProps {
   salesOrders?: SalesOrder[]
 }
 
-function getStatusVariant(status: string) {
+function getStatusVariant(status: string): "default" | "secondary" | "destructive" | "outline" {
   switch (status) {
     case "DRAFT":
       return "outline"
@@ -36,7 +36,7 @@ function getStatusVariant(status: string) {
     case "PARTIAL":
       return "default"
     case "DONE":
-      return "success" as any
+      return "default"
     case "CANCELLED":
       return "destructive"
     default:

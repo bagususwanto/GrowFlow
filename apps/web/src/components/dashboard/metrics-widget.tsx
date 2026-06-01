@@ -8,7 +8,7 @@ import {
   CardContent,
 } from "@web/components/ui/card"
 import { DashboardSummaryResponse } from "@growflow/types"
-import { Package, ShoppingCart, ShoppingBag, Clock, CheckCircle } from "lucide-react"
+import { Package, ShoppingCart, ShoppingBag, Clock } from "lucide-react"
 
 interface MetricsWidgetProps {
   data: DashboardSummaryResponse

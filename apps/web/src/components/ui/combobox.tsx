@@ -22,6 +22,7 @@ interface ComboboxProps {
   disabled?: boolean
   className?: string
   triggerClassName?: string
+  onSearchChange?: (search: string) => void
 }
 
 export function Combobox({
@@ -34,6 +35,7 @@ export function Combobox({
   disabled = false,
   className,
   triggerClassName,
+  onSearchChange,
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false)
   const [searchQuery, setSearchQuery] = React.useState("")
@@ -43,6 +45,7 @@ export function Combobox({
   }, [options, value])
 
   const filteredOptions = React.useMemo(() => {
+    if (onSearchChange) return options
     if (!searchQuery.trim()) return options
     const query = searchQuery.toLowerCase()
     return options.filter((opt) => {
@@ -51,7 +54,26 @@ export function Combobox({
       const matchKeywords = opt.searchKeywords?.toLowerCase().includes(query)
       return matchLabel || matchValue || matchKeywords
     })
-  }, [options, searchQuery])
+  }, [options, searchQuery, onSearchChange])
+
+  const [selectedOptionCache, setSelectedOptionCache] = React.useState<ComboboxOption | null>(null)
+
+  React.useEffect(() => {
+    if (selectedOption) {
+      setSelectedOptionCache(selectedOption)
+    }
+  }, [selectedOption])
+
+  const displayOption = selectedOption || selectedOptionCache
+
+  // Debounced search for server-side search
+  React.useEffect(() => {
+    if (!onSearchChange) return
+    const handler = setTimeout(() => {
+      onSearchChange(searchQuery)
+    }, 300)
+    return () => clearTimeout(handler)
+  }, [searchQuery, onSearchChange])
 
   // Reset search query when popover closes
   React.useEffect(() => {
@@ -68,12 +90,12 @@ export function Combobox({
           disabled={disabled}
           className={cn(
             "flex h-9 w-full items-center justify-between rounded-lg border border-input bg-transparent px-3 py-2 text-sm text-left shadow-xs transition-colors outline-hidden select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-input/30 dark:hover:bg-input/50",
-            !selectedOption && "text-muted-foreground",
+            !displayOption && "text-muted-foreground",
             triggerClassName
           )}
         >
           <span className="truncate">
-            {selectedOption ? selectedOption.label : placeholder}
+            {displayOption ? displayOption.label : placeholder}
           </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 pointer-events-none" />
         </PopoverTrigger>

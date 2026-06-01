@@ -44,6 +44,7 @@ interface LineItemRowProps {
   priceReferences: Record<string, string>;
   setPriceReferences: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   setValue: UseFormSetValue<PurchaseOrderFormValues>;
+  onItemSearchChange: (search: string) => void;
 }
 
 function LineItemRow({
@@ -58,6 +59,7 @@ function LineItemRow({
   priceReferences,
   setPriceReferences,
   setValue,
+  onItemSearchChange,
 }: LineItemRowProps) {
   const qty = useWatch({
     control,
@@ -94,6 +96,7 @@ function LineItemRow({
                   placeholder="Select item"
                   searchPlaceholder="Search item..."
                   emptyMessage="No items found"
+                  onSearchChange={onItemSearchChange}
                 />
                 {selectField.value && (
                   <PriceLoader
@@ -177,8 +180,11 @@ interface PurchaseOrderFormProps {
 export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: PurchaseOrderFormProps) {
   const isEdit = !!initialData;
 
-  const { data: suppliersData } = usePartners({ type: 'SUPPLIER', isActive: true, limit: 100 });
-  const { data: itemsData } = useItems({ status: 'active', limit: 100 });
+  const [supplierSearch, setSupplierSearch] = React.useState('');
+  const [itemSearch, setItemSearch] = React.useState('');
+
+  const { data: suppliersData } = usePartners({ type: 'SUPPLIER', isActive: true, limit: 100, search: supplierSearch });
+  const { data: itemsData } = useItems({ status: 'active', limit: 100, search: itemSearch });
 
   const itemOptions = React.useMemo(() => {
     return itemsData?.data.map((item) => ({
@@ -203,7 +209,6 @@ export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: Purch
     register,
     handleSubmit,
     control,
-    watch,
     setValue,
     formState: { errors },
   } = useForm<PurchaseOrderFormValues>({
@@ -268,6 +273,7 @@ export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: Purch
                     searchPlaceholder="Search supplier..."
                     emptyMessage="No suppliers found"
                     triggerClassName="pl-9"
+                    onSearchChange={setSupplierSearch}
                   />
                 </div>
               )}
@@ -355,6 +361,7 @@ export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: Purch
                   priceReferences={priceReferences}
                   setPriceReferences={setPriceReferences}
                   setValue={setValue}
+                  onItemSearchChange={setItemSearch}
                 />
               ))}
             </tbody>
