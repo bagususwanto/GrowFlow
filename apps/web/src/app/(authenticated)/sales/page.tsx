@@ -52,7 +52,7 @@ export default function SalesOverviewPage() {
       </div>
 
       {/* Grid Menu Cards */}
-      <div className="grid gap-6 md:grid-cols-2 max-w-3xl">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {menus.map((menu, idx) => (
           <Card 
             key={idx} 

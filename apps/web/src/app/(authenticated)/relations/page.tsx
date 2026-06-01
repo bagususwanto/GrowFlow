@@ -42,7 +42,7 @@ export default function RelationsOverviewPage() {
       </div>
 
       {/* Grid Menu Cards */}
-      <div className="grid gap-6 md:grid-cols-2 max-w-xl">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {menus.map((menu, idx) => (
           <Card 
             key={idx} 
