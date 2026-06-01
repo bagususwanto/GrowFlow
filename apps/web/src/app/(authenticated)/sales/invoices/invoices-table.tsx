@@ -1,0 +1,381 @@
+'use client';
+
+import * as React from 'react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import Link from 'next/link';
+import { useSalesInvoices } from '@web/hooks/use-sales-invoices';
+import { useDebounce } from '@web/hooks/use-debounce';
+import { ListSalesInvoicesQuery, SalesInvoiceStatus } from '@growflow/types';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@web/components/ui/table';
+import { Button } from '@web/components/ui/button';
+import { Card, CardContent } from '@web/components/ui/card';
+import { Skeleton } from '@web/components/ui/skeleton';
+import { Input } from '@web/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@web/components/ui/select';
+import { SalesInvoiceStatusBadge } from '@web/components/sales/sales-orders/invoice-status-badge';
+import { ChevronLeftIcon, ChevronRightIcon, SearchIcon, RotateCcwIcon, ChevronsLeftIcon, ChevronsRightIcon, ArrowRightIcon } from 'lucide-react';
+
+function formatDate(dateStr: string) {
+  try {
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  } catch {
+    return dateStr;
+  }
+}
+
+function formatCurrency(val: number) {
+  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
+}
+
+export function SalesInvoicesTable() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  const urlPage = searchParams.get('page');
+  const urlLimit = searchParams.get('limit');
+  const urlSearch = searchParams.get('search');
+  const urlStatus = searchParams.get('status');
+  const urlSortBy = searchParams.get('sortBy');
+  const urlSortOrder = searchParams.get('sortOrder');
+  const urlCustomerId = searchParams.get('customerId');
+
+  const page = urlPage ? parseInt(urlPage, 10) : 1;
+  const limit = urlLimit ? parseInt(urlLimit, 10) : 10;
+  const status = urlStatus || 'all';
+  const sortBy = urlSortBy || 'createdAt';
+  const sortOrder = (urlSortOrder === 'asc' || urlSortOrder === 'desc') ? urlSortOrder : 'desc';
+
+  const [search, setSearch] = React.useState(urlSearch || '');
+  const debouncedSearch = useDebounce(search, 500);
+
+  React.useEffect(() => {
+    setSearch(urlSearch || '');
+  }, [urlSearch]);
+
+  const createQueryString = React.useCallback(
+    (params: Record<string, string | number | boolean | null | undefined>) => {
+      const newParams = new URLSearchParams(searchParams.toString());
+      Object.entries(params).forEach(([key, value]) => {
+        if (value === null || value === undefined || value === '' || value === 'all') {
+          newParams.delete(key);
+        } else {
+          newParams.set(key, String(value));
+        }
+      });
+      return newParams.toString();
+    },
+    [searchParams]
+  );
+
+  React.useEffect(() => {
+    const currentUrlSearch = searchParams.get('search') || '';
+    if (debouncedSearch !== currentUrlSearch && search === debouncedSearch) {
+      const queryString = createQueryString({
+        search: debouncedSearch || null,
+        page: 1,
+      });
+      router.replace(`${pathname}?${queryString}`, { scroll: false });
+    }
+  }, [debouncedSearch, search, pathname, router, createQueryString, searchParams]);
+
+  const setPage = React.useCallback(
+    (newPage: number) => {
+      const queryString = createQueryString({ page: newPage });
+      router.replace(`${pathname}?${queryString}`, { scroll: false });
+    },
+    [pathname, router, createQueryString]
+  );
+
+  const setLimit = React.useCallback(
+    (newLimit: number) => {
+      const queryString = createQueryString({ limit: newLimit, page: 1 });
+      router.replace(`${pathname}?${queryString}`, { scroll: false });
+    },
+    [pathname, router, createQueryString]
+  );
+
+  const setStatus = React.useCallback(
+    (newStatus: string) => {
+      const queryString = createQueryString({ status: newStatus, page: 1 });
+      router.replace(`${pathname}?${queryString}`, { scroll: false });
+    },
+    [pathname, router, createQueryString]
+  );
+
+  const query = React.useMemo(() => {
+    const q: ListSalesInvoicesQuery = {
+      page,
+      limit,
+      sortBy,
+      sortOrder,
+    };
+    if (debouncedSearch) q.search = debouncedSearch;
+    if (status && status !== 'all') q.status = status as SalesInvoiceStatus;
+    if (urlCustomerId) q.customerId = urlCustomerId;
+    return q;
+  }, [page, limit, debouncedSearch, status, sortBy, sortOrder, urlCustomerId]);
+
+  const { data, isLoading, isError, error } = useSalesInvoices(query);
+
+  const total = data?.total || 0;
+  const totalPages = limit > 0 ? Math.ceil(total / limit) : 0;
+  const hasPreviousPage = page > 1;
+  const hasNextPage = page < totalPages;
+
+  const isFilterActive =
+    (urlSearch && urlSearch !== '') ||
+    (urlStatus && urlStatus !== 'all') ||
+    urlCustomerId;
+
+  const handleResetFilters = () => {
+    setSearch('');
+    const newParams = new URLSearchParams();
+    if (limit !== 10) {
+      newParams.set('limit', String(limit));
+    }
+    router.replace(`${pathname}?${newParams.toString()}`, { scroll: false });
+  };
+
+  const tableData = data?.data || [];
+
+  return (
+    <Card>
+      <CardContent className="p-4">
+        {/* Filters and search section */}
+        <div className="flex flex-wrap items-center gap-2 mb-4 w-full">
+          <div className="relative w-full sm:w-64">
+            <SearchIcon className="top-2.5 left-2.5 absolute w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search invoice no or customer..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-8 h-9"
+            />
+          </div>
+
+          <Select value={status} onValueChange={(val) => setStatus(val || 'all')}>
+            <SelectTrigger className="w-full sm:w-40 h-9">
+              <SelectValue placeholder="Filter by Status">
+                {status === 'all' && 'All Status'}
+                {status === 'DRAFT' && 'Draft'}
+                {status === 'SENT' && 'Sent'}
+                {status === 'PARTIAL' && 'Partial'}
+                {status === 'PAID' && 'Paid'}
+                {status === 'CANCELLED' && 'Cancelled'}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="DRAFT">Draft</SelectItem>
+              <SelectItem value="SENT">Sent</SelectItem>
+              <SelectItem value="PARTIAL">Partial</SelectItem>
+              <SelectItem value="PAID">Paid</SelectItem>
+              <SelectItem value="CANCELLED">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {isFilterActive && (
+            <Button
+              variant="ghost"
+              onClick={handleResetFilters}
+              className="w-full sm:w-auto h-9 text-muted-foreground text-xs"
+            >
+              <RotateCcwIcon className="mr-1.5 w-3.5 h-3.5" />
+              Reset
+            </Button>
+          )}
+        </div>
+
+        <div className="border rounded-lg overflow-hidden">
+          <Table>
+            <TableHeader className="bg-muted/50">
+              <TableRow>
+                <TableHead>Invoice No</TableHead>
+                <TableHead>Customer</TableHead>
+                <TableHead>Order Reference</TableHead>
+                <TableHead>Due Date</TableHead>
+                <TableHead className="text-right">Total Amount</TableHead>
+                <TableHead className="text-right">Remaining Bal</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-center">Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                Array.from({ length: limit }).map((_, i) => (
+                  <TableRow key={i}>
+                    {Array.from({ length: 8 }).map((_, colIndex) => (
+                      <TableCell key={colIndex}>
+                        <Skeleton className="w-full h-6" />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : isError ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={8}
+                    className="h-24 font-medium text-destructive text-center"
+                  >
+                    {error instanceof Error
+                      ? error.message
+                      : 'Something went wrong while fetching sales invoices.'}
+                  </TableCell>
+                </TableRow>
+              ) : tableData.length ? (
+                tableData.map((inv) => {
+                  const outstanding = Number(inv.totalAmount) - Number(inv.paidAmount);
+                  return (
+                    <TableRow key={inv.id}>
+                      <TableCell className="font-semibold font-mono">
+                        <Link href={`/sales/invoices/${inv.id}`} className="text-primary hover:underline">
+                          {inv.number}
+                        </Link>
+                        <div className="text-[10px] text-muted-foreground font-normal mt-0.5">
+                          Issued: {formatDate(inv.invoiceDate)}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="font-semibold text-foreground">{inv.customer?.name}</div>
+                        <div className="text-xs text-muted-foreground font-mono">{inv.customer?.code}</div>
+                      </TableCell>
+                      <TableCell>
+                        <Link href={`/sales/sales-orders/${inv.salesOrderId}`} className="font-mono text-xs hover:underline text-muted-foreground">
+                          {inv.salesOrder?.number}
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        <div className="font-medium">{formatDate(inv.dueDate)}</div>
+                      </TableCell>
+                      <TableCell className="text-right font-semibold">
+                        {formatCurrency(inv.totalAmount)}
+                      </TableCell>
+                      <TableCell className={`text-right font-bold ${outstanding > 0 ? 'text-amber-500' : 'text-emerald-500'}`}>
+                        {formatCurrency(outstanding)}
+                      </TableCell>
+                      <TableCell>
+                        <SalesInvoiceStatusBadge status={inv.status} />
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          nativeButton={false}
+                          render={
+                            <Link href={`/sales/invoices/${inv.id}`} title="View Details">
+                              <ArrowRightIcon className="h-4 w-4" />
+                            </Link>
+                          }
+                        />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={8}
+                    className="h-24 text-muted-foreground text-center"
+                  >
+                    No sales invoices found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Pagination controls */}
+        {totalPages > 0 && (
+          <div className="flex sm:flex-row flex-col justify-between items-center gap-4 mt-4 p-4 border-t">
+            <div className="flex sm:flex-row flex-col items-center gap-4 w-full sm:w-auto">
+              <div className="text-muted-foreground text-sm">
+                Showing page {page} of {totalPages} ({total} Invoices total)
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground text-xs whitespace-nowrap">
+                  Rows per page:
+                </span>
+                <Select
+                  value={limit.toString()}
+                  onValueChange={(val) => setLimit(Number(val || 10))}
+                >
+                  <SelectTrigger className="w-20 h-8">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="20">20</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="w-9 h-9"
+                  onClick={() => setPage(1)}
+                  disabled={!hasPreviousPage || isLoading}
+                >
+                  <ChevronsLeftIcon className="w-4 h-4" />
+                  <span className="sr-only">First page</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9"
+                  onClick={() => setPage(Math.max(page - 1, 1))}
+                  disabled={!hasPreviousPage || isLoading}
+                >
+                  <ChevronLeftIcon className="w-4 h-4 mr-1" />
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9"
+                  onClick={() => setPage(Math.min(page + 1, totalPages))}
+                  disabled={!hasNextPage || isLoading}
+                >
+                  Next
+                  <ChevronRightIcon className="w-4 h-4 ml-1" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="w-9 h-9"
+                  onClick={() => setPage(totalPages)}
+                  disabled={!hasNextPage || isLoading}
+                >
+                  <ChevronsRightIcon className="w-4 h-4" />
+                  <span className="sr-only">Last page</span>
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
