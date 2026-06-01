@@ -124,17 +124,18 @@ enum PartnerType {
 }
 
 model Partner {
-  id             String          @id @default(uuid())
-  code           String          @unique
-  name           String
-  type           PartnerType
-  email          String?
-  phone          String?
-  address        String?
-  isActive       Boolean         @default(true) @map("is_active")
-  deletedAt      DateTime?       @map("deleted_at")
-  purchaseOrders PurchaseOrder[]
-  salesOrders    SalesOrder[]
+  id               String          @id @default(uuid())
+  code             String          @unique
+  name             String
+  type             PartnerType
+  email            String?
+  phone            String?
+  address          String?
+  paymentTermsDays Int?            @default(30) @map("payment_terms_days")
+  isActive         Boolean         @default(true) @map("is_active")
+  deletedAt        DateTime?       @map("deleted_at")
+  purchaseOrders   PurchaseOrder[]
+  salesOrders      SalesOrder[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -302,6 +303,7 @@ enum SalesOrderStatus {
   CONFIRMED
   PARTIAL
   DONE
+  CLOSED
   CANCELLED
 }
 
@@ -326,6 +328,7 @@ model SalesOrder {
 
   lineItems     SalesOrderLineItem[]
   deliveryNotes DeliveryNote[]
+  salesInvoice  SalesInvoice?
 
   deletedAt DateTime? @map("deleted_at")
   createdAt DateTime  @default(now()) @map("created_at")
@@ -387,11 +390,103 @@ model DeliveryNoteLineItem {
   soLineItemId   String             @map("so_line_item_id")
   soLineItem     SalesOrderLineItem @relation(fields: [soLineItemId], references: [id])
   itemId         String             @map("item_id")
-  item           Item               @relation(fields: [itemId], references: [id])
+  item               Item               @relation(fields: [itemId], references: [id])
   qty            Int
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("delivery_note_line_items")
+}
+
+enum SalesInvoiceStatus {
+  DRAFT
+  SENT
+  PARTIAL
+  PAID
+  CANCELLED
+}
+
+model SalesInvoice {
+  id               String             @id @default(uuid())
+  number           String             @unique // INV-YYYYMM-XXXX
+  salesOrderId     String             @unique @map("sales_order_id")
+  salesOrder       SalesOrder         @relation(fields: [salesOrderId], references: [id])
+  customerId       String             @map("customer_id")
+  status           SalesInvoiceStatus @default(DRAFT)
+  invoiceDate      DateTime           @default(now()) @map("invoice_date")
+  dueDate          DateTime           @map("due_date")
+  paymentTermsDays Int                @default(30) @map("payment_terms_days")
+  totalAmount      Decimal            @default(0) @map("total_amount") @db.Decimal(18, 2)
+  paidAmount       Decimal            @default(0) @map("paid_amount") @db.Decimal(18, 2)
+  note             String?
+  sentAt           DateTime?          @map("sent_at")
+  
+  createdById      String?            @map("created_by_id")
+
+  lineItems        SalesInvoiceLineItem[]
+  payments         SalesInvoicePayment[]
+  creditNotes      SalesCreditNote[]
+
+  deletedAt        DateTime?          @map("deleted_at")
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+
+  @@index([status, customerId, createdAt])
+  @@map("sales_invoices")
+}
+
+model SalesInvoiceLineItem {
+  id             String       @id @default(uuid())
+  salesInvoiceId String       @map("sales_invoice_id")
+  salesInvoice   SalesInvoice @relation(fields: [salesInvoiceId], references: [id])
+  soLineItemId   String       @map("so_line_item_id")
+  itemId         String       @map("item_id")
+  qty            Int
+  unitPrice      Decimal      @map("unit_price") @db.Decimal(18, 2)
+  totalPrice     Decimal      @map("total_price") @db.Decimal(18, 2) // qty * unitPrice
+
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  @@map("sales_invoice_line_items")
+}
+
+model SalesInvoicePayment {
+  id             String       @id @default(uuid())
+  salesInvoiceId String       @map("sales_invoice_id")
+  salesInvoice   SalesInvoice @relation(fields: [salesInvoiceId], references: [id])
+  amount         Decimal      @db.Decimal(18, 2)
+  paymentDate    DateTime     @default(now()) @map("payment_date")
+  note           String?
+  recordedById   String?      @map("recorded_by_id")
+
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  @@map("sales_invoice_payments")
+}
+
+enum SalesCreditNoteStatus {
+  DRAFT
+  APPLIED
+  CANCELLED
+}
+
+model SalesCreditNote {
+  id             String                @id @default(uuid())
+  number         String                @unique // CN-YYYYMM-XXXX
+  salesInvoiceId String                @map("sales_invoice_id")
+  salesInvoice   SalesInvoice          @relation(fields: [salesInvoiceId], references: [id])
+  status         SalesCreditNoteStatus @default(DRAFT)
+  amount         Decimal               @db.Decimal(18, 2)
+  reason         String
+  note           String?
+  issuedAt       DateTime?             @map("issued_at")
+  createdById    String?               @map("created_by_id")
+
+  createdAt      DateTime              @default(now()) @map("created_at")
+  updatedAt      DateTime              @updatedAt @map("updated_at")
+
+  @@map("sales_credit_notes")
 }

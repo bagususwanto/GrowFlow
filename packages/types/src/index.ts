@@ -10,5 +10,6 @@ export * from './purchase-order';
 export * from './goods-receipt';
 export * from './sales-order';
 export * from './delivery-note';
+export * from './sales-invoice';
 export * from './dashboard';
 

@@ -1,6 +1,6 @@
 import { DeliveryNote } from './delivery-note';
 
-export type SalesOrderStatus = 'DRAFT' | 'CONFIRMED' | 'PARTIAL' | 'DONE' | 'CANCELLED';
+export type SalesOrderStatus = 'DRAFT' | 'CONFIRMED' | 'PARTIAL' | 'DONE' | 'CLOSED' | 'CANCELLED';
 
 
 export interface SalesOrderLineItem {
