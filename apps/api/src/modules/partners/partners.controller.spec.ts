@@ -4,7 +4,7 @@ import { PartnersService } from './partners.service';
 
 describe('PartnersController', () => {
   let controller: PartnersController;
-  let service: any;
+  let service: jest.Mocked<PartnersService>;
 
   const mockService = {
     findAll: jest.fn(),
@@ -23,7 +23,7 @@ describe('PartnersController', () => {
     }).compile();
 
     controller = module.get<PartnersController>(PartnersController);
-    service = module.get<PartnersService>(PartnersService);
+    service = module.get<PartnersService>(PartnersService) as jest.Mocked<PartnersService>;
   });
 
   afterEach(() => {
@@ -44,21 +44,21 @@ describe('PartnersController', () => {
 
   describe('findOne', () => {
     it('should call service findOne', async () => {
-      service.findOne.mockResolvedValue('res');
+      service.findOne.mockResolvedValue('res' as any);
       expect(await controller.findOne('id')).toBe('res');
     });
   });
 
   describe('create', () => {
     it('should call service create', async () => {
-      service.create.mockResolvedValue('res');
+      service.create.mockResolvedValue('res' as any);
       expect(await controller.create({ code: 'c', name: 'n', type: 'SUPPLIER' })).toBe('res');
     });
   });
 
   describe('update', () => {
     it('should call service update', async () => {
-      service.update.mockResolvedValue('res');
+      service.update.mockResolvedValue('res' as any);
       expect(await controller.update('id', { name: 'n' })).toBe('res');
     });
   });

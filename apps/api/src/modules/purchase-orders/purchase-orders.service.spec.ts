@@ -8,7 +8,7 @@ import { PurchaseOrderStatus } from '@prisma/client';
 describe('PurchaseOrdersService', () => {
   let service: PurchaseOrdersService;
   let repository: jest.Mocked<PurchaseOrdersRepository>;
-  let prisma: any;
+  let prisma: jest.Mocked<PrismaService>;
 
   const mockDate = new Date('2026-05-30T12:00:00.000Z');
 
@@ -70,8 +70,8 @@ describe('PurchaseOrdersService', () => {
     }).compile();
 
     service = module.get<PurchaseOrdersService>(PurchaseOrdersService);
-    repository = module.get(PurchaseOrdersRepository) as any;
-    prisma = module.get(PrismaService) as any;
+    repository = module.get(PurchaseOrdersRepository) as jest.Mocked<PurchaseOrdersRepository>;
+    prisma = module.get(PrismaService) as jest.Mocked<PrismaService>;
   });
 
   it('should be defined', () => {
@@ -80,8 +80,8 @@ describe('PurchaseOrdersService', () => {
 
   describe('create', () => {
     it('should create a PO when supplier and items are valid', async () => {
-      prisma.partner.findFirst.mockResolvedValue({ id: 'supplier-id' } as any);
-      prisma.item.findMany.mockResolvedValue([{ id: 'item-id' }] as any);
+      (prisma.partner.findFirst as jest.Mock).mockResolvedValue({ id: 'supplier-id' } as any);
+      (prisma.item.findMany as jest.Mock).mockResolvedValue([{ id: 'item-id' }] as any);
       repository.create.mockResolvedValue(mockPoDb);
 
       const result = await service.create(
@@ -99,7 +99,7 @@ describe('PurchaseOrdersService', () => {
     });
 
     it('should throw BadRequestException if supplier is invalid', async () => {
-      prisma.partner.findFirst.mockResolvedValue(null);
+      (prisma.partner.findFirst as jest.Mock).mockResolvedValue(null);
 
       await expect(
         service.create(

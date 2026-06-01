@@ -4,7 +4,7 @@ import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 
 describe('UsersRepository', () => {
   let repository: UsersRepository;
-  let prisma: any;
+  let prisma: jest.Mocked<PrismaService>;
 
   const mockUserWithRole = {
     id: 'user-id',
@@ -39,7 +39,7 @@ describe('UsersRepository', () => {
     }).compile();
 
     repository = module.get<UsersRepository>(UsersRepository);
-    prisma = module.get<PrismaService>(PrismaService);
+    prisma = module.get<PrismaService>(PrismaService) as jest.Mocked<PrismaService>;
   });
 
   afterEach(() => {
@@ -52,7 +52,7 @@ describe('UsersRepository', () => {
 
   describe('findAll', () => {
     it('should return paginated active users', async () => {
-      prisma.user.findMany.mockResolvedValue([mockUserWithRole]);
+      (prisma.user.findMany as jest.Mock).mockResolvedValue([mockUserWithRole]);
 
       const result = await repository.findAll({}, 0, 10);
       expect(prisma.user.findMany).toHaveBeenCalledWith({
@@ -68,7 +68,7 @@ describe('UsersRepository', () => {
 
   describe('count', () => {
     it('should return count of active users', async () => {
-      prisma.user.count.mockResolvedValue(5);
+      (prisma.user.count as jest.Mock).mockResolvedValue(5);
       const result = await repository.count({});
       expect(prisma.user.count).toHaveBeenCalledWith({ where: { deletedAt: null } });
       expect(result).toEqual(5);
@@ -77,7 +77,7 @@ describe('UsersRepository', () => {
 
   describe('findById', () => {
     it('should return a user by ID if active', async () => {
-      prisma.user.findUnique.mockResolvedValue(mockUserWithRole);
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUserWithRole);
       const result = await repository.findById('user-id');
       expect(prisma.user.findUnique).toHaveBeenCalledWith({
         where: { id: 'user-id', deletedAt: null },
@@ -89,7 +89,7 @@ describe('UsersRepository', () => {
 
   describe('findByEmail', () => {
     it('should return a user by email if active', async () => {
-      prisma.user.findFirst.mockResolvedValue(mockUserWithRole);
+      (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUserWithRole);
       const result = await repository.findByEmail('test@test.com');
       expect(prisma.user.findFirst).toHaveBeenCalledWith({
         where: { email: 'test@test.com', deletedAt: null },
@@ -101,7 +101,7 @@ describe('UsersRepository', () => {
 
   describe('create', () => {
     it('should create and return a new user', async () => {
-      prisma.user.create.mockResolvedValue(mockUserWithRole);
+      (prisma.user.create as jest.Mock).mockResolvedValue(mockUserWithRole);
       const data = { name: 'Test User', email: 'test@test.com', passwordHash: 'hash', roleId: 'role-id' };
       const result = await repository.create(data);
       expect(prisma.user.create).toHaveBeenCalledWith({
@@ -114,7 +114,7 @@ describe('UsersRepository', () => {
 
   describe('update', () => {
     it('should update and return the user', async () => {
-      prisma.user.update.mockResolvedValue(mockUserWithRole);
+      (prisma.user.update as jest.Mock).mockResolvedValue(mockUserWithRole);
       const data = { name: 'Updated Name' };
       const result = await repository.update('user-id', data);
       expect(prisma.user.update).toHaveBeenCalledWith({
@@ -128,7 +128,7 @@ describe('UsersRepository', () => {
 
   describe('softDelete', () => {
     it('should mark the user as deleted and inactive', async () => {
-      prisma.user.update.mockResolvedValue({ ...mockUserWithRole, isActive: false, deletedAt: new Date() });
+      (prisma.user.update as jest.Mock).mockResolvedValue({ ...mockUserWithRole, isActive: false, deletedAt: new Date() });
       await repository.softDelete('user-id');
       expect(prisma.user.update).toHaveBeenCalledWith({
         where: { id: 'user-id' },

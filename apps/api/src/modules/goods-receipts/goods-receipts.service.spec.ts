@@ -8,7 +8,7 @@ import { GoodsReceiptStatus, PurchaseOrderStatus } from '@prisma/client';
 describe('GoodsReceiptsService', () => {
   let service: GoodsReceiptsService;
   let repository: jest.Mocked<GoodsReceiptsRepository>;
-  let prisma: any;
+  let prisma: jest.Mocked<PrismaService>;
 
   const mockDate = new Date('2026-05-30T12:00:00.000Z');
 
@@ -70,8 +70,8 @@ describe('GoodsReceiptsService', () => {
     }).compile();
 
     service = module.get<GoodsReceiptsService>(GoodsReceiptsService);
-    repository = module.get(GoodsReceiptsRepository) as any;
-    prisma = module.get(PrismaService) as any;
+    repository = module.get(GoodsReceiptsRepository) as jest.Mocked<GoodsReceiptsRepository>;
+    prisma = module.get(PrismaService) as jest.Mocked<PrismaService>;
   });
 
   it('should be defined', () => {
@@ -80,13 +80,13 @@ describe('GoodsReceiptsService', () => {
 
   describe('create', () => {
     it('should create a GRN if PO status is APPROVED and qty is within limits', async () => {
-      prisma.purchaseOrder.findFirst.mockResolvedValue({
+      (prisma.purchaseOrder.findFirst as jest.Mock).mockResolvedValue({
         id: 'po-id-1',
         status: PurchaseOrderStatus.APPROVED,
         lineItems: [{ id: 'po-li-id-1', itemId: 'item-id-1', qty: 10, qtyReceived: 0 }],
       } as any);
 
-      prisma.warehouse.findFirst.mockResolvedValue({ id: 'warehouse-id', isActive: true } as any);
+      (prisma.warehouse.findFirst as jest.Mock).mockResolvedValue({ id: 'warehouse-id', isActive: true } as any);
       repository.create.mockResolvedValue(mockGrDb);
 
       const result = await service.create(
@@ -103,13 +103,13 @@ describe('GoodsReceiptsService', () => {
     });
 
     it('should throw UnprocessableEntityException if receiving more than remaining qty', async () => {
-      prisma.purchaseOrder.findFirst.mockResolvedValue({
+      (prisma.purchaseOrder.findFirst as jest.Mock).mockResolvedValue({
         id: 'po-id-1',
         status: PurchaseOrderStatus.APPROVED,
         lineItems: [{ id: 'po-li-id-1', itemId: 'item-id-1', qty: 10, qtyReceived: 6 }],
       } as any);
 
-      prisma.warehouse.findFirst.mockResolvedValue({ id: 'warehouse-id', isActive: true } as any);
+      (prisma.warehouse.findFirst as jest.Mock).mockResolvedValue({ id: 'warehouse-id', isActive: true } as any);
 
       await expect(
         service.create(
@@ -127,12 +127,12 @@ describe('GoodsReceiptsService', () => {
   describe('confirm', () => {
     it('should confirm a DRAFT Goods Receipt and update stock', async () => {
       repository.findById.mockResolvedValueOnce(mockGrDb).mockResolvedValueOnce({ ...mockGrDb, status: GoodsReceiptStatus.CONFIRMED });
-      prisma.purchaseOrder.findFirst.mockResolvedValue({
+      (prisma.purchaseOrder.findFirst as jest.Mock).mockResolvedValue({
         id: 'po-id-1',
         status: PurchaseOrderStatus.APPROVED,
         lineItems: [{ id: 'po-li-id-1', itemId: 'item-id-1', qty: 10, qtyReceived: 0 }],
       } as any);
-      prisma.purchaseOrderLineItem.findMany.mockResolvedValue([
+      (prisma.purchaseOrderLineItem.findMany as jest.Mock).mockResolvedValue([
         { id: 'po-li-id-1', qty: 10, qtyReceived: 5 },
       ] as any);
 

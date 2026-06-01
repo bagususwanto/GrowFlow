@@ -6,14 +6,14 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 describe('UsersController', () => {
   let controller: UsersController;
-  let service: any;
+  let service: jest.Mocked<UsersService>;
 
   const mockUserResponse = {
     id: 'user-id',
     name: 'Test User',
     email: 'test@test.com',
     roleId: 'role-id',
-    role: { id: 'role-id', name: 'staff' },
+    role: { id: 'role-id', name: 'staff' as any },
     isActive: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -36,7 +36,7 @@ describe('UsersController', () => {
     }).compile();
 
     controller = module.get<UsersController>(UsersController);
-    service = module.get<UsersService>(UsersService);
+    service = module.get<UsersService>(UsersService) as jest.Mocked<UsersService>;
   });
 
   afterEach(() => {

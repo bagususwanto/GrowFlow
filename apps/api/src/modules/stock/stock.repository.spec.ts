@@ -5,7 +5,7 @@ import { SortOrder } from '../../common/dto/sort-order.enum';
 
 describe('StockRepository', () => {
   let repository: StockRepository;
-  let prisma: any;
+  let prisma: jest.Mocked<PrismaService>;
 
   const mockDate = new Date();
   const mockBalance = { id: 'b-id', itemId: 'i-id', warehouseId: 'w-id', qty: 10, createdAt: mockDate, updatedAt: mockDate };
@@ -38,7 +38,7 @@ describe('StockRepository', () => {
     }).compile();
 
     repository = module.get<StockRepository>(StockRepository);
-    prisma = module.get<PrismaService>(PrismaService);
+    prisma = module.get<PrismaService>(PrismaService) as jest.Mocked<PrismaService>;
   });
 
   afterEach(() => {
@@ -51,7 +51,7 @@ describe('StockRepository', () => {
 
   describe('findBalance', () => {
     it('should find balance by item and warehouse', async () => {
-      prisma.stockBalance.findUnique.mockResolvedValue(mockBalance);
+      (prisma.stockBalance.findUnique as jest.Mock).mockResolvedValue(mockBalance);
       const res = await repository.findBalance('i-id', 'w-id');
       expect(prisma.stockBalance.findUnique).toHaveBeenCalledWith({
         where: { itemId_warehouseId: { itemId: 'i-id', warehouseId: 'w-id' } },
@@ -74,8 +74,8 @@ describe('StockRepository', () => {
 
   describe('findMutations', () => {
     it('should find mutations with pagination, filters, and dynamic sorting', async () => {
-      prisma.stockMutation.findMany.mockResolvedValue([mockMutation]);
-      prisma.stockMutation.count.mockResolvedValue(1);
+      (prisma.stockMutation.findMany as jest.Mock).mockResolvedValue([mockMutation]);
+      (prisma.stockMutation.count as jest.Mock).mockResolvedValue(1);
       
       const query = { itemId: 'i-id', sortBy: 'qty', sortOrder: SortOrder.ASC };
       const res = await repository.findMutations(query, 0, 10);
@@ -98,8 +98,8 @@ describe('StockRepository', () => {
 
   describe('findBalances', () => {
     it('should find balances with pagination, filters, and dynamic sorting', async () => {
-      prisma.stockBalance.findMany.mockResolvedValue([mockBalance]);
-      prisma.stockBalance.count.mockResolvedValue(1);
+      (prisma.stockBalance.findMany as jest.Mock).mockResolvedValue([mockBalance]);
+      (prisma.stockBalance.count as jest.Mock).mockResolvedValue(1);
       
       const query = { itemId: 'i-id', sortBy: 'qty', sortOrder: SortOrder.ASC };
       const res = await repository.findBalances(query, 0, 10);

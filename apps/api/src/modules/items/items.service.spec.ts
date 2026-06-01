@@ -5,7 +5,7 @@ import { NotFoundException, ConflictException } from '@nestjs/common';
 
 describe('ItemsService', () => {
   let service: ItemsService;
-  let repository: any;
+  let repository: jest.Mocked<ItemsRepository>;
 
   const mockDate = new Date();
   const mockCategory = { id: 'c-id', name: 'Cat', description: null, isActive: true, deletedAt: null, createdAt: mockDate, updatedAt: mockDate };
@@ -44,7 +44,7 @@ describe('ItemsService', () => {
     }).compile();
 
     service = module.get<ItemsService>(ItemsService);
-    repository = module.get<ItemsRepository>(ItemsRepository);
+    repository = module.get(ItemsRepository) as jest.Mocked<ItemsRepository>;
   });
 
   afterEach(() => {
@@ -103,7 +103,7 @@ describe('ItemsService', () => {
 
     it('should throw ConflictException if new code exists', async () => {
       repository.findById.mockResolvedValue(mockItem);
-      repository.findByCode.mockResolvedValue({ id: 'other' });
+      repository.findByCode.mockResolvedValue({ id: 'other' } as any);
       await expect(service.update('i-id', { code: 'ITM2' })).rejects.toThrow(ConflictException);
     });
   });

@@ -5,10 +5,10 @@ import { NotFoundException, ConflictException } from '@nestjs/common';
 
 describe('PartnersService', () => {
   let service: PartnersService;
-  let repository: any;
+  let repository: jest.Mocked<PartnersRepository>;
 
   const mockDate = new Date();
-  const mockPartner = { id: 'p-id', code: 'PRT1', name: 'Partner 1', type: 'SUPPLIER', email: 'a@a.com', phone: '123', address: 'addr', isActive: true, createdAt: mockDate, updatedAt: mockDate, deletedAt: null };
+  const mockPartner = { id: 'p-id', code: 'PRT1', name: 'Partner 1', type: 'SUPPLIER' as any, email: 'a@a.com', phone: '123', address: 'addr', isActive: true, createdAt: mockDate, updatedAt: mockDate, deletedAt: null };
   const mockResponse = { id: 'p-id', code: 'PRT1', name: 'Partner 1', type: 'SUPPLIER', email: 'a@a.com', phone: '123', address: 'addr', isActive: true, createdAt: mockDate.toISOString(), updatedAt: mockDate.toISOString() };
 
   const mockRepository = {
@@ -29,7 +29,7 @@ describe('PartnersService', () => {
     }).compile();
 
     service = module.get<PartnersService>(PartnersService);
-    repository = module.get<PartnersRepository>(PartnersRepository);
+    repository = module.get(PartnersRepository) as jest.Mocked<PartnersRepository>;
   });
 
   afterEach(() => {
@@ -88,7 +88,7 @@ describe('PartnersService', () => {
 
     it('should throw ConflictException if new code exists', async () => {
       repository.findById.mockResolvedValue(mockPartner);
-      repository.findByCode.mockResolvedValue({ id: 'other' });
+      repository.findByCode.mockResolvedValue({ id: 'other' } as any);
       await expect(service.update('p-id', { code: 'PRT2' })).rejects.toThrow(ConflictException);
     });
   });

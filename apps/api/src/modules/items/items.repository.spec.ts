@@ -4,7 +4,7 @@ import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 
 describe('ItemsRepository', () => {
   let repository: ItemsRepository;
-  let prisma: any;
+  let prisma: jest.Mocked<PrismaService>;
 
   const mockDate = new Date();
   const mockCategory = { id: 'c-id', name: 'Cat', description: null, createdAt: mockDate, updatedAt: mockDate };
@@ -19,6 +19,12 @@ describe('ItemsRepository', () => {
       create: jest.fn(),
       update: jest.fn(),
     },
+    purchaseOrderLineItem: {
+      findFirst: jest.fn(),
+    },
+    salesOrderLineItem: {
+      findFirst: jest.fn(),
+    },
   };
 
   beforeEach(async () => {
@@ -30,7 +36,7 @@ describe('ItemsRepository', () => {
     }).compile();
 
     repository = module.get<ItemsRepository>(ItemsRepository);
-    prisma = module.get<PrismaService>(PrismaService);
+    prisma = module.get<PrismaService>(PrismaService) as jest.Mocked<PrismaService>;
   });
 
   afterEach(() => {
@@ -43,8 +49,8 @@ describe('ItemsRepository', () => {
 
   describe('findAll', () => {
     it('should return paginated items', async () => {
-      prisma.item.findMany.mockResolvedValue([mockItem]);
-      prisma.item.count.mockResolvedValue(1);
+      (prisma.item.findMany as jest.Mock).mockResolvedValue([mockItem]);
+      (prisma.item.count as jest.Mock).mockResolvedValue(1);
       const res = await repository.findAll({ page: 1, limit: 10, sortBy: 'name', sortOrder: 'asc' }, 0, 10);
       expect(res).toEqual([[mockItem], 1]);
       expect(prisma.item.findMany).toHaveBeenCalledWith({
@@ -57,8 +63,8 @@ describe('ItemsRepository', () => {
     });
 
     it('should filter by search and categoryId', async () => {
-      prisma.item.findMany.mockResolvedValue([mockItem]);
-      prisma.item.count.mockResolvedValue(1);
+      (prisma.item.findMany as jest.Mock).mockResolvedValue([mockItem]);
+      (prisma.item.count as jest.Mock).mockResolvedValue(1);
       await repository.findAll({ page: 1, limit: 10, search: 'test', categoryId: 'c-id' }, 0, 10);
       expect(prisma.item.findMany).toHaveBeenCalledWith({
         skip: 0,
@@ -79,7 +85,7 @@ describe('ItemsRepository', () => {
 
   describe('findById', () => {
     it('should find active item by id', async () => {
-      prisma.item.findFirst.mockResolvedValue(mockItem);
+      (prisma.item.findFirst as jest.Mock).mockResolvedValue(mockItem);
       const res = await repository.findById('i-id');
       expect(res).toEqual(mockItem);
     });
@@ -87,7 +93,7 @@ describe('ItemsRepository', () => {
 
   describe('findByCode', () => {
     it('should find active item by code', async () => {
-      prisma.item.findFirst.mockResolvedValue(mockItem);
+      (prisma.item.findFirst as jest.Mock).mockResolvedValue(mockItem);
       const res = await repository.findByCode('ITM1');
       expect(res).toEqual(mockItem);
     });
@@ -95,7 +101,7 @@ describe('ItemsRepository', () => {
 
   describe('create', () => {
     it('should create item', async () => {
-      prisma.item.create.mockResolvedValue(mockItem);
+      (prisma.item.create as jest.Mock).mockResolvedValue(mockItem);
       const res = await repository.create({ code: 'ITM1', name: 'Item 1', unit: 'pcs' });
       expect(res).toEqual(mockItem);
     });
@@ -103,7 +109,7 @@ describe('ItemsRepository', () => {
 
   describe('update', () => {
     it('should update item', async () => {
-      prisma.item.update.mockResolvedValue(mockItem);
+      (prisma.item.update as jest.Mock).mockResolvedValue(mockItem);
       const res = await repository.update('i-id', { name: 'Item 2' });
       expect(res).toEqual(mockItem);
     });
@@ -111,7 +117,7 @@ describe('ItemsRepository', () => {
 
   describe('softDelete', () => {
     it('should soft delete item', async () => {
-      prisma.item.update.mockResolvedValue({ ...mockItem, deletedAt: new Date() });
+      (prisma.item.update as jest.Mock).mockResolvedValue({ ...mockItem, deletedAt: new Date() });
       await repository.softDelete('i-id');
       expect(prisma.item.update).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -124,8 +130,7 @@ describe('ItemsRepository', () => {
 
   describe('findLastPurchasePrice', () => {
     it('should query prisma.purchaseOrderLineItem.findFirst with itemId and order filters', async () => {
-      prisma.purchaseOrderLineItem = { findFirst: jest.fn() };
-      prisma.purchaseOrderLineItem.findFirst.mockResolvedValue({ unitPrice: 1500 });
+      (prisma.purchaseOrderLineItem.findFirst as jest.Mock).mockResolvedValue({ unitPrice: 1500 });
       
       const res = await repository.findLastPurchasePrice('i-id');
       expect(res).toBe(1500);
@@ -151,8 +156,7 @@ describe('ItemsRepository', () => {
 
   describe('findLastSalesPrice', () => {
     it('should query prisma.salesOrderLineItem.findFirst with itemId and order filters', async () => {
-      prisma.salesOrderLineItem = { findFirst: jest.fn() };
-      prisma.salesOrderLineItem.findFirst.mockResolvedValue({ unitPrice: 2000 });
+      (prisma.salesOrderLineItem.findFirst as jest.Mock).mockResolvedValue({ unitPrice: 2000 });
       
       const res = await repository.findLastSalesPrice('i-id');
       expect(res).toBe(2000);

@@ -4,7 +4,7 @@ import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 
 describe('PartnersRepository', () => {
   let repository: PartnersRepository;
-  let prisma: any;
+  let prisma: jest.Mocked<PrismaService>;
 
   const mockDate = new Date();
   const mockPartner = { id: 'p-id', code: 'PRT1', name: 'Partner 1', type: 'SUPPLIER', email: 'a@a.com', phone: '123', address: 'addr', isActive: true, createdAt: mockDate, updatedAt: mockDate, deletedAt: null };
@@ -29,7 +29,7 @@ describe('PartnersRepository', () => {
     }).compile();
 
     repository = module.get<PartnersRepository>(PartnersRepository);
-    prisma = module.get<PrismaService>(PrismaService);
+    prisma = module.get<PrismaService>(PrismaService) as jest.Mocked<PrismaService>;
   });
 
   afterEach(() => {
@@ -42,8 +42,8 @@ describe('PartnersRepository', () => {
 
   describe('findAll', () => {
     it('should return paginated partners', async () => {
-      prisma.partner.findMany.mockResolvedValue([mockPartner]);
-      prisma.partner.count.mockResolvedValue(1);
+      (prisma.partner.findMany as jest.Mock).mockResolvedValue([mockPartner]);
+      (prisma.partner.count as jest.Mock).mockResolvedValue(1);
       const res = await repository.findAll({ page: 1, limit: 10, sortBy: 'name', sortOrder: 'asc' }, 0, 10);
       expect(res).toEqual([[mockPartner], 1]);
       expect(prisma.partner.findMany).toHaveBeenCalledWith({
@@ -55,8 +55,8 @@ describe('PartnersRepository', () => {
     });
 
     it('should filter by search and type and isActive', async () => {
-      prisma.partner.findMany.mockResolvedValue([mockPartner]);
-      prisma.partner.count.mockResolvedValue(1);
+      (prisma.partner.findMany as jest.Mock).mockResolvedValue([mockPartner]);
+      (prisma.partner.count as jest.Mock).mockResolvedValue(1);
       await repository.findAll({ page: 1, limit: 10, search: 'test', type: 'SUPPLIER', isActive: true }, 0, 10);
       expect(prisma.partner.findMany).toHaveBeenCalledWith({
         skip: 0,
@@ -78,7 +78,7 @@ describe('PartnersRepository', () => {
 
   describe('findById', () => {
     it('should find active partner by id', async () => {
-      prisma.partner.findUnique.mockResolvedValue(mockPartner);
+      (prisma.partner.findUnique as jest.Mock).mockResolvedValue(mockPartner);
       const res = await repository.findById('p-id');
       expect(res).toEqual(mockPartner);
     });
@@ -86,7 +86,7 @@ describe('PartnersRepository', () => {
 
   describe('findByCode', () => {
     it('should find active partner by code', async () => {
-      prisma.partner.findFirst.mockResolvedValue(mockPartner);
+      (prisma.partner.findFirst as jest.Mock).mockResolvedValue(mockPartner);
       const res = await repository.findByCode('PRT1');
       expect(res).toEqual(mockPartner);
     });
@@ -94,7 +94,7 @@ describe('PartnersRepository', () => {
 
   describe('create', () => {
     it('should create partner', async () => {
-      prisma.partner.create.mockResolvedValue(mockPartner);
+      (prisma.partner.create as jest.Mock).mockResolvedValue(mockPartner);
       const res = await repository.create({ code: 'PRT1', name: 'Partner 1', type: 'SUPPLIER' });
       expect(res).toEqual(mockPartner);
     });
@@ -102,7 +102,7 @@ describe('PartnersRepository', () => {
 
   describe('update', () => {
     it('should update partner', async () => {
-      prisma.partner.update.mockResolvedValue(mockPartner);
+      (prisma.partner.update as jest.Mock).mockResolvedValue(mockPartner);
       const res = await repository.update('p-id', { name: 'Partner 2' });
       expect(res).toEqual(mockPartner);
     });
@@ -110,7 +110,7 @@ describe('PartnersRepository', () => {
 
   describe('softDelete', () => {
     it('should soft delete partner', async () => {
-      prisma.partner.update.mockResolvedValue({ ...mockPartner, isActive: false, deletedAt: new Date() });
+      (prisma.partner.update as jest.Mock).mockResolvedValue({ ...mockPartner, isActive: false, deletedAt: new Date() });
       await repository.softDelete('p-id');
       expect(prisma.partner.update).toHaveBeenCalledWith(
         expect.objectContaining({

@@ -8,7 +8,7 @@ import { SalesOrderStatus } from '@prisma/client';
 describe('SalesOrdersService', () => {
   let service: SalesOrdersService;
   let repository: jest.Mocked<SalesOrdersRepository>;
-  let prisma: any;
+  let prisma: jest.Mocked<PrismaService>;
 
   const mockDate = new Date('2026-05-30T12:00:00.000Z');
 
@@ -74,8 +74,8 @@ describe('SalesOrdersService', () => {
     }).compile();
 
     service = module.get<SalesOrdersService>(SalesOrdersService);
-    repository = module.get(SalesOrdersRepository) as any;
-    prisma = module.get(PrismaService) as any;
+    repository = module.get(SalesOrdersRepository) as jest.Mocked<SalesOrdersRepository>;
+    prisma = module.get(PrismaService) as jest.Mocked<PrismaService>;
   });
 
   it('should be defined', () => {
@@ -84,9 +84,9 @@ describe('SalesOrdersService', () => {
 
   describe('create', () => {
     it('should create a SO when customer, warehouse and items are valid', async () => {
-      prisma.partner.findFirst.mockResolvedValue({ id: 'customer-id' } as any);
-      prisma.warehouse.findFirst.mockResolvedValue({ id: 'warehouse-id' } as any);
-      prisma.item.findMany.mockResolvedValue([{ id: 'item-id' }] as any);
+      (prisma.partner.findFirst as jest.Mock).mockResolvedValue({ id: 'customer-id' } as any);
+      (prisma.warehouse.findFirst as jest.Mock).mockResolvedValue({ id: 'warehouse-id' } as any);
+      (prisma.item.findMany as jest.Mock).mockResolvedValue([{ id: 'item-id' }] as any);
       repository.create.mockResolvedValue(mockSoDb);
 
       const result = await service.create(
@@ -105,7 +105,7 @@ describe('SalesOrdersService', () => {
     });
 
     it('should throw BadRequestException if customer is invalid', async () => {
-      prisma.partner.findFirst.mockResolvedValue(null);
+      (prisma.partner.findFirst as jest.Mock).mockResolvedValue(null);
 
       await expect(
         service.create(
@@ -126,7 +126,7 @@ describe('SalesOrdersService', () => {
         .mockResolvedValueOnce(mockSoDb)
         .mockResolvedValueOnce({ ...mockSoDb, status: SalesOrderStatus.CONFIRMED, confirmedById: 'user-id', confirmedAt: mockDate });
 
-      prisma.stockBalance.findMany.mockResolvedValue([{ itemId: 'item-id', warehouseId: 'warehouse-id', qty: 20 }] as any);
+      (prisma.stockBalance.findMany as jest.Mock).mockResolvedValue([{ itemId: 'item-id', warehouseId: 'warehouse-id', qty: 20 }] as any);
 
       const result = await service.confirm('so-id-1', 'user-id');
 
@@ -139,7 +139,7 @@ describe('SalesOrdersService', () => {
 
     it('should throw UnprocessableEntityException if stock is insufficient', async () => {
       repository.findById.mockResolvedValue(mockSoDb);
-      prisma.stockBalance.findMany.mockResolvedValue([{ itemId: 'item-id', warehouseId: 'warehouse-id', qty: 5 }] as any); // Butuh 10, cuma ada 5
+      (prisma.stockBalance.findMany as jest.Mock).mockResolvedValue([{ itemId: 'item-id', warehouseId: 'warehouse-id', qty: 5 }] as any); // Butuh 10, cuma ada 5
 
       await expect(
         service.confirm('so-id-1', 'user-id'),

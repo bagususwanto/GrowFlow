@@ -4,12 +4,13 @@ import { RolesService } from './roles.service';
 
 describe('RolesController', () => {
   let controller: RolesController;
-  let service: any;
+  let service: jest.Mocked<RolesService>;
 
   const mockRoleResponse = {
     id: 'role-id',
     name: 'staff',
     permissions: [],
+    isActive: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -31,7 +32,7 @@ describe('RolesController', () => {
     }).compile();
 
     controller = module.get<RolesController>(RolesController);
-    service = module.get<RolesService>(RolesService);
+    service = module.get<RolesService>(RolesService) as jest.Mocked<RolesService>;
   });
 
   afterEach(() => {

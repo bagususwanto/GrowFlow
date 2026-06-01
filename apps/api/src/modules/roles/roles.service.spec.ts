@@ -5,7 +5,7 @@ import { NotFoundException, ConflictException, BadRequestException } from '@nest
 
 describe('RolesService', () => {
   let service: RolesService;
-  let repository: any;
+  let repository: jest.Mocked<RolesRepository>;
 
   const mockDate = new Date();
   
@@ -48,7 +48,7 @@ describe('RolesService', () => {
     }).compile();
 
     service = module.get<RolesService>(RolesService);
-    repository = module.get<RolesRepository>(RolesRepository);
+    repository = module.get(RolesRepository) as jest.Mocked<RolesRepository>;
   });
 
   afterEach(() => {
@@ -115,7 +115,7 @@ describe('RolesService', () => {
 
     it('should throw ConflictException if new name already exists', async () => {
       repository.findById.mockResolvedValue(mockRole);
-      repository.findByName.mockResolvedValue({ id: 'another-id' });
+      repository.findByName.mockResolvedValue({ id: 'another-id' } as any);
       await expect(service.update('role-id', dto)).rejects.toThrow(ConflictException);
     });
   });

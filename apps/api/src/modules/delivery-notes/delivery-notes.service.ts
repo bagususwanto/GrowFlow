@@ -151,7 +151,7 @@ export class DeliveryNotesService {
 
     await this.prisma.$transaction(async (tx) => {
       // Perform the validation check inside the transaction to prevent TOCTOU race conditions
-      const itemIds = dn.lineItems.map((item) => item.itemId);
+      const itemIds = dn.lineItems.map((item: any) => item.itemId);
       const balances = await tx.stockBalance.findMany({
         where: {
           itemId: { in: itemIds },

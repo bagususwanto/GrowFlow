@@ -5,11 +5,11 @@ import { NotFoundException, BadRequestException } from '@nestjs/common';
 
 describe('StockService', () => {
   let service: StockService;
-  let repository: any;
+  let repository: jest.Mocked<StockRepository>;
 
   const mockDate = new Date();
   const mockBalance = { id: 'b-id', itemId: 'i-id', warehouseId: 'w-id', qty: 10, createdAt: mockDate, updatedAt: mockDate };
-  const mockMutation = { id: 'm-id', qty: 5, type: 'ADJUSTMENT', itemId: 'i-id', warehouseId: 'w-id', note: null, referenceId: null, referenceType: null, createdById: 'u-id', createdAt: mockDate };
+  const mockMutation = { id: 'm-id', qty: 5, type: 'ADJUSTMENT' as any, itemId: 'i-id', warehouseId: 'w-id', note: null, referenceId: null, referenceType: null, createdById: 'u-id', createdAt: mockDate };
   
   const mockBalanceResponse = { ...mockBalance, createdAt: mockDate.toISOString(), updatedAt: mockDate.toISOString() };
   const mockMutationResponse = { ...mockMutation, createdAt: mockDate.toISOString() };
@@ -30,7 +30,7 @@ describe('StockService', () => {
     }).compile();
 
     service = module.get<StockService>(StockService);
-    repository = module.get<StockRepository>(StockRepository);
+    repository = module.get(StockRepository) as jest.Mocked<StockRepository>;
   });
 
   afterEach(() => {

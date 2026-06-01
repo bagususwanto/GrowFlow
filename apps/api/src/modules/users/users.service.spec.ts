@@ -8,17 +8,18 @@ jest.mock('bcrypt');
 
 describe('UsersService', () => {
   let service: UsersService;
-  let repository: any;
+  let repository: jest.Mocked<UsersRepository>;
 
   const mockDate = new Date();
 
-  const mockUserWithRole = {
+  const mockUserWithRole: any = {
     id: 'user-id',
     name: 'Test User',
     email: 'test@test.com',
     passwordHash: 'hashed-password',
     roleId: 'role-id',
     isActive: true,
+    deletedAt: null,
     createdAt: mockDate,
     updatedAt: mockDate,
     role: { id: 'role-id', name: 'staff' },
@@ -54,7 +55,7 @@ describe('UsersService', () => {
     }).compile();
 
     service = module.get<UsersService>(UsersService);
-    repository = module.get<UsersRepository>(UsersRepository);
+    repository = module.get<UsersRepository>(UsersRepository) as jest.Mocked<UsersRepository>;
   });
 
   afterEach(() => {
@@ -142,7 +143,7 @@ describe('UsersService', () => {
 
     it('should throw ConflictException if email already in use by another user', async () => {
       repository.findById.mockResolvedValue(mockUserWithRole);
-      repository.findByEmail.mockResolvedValue({ id: 'other-id' });
+      repository.findByEmail.mockResolvedValue({ id: 'other-id' } as any);
       await expect(service.update('user-id', updateDto)).rejects.toThrow(ConflictException);
     });
   });
