@@ -15,7 +15,7 @@ import {
   SidebarMenuItem,
 } from "@web/components/ui/sidebar"
 import { useAuthStore } from "@web/stores/auth.store"
-import { LayoutDashboard, Package, ShoppingCart, Sprout, Users, Shield, Warehouse, Boxes, Handshake } from "lucide-react"
+import { LayoutDashboard, Package, ShoppingCart, Sprout, Users, Shield, Warehouse, Boxes, Handshake, FileText as FileTextIcon } from "lucide-react"
 
 import { hasPermission } from "@web/lib/permissions"
 
@@ -116,6 +116,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: "/sales/delivery-notes",
           icon: <Boxes />,
           permission: "read:dn",
+        },
+        {
+          title: "Sales Invoices",
+          url: "/sales/invoices",
+          icon: <FileTextIcon />,
+          permission: "read:so", // Menggunakan read:so permission dulu / custom
         },
         {
           title: "Customers",

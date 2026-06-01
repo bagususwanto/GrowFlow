@@ -239,6 +239,33 @@ export function SalesOrderDetailContainer() {
               )}
             </CardContent>
           </Card>
+
+          {/* Sales Invoice Integration */}
+          {so.salesInvoice && (
+            <Card>
+              <CardHeader className="pb-2 border-b">
+                <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                  <FileTextIcon className="w-4 h-4 text-muted-foreground" />
+                  Sales Invoice Statement
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <div className="flex justify-between items-center text-sm p-3 border rounded-lg hover:bg-muted/30">
+                  <div>
+                    <Link href={`/sales/invoices/${so.salesInvoice.id}`} className="font-mono text-primary hover:underline font-semibold">
+                      {so.salesInvoice.number}
+                    </Link>
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      Total: {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(so.salesInvoice.totalAmount)} | Paid: {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(so.salesInvoice.paidAmount)}
+                    </div>
+                  </div>
+                  <Badge variant="outline" className="capitalize font-semibold">
+                    {so.salesInvoice.status.toLowerCase()}
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Metadata Sidebar */}

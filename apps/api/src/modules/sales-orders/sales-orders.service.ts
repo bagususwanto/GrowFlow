@@ -62,6 +62,13 @@ export class SalesOrdersService {
         updatedAt: dn.updatedAt.toISOString(),
         createdBy: dn.createdBy,
       })),
+      salesInvoice: so.salesInvoice ? {
+        id: so.salesInvoice.id,
+        number: so.salesInvoice.number,
+        status: so.salesInvoice.status,
+        totalAmount: Number(so.salesInvoice.totalAmount),
+        paidAmount: Number(so.salesInvoice.paidAmount),
+      } : undefined,
     };
   }
 

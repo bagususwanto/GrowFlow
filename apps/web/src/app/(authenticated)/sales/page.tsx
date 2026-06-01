@@ -29,6 +29,16 @@ export default function SalesOverviewPage() {
       quickActionText: 'Ship Order',
     },
     {
+      title: 'Sales Invoices',
+      description: 'Review invoice statements, monitor status, apply credit notes, and record customer payments.',
+      href: '/sales/invoices',
+      icon: <ShoppingCart className="h-6 w-6 text-emerald-500" />,
+      gradient: 'from-emerald-500/10 to-teal-500/10 dark:from-emerald-500/20 dark:to-teal-500/20',
+      actionText: 'Invoices',
+      quickActionHref: null,
+      quickActionText: null,
+    },
+    {
       title: 'Customers',
       description: 'Manage sales customers, view contact details, and manage billing profiles.',
       href: '/sales/customers',

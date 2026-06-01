@@ -56,6 +56,13 @@ export interface SalesOrder {
   };
   lineItems?: SalesOrderLineItem[];
   deliveryNotes?: DeliveryNote[];
+  salesInvoice?: {
+    id: string;
+    number: string;
+    status: string;
+    totalAmount: number;
+    paidAmount: number;
+  };
 }
 
 export interface CreateSalesOrderLineItemRequest {

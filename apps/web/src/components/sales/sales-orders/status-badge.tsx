@@ -24,6 +24,9 @@ export function SalesOrderStatusBadge({ status, className }: SalesOrderStatusBad
     case 'DONE':
       variant = 'default'; // Success / green-ish
       break;
+    case 'CLOSED':
+      variant = 'outline'; // Finished/Closed greyish-outline
+      break;
     case 'CANCELLED':
       variant = 'destructive';
       break;

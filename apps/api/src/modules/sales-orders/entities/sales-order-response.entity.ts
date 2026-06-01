@@ -164,4 +164,22 @@ export class SalesOrderResponseEntity {
       name: string;
     };
   }[];
+
+  @ApiPropertyOptional({
+    type: 'object',
+    properties: {
+      id: { type: 'string' },
+      number: { type: 'string' },
+      status: { type: 'string' },
+      totalAmount: { type: 'number' },
+      paidAmount: { type: 'number' },
+    },
+  })
+  salesInvoice?: {
+    id: string;
+    number: string;
+    status: string;
+    totalAmount: number;
+    paidAmount: number;
+  };
 }

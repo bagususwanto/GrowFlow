@@ -141,6 +141,15 @@ export class SalesOrdersRepository {
             },
           },
         },
+        salesInvoice: {
+          select: {
+            id: true,
+            number: true,
+            status: true,
+            totalAmount: true,
+            paidAmount: true,
+          },
+        },
       },
     });
   }
