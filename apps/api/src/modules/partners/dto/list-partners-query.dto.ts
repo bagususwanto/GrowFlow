@@ -4,10 +4,7 @@ import { Type, Transform } from 'class-transformer';
 import { ListPartnersQuery, PartnerType } from '@growflow/types';
 import { PartnerType as PrismaPartnerType } from '@prisma/client';
 
-export enum SortOrder {
-  ASC = 'asc',
-  DESC = 'desc',
-}
+import { SortOrder } from '../../../common/dto/sort-order.enum';
 
 export class ListPartnersQueryDto implements ListPartnersQuery {
   @ApiPropertyOptional({ default: 1 })

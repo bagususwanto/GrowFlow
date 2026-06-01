@@ -7,7 +7,7 @@ import { UpdatePasswordDto } from './dto/update-password.dto';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { env } from '../../config/env.schema';
-import { REFRESH_TOKEN_EXPIRES_DAYS } from '../../common/constants';
+import { REFRESH_TOKEN_EXPIRES_DAYS, BCRYPT_ROUNDS } from '../../common/constants';
 import { LoginResponse, AuthUser } from '@growflow/types';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 import { User, Role } from '@prisma/client';
@@ -197,7 +197,7 @@ export class AuthService {
       throw new BadRequestException('Incorrect current password');
     }
 
-    const salt = await bcrypt.genSalt(10);
+    const salt = await bcrypt.genSalt(BCRYPT_ROUNDS);
     const passwordHash = await bcrypt.hash(dto.newPassword, salt);
 
     await this.authRepository.updateUser(userId, { passwordHash });

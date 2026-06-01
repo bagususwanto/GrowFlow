@@ -45,6 +45,7 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([deletedAt, isActive])
   @@map("users")
 }
 
@@ -58,6 +59,7 @@ model RefreshToken {
 
   createdAt DateTime @default(now()) @map("created_at")
 
+  @@index([userId, expiresAt])
   @@map("refresh_tokens")
 }
 
@@ -98,6 +100,7 @@ model Item {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([deletedAt, isActive, categoryId])
   @@map("items")
 }
 
@@ -151,6 +154,7 @@ model StockBalance {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([itemId, warehouseId])
+  @@index([itemId, warehouseId])
   @@map("stock_balances")
 }
 
@@ -178,6 +182,7 @@ model StockMutation {
 
   createdAt DateTime @default(now()) @map("created_at")
 
+  @@index([itemId, warehouseId, createdAt, type])
   @@map("stock_mutations")
 }
 
@@ -225,6 +230,7 @@ model PurchaseOrder {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
 
+  @@index([status, supplierId, createdAt])
   @@map("purchase_orders")
 }
 
@@ -271,6 +277,7 @@ model GoodsReceipt {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
 
+  @@index([status, createdAt])
   @@map("goods_receipts")
 }
 
@@ -324,6 +331,7 @@ model SalesOrder {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
 
+  @@index([status, customerId, createdAt])
   @@map("sales_orders")
 }
 
@@ -368,6 +376,7 @@ model DeliveryNote {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
 
+  @@index([status, createdAt])
   @@map("delivery_notes")
 }
 

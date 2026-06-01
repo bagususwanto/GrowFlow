@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { StockRepository } from './stock.repository';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
-import { SortOrder } from './dto/list-stock-mutations-query.dto';
+import { SortOrder } from '../../common/dto/sort-order.enum';
 
 describe('StockRepository', () => {
   let repository: StockRepository;

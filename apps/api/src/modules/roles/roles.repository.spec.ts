@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RolesRepository } from './roles.repository';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
-import { SortOrder } from './dto/list-roles-query.dto';
+import { SortOrder } from '../../common/dto/sort-order.enum';
 
 describe('RolesRepository', () => {
   let repository: RolesRepository;

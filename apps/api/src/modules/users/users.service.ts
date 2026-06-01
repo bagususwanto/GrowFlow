@@ -6,6 +6,7 @@ import { FindAllUsersDto } from './dto/find-all-users.dto';
 import * as bcrypt from 'bcrypt';
 import { PaginatedResponse, RoleName } from '@growflow/types';
 import { UserResponseEntity } from './entities/user-response.entity';
+import { BCRYPT_ROUNDS } from '../../common/constants';
 
 @Injectable()
 export class UsersService {
@@ -57,7 +58,7 @@ export class UsersService {
       throw new ConflictException('Email already in use');
     }
 
-    const salt = await bcrypt.genSalt(10);
+    const salt = await bcrypt.genSalt(BCRYPT_ROUNDS);
     const passwordHash = await bcrypt.hash(dto.password, salt);
 
     const user = await this.usersRepository.create({
@@ -85,7 +86,7 @@ export class UsersService {
 
     let passwordHash = user.passwordHash;
     if (dto.password) {
-      const salt = await bcrypt.genSalt(10);
+      const salt = await bcrypt.genSalt(BCRYPT_ROUNDS);
       passwordHash = await bcrypt.hash(dto.password, salt);
     }
 

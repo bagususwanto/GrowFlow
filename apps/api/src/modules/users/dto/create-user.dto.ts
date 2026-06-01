@@ -13,9 +13,9 @@ export class CreateUserDto implements CreateUserRequest {
   @IsNotEmpty()
   email!: string;
 
-  @ApiProperty({ example: 'Password123!', description: 'User password (min 6 chars)' })
+  @ApiProperty({ example: 'Password123!', description: 'User password (min 8 chars)' })
   @IsString()
-  @MinLength(6)
+  @MinLength(8)
   @IsNotEmpty()
   password!: string;
 

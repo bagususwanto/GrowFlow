@@ -28,6 +28,16 @@ import { AuthUser, LoginResponse } from '@growflow/types';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  private getCookieOptions(): any {
+    return {
+      httpOnly: true,
+      secure: env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/api/auth',
+      maxAge: COOKIE_MAX_AGE,
+    };
+  }
+
   @Post('login')
   @Public()
   @Throttle({ default: { limit: 5, ttl: 60000 } })
@@ -40,13 +50,7 @@ export class AuthController {
   ): Promise<Omit<LoginResponse, 'refreshToken'>> {
     const result = await this.authService.login(dto);
     
-    res.cookie('growflow_refresh_token', result.refreshToken, {
-      httpOnly: true,
-      secure: env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/api/auth',
-      maxAge: COOKIE_MAX_AGE,
-    });
+    res.cookie('growflow_refresh_token', result.refreshToken, this.getCookieOptions());
 
     return {
       accessToken: result.accessToken,
@@ -71,13 +75,7 @@ export class AuthController {
 
     const result = await this.authService.refresh(token);
 
-    res.cookie('growflow_refresh_token', result.refreshToken, {
-      httpOnly: true,
-      secure: env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/api/auth',
-      maxAge: COOKIE_MAX_AGE,
-    });
+    res.cookie('growflow_refresh_token', result.refreshToken, this.getCookieOptions());
 
     return {
       accessToken: result.accessToken,

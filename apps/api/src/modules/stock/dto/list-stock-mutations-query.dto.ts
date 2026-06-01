@@ -4,10 +4,7 @@ import { Type } from 'class-transformer';
 import { ListStockMutationsQuery, MutationType } from '@growflow/types';
 import { MutationType as PrismaMutationType } from '@prisma/client';
 
-export enum SortOrder {
-  ASC = 'asc',
-  DESC = 'desc',
-}
+import { SortOrder } from '../../../common/dto/sort-order.enum';
 
 export class ListStockMutationsQueryDto implements ListStockMutationsQuery {
   @ApiPropertyOptional({ description: 'Page number', default: 1 })

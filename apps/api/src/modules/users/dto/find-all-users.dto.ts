@@ -2,10 +2,7 @@ import { IsOptional, IsString, IsInt, Min, Max, IsIn, IsEnum, IsBoolean } from '
 import { Transform, Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
-export enum SortOrder {
-  ASC = 'asc',
-  DESC = 'desc',
-}
+import { SortOrder } from '../../../common/dto/sort-order.enum';
 
 export class FindAllUsersDto {
   @ApiPropertyOptional({ description: 'Page number', default: 1 })

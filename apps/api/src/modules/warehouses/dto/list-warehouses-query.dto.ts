@@ -3,10 +3,7 @@ import { IsInt, IsOptional, IsString, Min, Max, IsBoolean, IsIn, IsEnum } from '
 import { Type, Transform } from 'class-transformer';
 import { ListWarehousesQuery } from '@growflow/types';
 
-export enum SortOrder {
-  ASC = 'asc',
-  DESC = 'desc',
-}
+import { SortOrder } from '../../../common/dto/sort-order.enum';
 
 export class ListWarehousesQueryDto implements ListWarehousesQuery {
   @ApiPropertyOptional({ description: 'Page number', default: 1 })
