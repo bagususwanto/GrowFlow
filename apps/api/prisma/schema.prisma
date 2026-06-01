@@ -81,21 +81,22 @@ model Warehouse {
 }
 
 model Item {
-  id             String                  @id @default(uuid())
-  code           String                  @unique
-  name           String
-  unit           String
-  categoryId     String?                 @map("category_id")
-  category       CategoryItem?           @relation(fields: [categoryId], references: [id])
-  minStock       Int                     @default(0) @map("min_stock")
-  isActive       Boolean                 @default(true) @map("is_active")
-  deletedAt      DateTime?               @map("deleted_at")
-  stockBalances  StockBalance[]
-  stockMutations StockMutation[]
-  poLineItems    PurchaseOrderLineItem[]
-  grLineItems    GoodsReceiptLineItem[]
-  soLineItems    SalesOrderLineItem[]
-  dnLineItems    DeliveryNoteLineItem[]
+  id                    String                  @id @default(uuid())
+  code                  String                  @unique
+  name                  String
+  unit                  String
+  categoryId            String?                 @map("category_id")
+  category              CategoryItem?           @relation(fields: [categoryId], references: [id])
+  minStock              Int                     @default(0) @map("min_stock")
+  isActive              Boolean                 @default(true) @map("is_active")
+  deletedAt             DateTime?               @map("deleted_at")
+  stockBalances         StockBalance[]
+  stockMutations        StockMutation[]
+  poLineItems           PurchaseOrderLineItem[]
+  grLineItems           GoodsReceiptLineItem[]
+  soLineItems           SalesOrderLineItem[]
+  dnLineItems           DeliveryNoteLineItem[]
+  salesInvoiceLineItems SalesInvoiceLineItem[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -136,6 +137,7 @@ model Partner {
   deletedAt        DateTime?       @map("deleted_at")
   purchaseOrders   PurchaseOrder[]
   salesOrders      SalesOrder[]
+  salesInvoices    SalesInvoice[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -413,6 +415,7 @@ model SalesInvoice {
   salesOrderId     String             @unique @map("sales_order_id")
   salesOrder       SalesOrder         @relation(fields: [salesOrderId], references: [id])
   customerId       String             @map("customer_id")
+  customer         Partner            @relation(fields: [customerId], references: [id])
   status           SalesInvoiceStatus @default(DRAFT)
   invoiceDate      DateTime           @default(now()) @map("invoice_date")
   dueDate          DateTime           @map("due_date")
@@ -442,6 +445,7 @@ model SalesInvoiceLineItem {
   salesInvoice   SalesInvoice @relation(fields: [salesInvoiceId], references: [id])
   soLineItemId   String       @map("so_line_item_id")
   itemId         String       @map("item_id")
+  item           Item         @relation(fields: [itemId], references: [id])
   qty            Int
   unitPrice      Decimal      @map("unit_price") @db.Decimal(18, 2)
   totalPrice     Decimal      @map("total_price") @db.Decimal(18, 2) // qty * unitPrice
