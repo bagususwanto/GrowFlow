@@ -4,7 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@web/components/ui/card';
 import { Button } from '@web/components/ui/button';
-import { ShoppingCart, Boxes, ArrowRight } from 'lucide-react';
+import { ShoppingCart, Boxes, ArrowRight, Users, Package } from 'lucide-react';
 
 export default function PurchasingOverviewPage() {
   const menus = [
@@ -27,6 +27,26 @@ export default function PurchasingOverviewPage() {
       actionText: 'Goods Receipts',
       quickActionHref: '/purchasing/goods-receipts/new',
       quickActionText: 'Receive Goods',
+    },
+    {
+      title: 'Suppliers',
+      description: 'Manage purchasing suppliers, track performance, and handle supply contracts.',
+      href: '/purchasing/suppliers',
+      icon: <Users className="h-6 w-6 text-blue-500" />,
+      gradient: 'from-blue-500/10 to-indigo-500/10 dark:from-blue-500/20 dark:to-indigo-500/20',
+      actionText: 'Suppliers',
+      quickActionHref: '/relations/partners/new',
+      quickActionText: 'Add Supplier',
+    },
+    {
+      title: 'Products Reference',
+      description: 'View products master list, purchasable items, and catalog details.',
+      href: '/purchasing/products',
+      icon: <Package className="h-6 w-6 text-indigo-500" />,
+      gradient: 'from-indigo-500/10 to-violet-500/10 dark:from-indigo-500/20 dark:to-violet-500/20',
+      actionText: 'Catalog',
+      quickActionHref: '/inventory/items/new',
+      quickActionText: 'Add Item',
     },
   ];
 

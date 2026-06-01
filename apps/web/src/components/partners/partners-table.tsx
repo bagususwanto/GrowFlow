@@ -30,7 +30,11 @@ import { toast } from 'sonner';
 import { ChevronLeftIcon, ChevronRightIcon, SearchIcon, RotateCcwIcon, ChevronsLeftIcon, ChevronsRightIcon } from 'lucide-react';
 import { useConfirm } from '@web/hooks/use-confirm';
 
-export function PartnersTable() {
+interface PartnersTableProps {
+  fixedType?: 'CUSTOMER' | 'SUPPLIER';
+}
+
+export function PartnersTable({ fixedType }: PartnersTableProps = {}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -48,7 +52,7 @@ export function PartnersTable() {
   // Compute active states
   const page = urlPage ? parseInt(urlPage, 10) : 1;
   const limit = urlLimit ? parseInt(urlLimit, 10) : 10;
-  const type = urlType || 'all';
+  const type = fixedType || urlType || 'all';
   const isActive = urlIsActive || 'all';
   const sortBy = urlSortBy || 'createdAt';
   const sortOrder = (urlSortOrder === 'asc' || urlSortOrder === 'desc') ? urlSortOrder : 'desc';
@@ -226,7 +230,7 @@ export function PartnersTable() {
 
   const isFilterActive =
     (urlSearch && urlSearch !== '') ||
-    (urlType && urlType !== 'all') ||
+    (!fixedType && urlType && urlType !== 'all') ||
     (urlIsActive && urlIsActive !== 'all');
 
   const handleResetFilters = () => {
@@ -253,20 +257,22 @@ export function PartnersTable() {
             />
           </div>
 
-          <Select value={type} onValueChange={(val) => setType(val || 'all')}>
-            <SelectTrigger className="w-full sm:w-40 h-9">
-              <SelectValue placeholder="Filter by Type">
-                {type === 'all' && 'All Types'}
-                {type === 'SUPPLIER' && 'Supplier'}
-                {type === 'CUSTOMER' && 'Customer'}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="SUPPLIER">Supplier</SelectItem>
-              <SelectItem value="CUSTOMER">Customer</SelectItem>
-            </SelectContent>
-          </Select>
+          {!fixedType && (
+            <Select value={type} onValueChange={(val) => setType(val || 'all')}>
+              <SelectTrigger className="w-full sm:w-40 h-9">
+                <SelectValue placeholder="Filter by Type">
+                  {type === 'all' && 'All Types'}
+                  {type === 'SUPPLIER' && 'Supplier'}
+                  {type === 'CUSTOMER' && 'Customer'}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="SUPPLIER">Supplier</SelectItem>
+                <SelectItem value="CUSTOMER">Customer</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
 
           <Select value={isActive} onValueChange={(val) => setIsActive(val || 'all')}>
             <SelectTrigger className="w-full sm:w-40 h-9">

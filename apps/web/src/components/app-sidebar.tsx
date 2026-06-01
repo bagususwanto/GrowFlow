@@ -83,6 +83,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           icon: <Boxes />,
           permission: "read:grn",
         },
+        {
+          title: "Suppliers",
+          url: "/purchasing/suppliers",
+          icon: <Handshake />,
+          permission: "read:partners",
+        },
+        {
+          title: "Products",
+          url: "/purchasing/products",
+          icon: <Package />,
+          permission: "read:items",
+        },
       ],
     },
     {
@@ -99,6 +111,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: "/sales/delivery-notes",
           icon: <Boxes />,
           permission: "read:dn",
+        },
+        {
+          title: "Customers",
+          url: "/sales/customers",
+          icon: <Handshake />,
+          permission: "read:partners",
+        },
+        {
+          title: "Products",
+          url: "/sales/products",
+          icon: <Package />,
+          permission: "read:items",
         },
       ],
     },

@@ -4,7 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@web/components/ui/card';
 import { Button } from '@web/components/ui/button';
-import { ShoppingCart, Boxes, ArrowRight } from 'lucide-react';
+import { ShoppingCart, Boxes, ArrowRight, Users, Package } from 'lucide-react';
 
 export default function SalesOverviewPage() {
   const menus = [
@@ -27,6 +27,26 @@ export default function SalesOverviewPage() {
       actionText: 'Delivery Notes',
       quickActionHref: '/sales/delivery-notes/new',
       quickActionText: 'Ship Order',
+    },
+    {
+      title: 'Customers',
+      description: 'Manage sales customers, view contact details, and manage billing profiles.',
+      href: '/sales/customers',
+      icon: <Users className="h-6 w-6 text-amber-500" />,
+      gradient: 'from-amber-500/10 to-orange-500/10 dark:from-amber-500/20 dark:to-orange-500/20',
+      actionText: 'Customers',
+      quickActionHref: '/relations/partners/new',
+      quickActionText: 'Add Customer',
+    },
+    {
+      title: 'Products Reference',
+      description: 'View products master list, sellable items, and catalog details.',
+      href: '/sales/products',
+      icon: <Package className="h-6 w-6 text-orange-500" />,
+      gradient: 'from-orange-500/10 to-rose-500/10 dark:from-orange-500/20 dark:to-rose-500/20',
+      actionText: 'Catalog',
+      quickActionHref: '/inventory/items/new',
+      quickActionText: 'Add Item',
     },
   ];
 
