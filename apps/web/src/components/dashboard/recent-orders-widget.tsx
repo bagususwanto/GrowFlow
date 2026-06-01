@@ -107,7 +107,7 @@ export function RecentOrdersWidget({ purchaseOrders, salesOrders }: RecentOrders
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right tabular-nums font-semibold">
-                        ${po.totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        Rp {po.totalAmount.toLocaleString('id-ID', { minimumFractionDigits: 0 })}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -168,7 +168,7 @@ export function RecentOrdersWidget({ purchaseOrders, salesOrders }: RecentOrders
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right tabular-nums font-semibold">
-                        ${so.totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        Rp {so.totalAmount.toLocaleString('id-ID', { minimumFractionDigits: 0 })}
                       </TableCell>
                     </TableRow>
                   ))}
