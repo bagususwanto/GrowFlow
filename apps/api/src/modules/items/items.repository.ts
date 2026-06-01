@@ -9,7 +9,7 @@ export type ItemWithCategory = Item & { category: CategoryItem | null };
 
 @Injectable()
 export class ItemsRepository {
-  constructor(public readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   buildWhereClause(query: ListItemsQueryDto): Prisma.ItemWhereInput {
     const where: Prisma.ItemWhereInput = { deletedAt: null };
@@ -90,5 +90,47 @@ export class ItemsRepository {
       where: { id },
       data: { deletedAt: new Date() },
     });
+  }
+
+  async findLastPurchasePrice(itemId: string): Promise<number | null> {
+    const lastLineItem = await this.prisma.purchaseOrderLineItem.findFirst({
+      where: {
+        itemId,
+        purchaseOrder: {
+          status: { in: ['APPROVED', 'DONE'] },
+          deletedAt: null,
+        },
+      },
+      orderBy: {
+        purchaseOrder: {
+          orderDate: 'desc',
+        },
+      },
+      select: {
+        unitPrice: true,
+      },
+    });
+    return lastLineItem ? Number(lastLineItem.unitPrice) : null;
+  }
+
+  async findLastSalesPrice(itemId: string): Promise<number | null> {
+    const lastLineItem = await this.prisma.salesOrderLineItem.findFirst({
+      where: {
+        itemId,
+        salesOrder: {
+          status: { in: ['CONFIRMED', 'DONE'] },
+          deletedAt: null,
+        },
+      },
+      orderBy: {
+        salesOrder: {
+          orderDate: 'desc',
+        },
+      },
+      select: {
+        unitPrice: true,
+      },
+    });
+    return lastLineItem ? Number(lastLineItem.unitPrice) : null;
   }
 }

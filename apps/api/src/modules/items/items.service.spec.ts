@@ -31,6 +31,8 @@ describe('ItemsService', () => {
     create: jest.fn(),
     update: jest.fn(),
     softDelete: jest.fn(),
+    findLastPurchasePrice: jest.fn(),
+    findLastSalesPrice: jest.fn(),
   };
 
   beforeEach(async () => {

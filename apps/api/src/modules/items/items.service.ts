@@ -100,49 +100,11 @@ export class ItemsService {
     }
 
     if (type === 'purchase') {
-      const lastLineItem = await this.itemsRepository.prisma.purchaseOrderLineItem.findFirst({
-        where: {
-          itemId: id,
-          purchaseOrder: {
-            status: { in: ['APPROVED', 'DONE'] },
-            deletedAt: null,
-          },
-        },
-        orderBy: {
-          purchaseOrder: {
-            orderDate: 'desc',
-          },
-        },
-        select: {
-          unitPrice: true,
-        },
-      });
-
-      return {
-        unitPrice: lastLineItem ? Number(lastLineItem.unitPrice) : null,
-      };
+      const price = await this.itemsRepository.findLastPurchasePrice(id);
+      return { unitPrice: price };
     } else {
-      const lastLineItem = await this.itemsRepository.prisma.salesOrderLineItem.findFirst({
-        where: {
-          itemId: id,
-          salesOrder: {
-            status: { in: ['CONFIRMED', 'DONE'] },
-            deletedAt: null,
-          },
-        },
-        orderBy: {
-          salesOrder: {
-            orderDate: 'desc',
-          },
-        },
-        select: {
-          unitPrice: true,
-        },
-      });
-
-      return {
-        unitPrice: lastLineItem ? Number(lastLineItem.unitPrice) : null,
-      };
+      const price = await this.itemsRepository.findLastSalesPrice(id);
+      return { unitPrice: price };
     }
   }
 }

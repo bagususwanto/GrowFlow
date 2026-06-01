@@ -121,4 +121,58 @@ describe('ItemsRepository', () => {
       );
     });
   });
+
+  describe('findLastPurchasePrice', () => {
+    it('should query prisma.purchaseOrderLineItem.findFirst with itemId and order filters', async () => {
+      prisma.purchaseOrderLineItem = { findFirst: jest.fn() };
+      prisma.purchaseOrderLineItem.findFirst.mockResolvedValue({ unitPrice: 1500 });
+      
+      const res = await repository.findLastPurchasePrice('i-id');
+      expect(res).toBe(1500);
+      expect(prisma.purchaseOrderLineItem.findFirst).toHaveBeenCalledWith({
+        where: {
+          itemId: 'i-id',
+          purchaseOrder: {
+            status: { in: ['APPROVED', 'DONE'] },
+            deletedAt: null,
+          },
+        },
+        orderBy: {
+          purchaseOrder: {
+            orderDate: 'desc',
+          },
+        },
+        select: {
+          unitPrice: true,
+        },
+      });
+    });
+  });
+
+  describe('findLastSalesPrice', () => {
+    it('should query prisma.salesOrderLineItem.findFirst with itemId and order filters', async () => {
+      prisma.salesOrderLineItem = { findFirst: jest.fn() };
+      prisma.salesOrderLineItem.findFirst.mockResolvedValue({ unitPrice: 2000 });
+      
+      const res = await repository.findLastSalesPrice('i-id');
+      expect(res).toBe(2000);
+      expect(prisma.salesOrderLineItem.findFirst).toHaveBeenCalledWith({
+        where: {
+          itemId: 'i-id',
+          salesOrder: {
+            status: { in: ['CONFIRMED', 'DONE'] },
+            deletedAt: null,
+          },
+        },
+        orderBy: {
+          salesOrder: {
+            orderDate: 'desc',
+          },
+        },
+        select: {
+          unitPrice: true,
+        },
+      });
+    });
+  });
 });
