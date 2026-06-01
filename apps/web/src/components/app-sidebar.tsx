@@ -36,7 +36,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const navGroups: NavGroup[] = [
     {
-      label: "Overview",
       items: [
         {
           title: "Dashboard",
