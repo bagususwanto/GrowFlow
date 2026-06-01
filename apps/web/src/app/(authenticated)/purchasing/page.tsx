@@ -35,7 +35,7 @@ export default function PurchasingOverviewPage() {
       icon: <Users className="h-6 w-6 text-blue-500" />,
       gradient: 'from-blue-500/10 to-indigo-500/10 dark:from-blue-500/20 dark:to-indigo-500/20',
       actionText: 'Suppliers',
-      quickActionHref: '/relations/partners/new',
+      quickActionHref: '/partners/new',
       quickActionText: 'Add Supplier',
     },
     {

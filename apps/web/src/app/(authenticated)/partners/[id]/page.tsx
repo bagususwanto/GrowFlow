@@ -25,7 +25,7 @@ export default async function PartnerDetailPage({ params }: PartnerDetailPagePro
           size="icon"
           nativeButton={false}
           render={
-            <Link href="/relations/partners" title="Back to Partners">
+            <Link href="/partners" title="Back to Partners">
               <ChevronLeftIcon className="h-4 w-4" />
             </Link>
           }

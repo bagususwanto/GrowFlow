@@ -18,7 +18,7 @@ export default async function EditPartnerPage({ params }: EditPartnerPageProps) 
   return (
     <div className="space-y-6 px-4 lg:px-6">
       <div className="flex items-center gap-3">
-        <BackButton fallbackUrl={`/relations/partners/${id}`} />
+        <BackButton fallbackUrl={`/partners/${id}`} />
         <div className="space-y-0.5">
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Edit Partner

@@ -40,7 +40,7 @@ export function PartnerDetailContainer({ id }: PartnerDetailContainerProps) {
   useBreadcrumbLabel(id, partner?.name);
 
   const handleEdit = () => {
-    router.push(`/relations/partners/${id}/edit`);
+    router.push(`/partners/${id}/edit`);
   };
 
   const handleDelete = async () => {
@@ -64,7 +64,7 @@ export function PartnerDetailContainer({ id }: PartnerDetailContainerProps) {
           success: `Partner ${partner.name} deleted successfully`,
           error: 'Failed to delete partner',
         });
-        router.push('/relations/partners');
+        router.push('/partners');
       } catch (err) {
         const apiError = err as ApiError;
         toast.error(apiError.message || 'Failed to delete partner');

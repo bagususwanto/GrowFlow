@@ -35,7 +35,7 @@ export default function SalesOverviewPage() {
       icon: <Users className="h-6 w-6 text-amber-500" />,
       gradient: 'from-amber-500/10 to-orange-500/10 dark:from-amber-500/20 dark:to-orange-500/20',
       actionText: 'Customers',
-      quickActionHref: '/relations/partners/new',
+      quickActionHref: '/partners/new',
       quickActionText: 'Add Customer',
     },
     {

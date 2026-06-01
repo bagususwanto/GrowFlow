@@ -22,7 +22,7 @@ export function CreatePartnerContainer() {
         address: data.address || undefined,
       });
       toast.success('Partner created successfully');
-      router.push('/relations/partners');
+      router.push('/partners');
     } catch (error) {
       const apiError = error as ApiError;
       toast.error(apiError.message || 'Failed to create partner');

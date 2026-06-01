@@ -24,7 +24,7 @@ export default function PartnersPage() {
           <Button
             nativeButton={false}
             render={
-              <Link href="/relations/partners/new">
+              <Link href="/partners/new">
                 <PlusIcon className="mr-2 w-4 h-4" />
                 Add Partner
               </Link>

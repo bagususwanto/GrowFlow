@@ -44,7 +44,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         },
         {
           title: "Partners Directory",
-          url: "/relations/partners",
+          url: "/partners",
           icon: <Handshake />,
           permission: "read:partners",
         },

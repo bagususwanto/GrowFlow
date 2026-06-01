@@ -31,7 +31,7 @@ export function EditPartnerContainer({ id }: EditPartnerContainerProps) {
         isActive: data.isActive,
       });
       toast.success('Partner updated successfully');
-      router.push('/relations/partners');
+      router.push('/partners');
     } catch (error) {
       const apiError = error as ApiError;
       toast.error(apiError.message || 'Failed to update partner');
