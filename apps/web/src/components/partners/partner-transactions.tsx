@@ -6,6 +6,7 @@ import { usePurchaseOrders } from '@web/hooks/use-purchase-orders';
 import { useSalesOrders } from '@web/hooks/use-sales-orders';
 import { useGoodsReceipts } from '@web/hooks/use-goods-receipts';
 import { useDeliveryNotes } from '@web/hooks/use-delivery-notes';
+import { useSalesInvoices } from '@web/hooks/use-sales-invoices';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@web/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@web/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@web/components/ui/table';
@@ -38,6 +39,11 @@ export function PartnerTransactions({ partnerId, partnerType }: PartnerTransacti
 
   // Fetch DNs if customer
   const { data: dnsData, isLoading: isLoadingDns } = useDeliveryNotes(
+    !isSupplier ? { customerId: partnerId, limit: 10, sortBy: 'createdAt', sortOrder: 'desc' } : {}
+  );
+
+  // Fetch Invoices if customer
+  const { data: invoicesData, isLoading: isLoadingInvoices } = useSalesInvoices(
     !isSupplier ? { customerId: partnerId, limit: 10, sortBy: 'createdAt', sortOrder: 'desc' } : {}
   );
 
@@ -307,6 +313,81 @@ export function PartnerTransactions({ partnerId, partnerType }: PartnerTransacti
     );
   };
 
+  const renderInvoiceList = () => {
+    if (isLoadingInvoices) {
+      return (
+        <div className="space-y-2 py-4">
+          <Skeleton className="h-8 w-full" />
+          <Skeleton className="h-8 w-full" />
+          <Skeleton className="h-8 w-full" />
+        </div>
+      );
+    }
+
+    const invoices = invoicesData?.data || [];
+
+    if (invoices.length === 0) {
+      return (
+        <div className="py-8 text-center text-sm text-muted-foreground italic border rounded-lg border-dashed">
+          No sales invoices found for this customer.
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-4">
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Number</TableHead>
+                <TableHead>Due Date</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Total Amount</TableHead>
+                <TableHead className="text-right">Remaining Bal</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {invoices.map((inv) => {
+                const outstanding = Number(inv.totalAmount) - Number(inv.paidAmount);
+                return (
+                  <TableRow key={inv.id} className="cursor-pointer hover:bg-muted/50">
+                    <TableCell className="font-medium font-mono">
+                      <Link href={`/sales/invoices/${inv.id}`} className="hover:underline text-primary">
+                        {inv.number}
+                      </Link>
+                    </TableCell>
+                    <TableCell>{new Date(inv.dueDate).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      <Badge variant={inv.status === 'PAID' ? 'default' : inv.status === 'DRAFT' ? 'outline' : 'secondary'}>
+                        {inv.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right font-semibold">
+                      {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(inv.totalAmount)}
+                    </TableCell>
+                    <TableCell className={`text-right font-bold ${outstanding > 0 ? 'text-amber-500' : 'text-emerald-500'}`}>
+                      {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(outstanding)}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
+        <div className="flex justify-end">
+          <Link
+            href={`/sales/invoices?customerId=${partnerId}`}
+            className="text-xs text-primary flex items-center gap-1 hover:underline"
+          >
+            View all Sales Invoices
+            <ArrowRightIcon className="w-3 h-3" />
+          </Link>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -320,7 +401,7 @@ export function PartnerTransactions({ partnerId, partnerType }: PartnerTransacti
       </CardHeader>
       <CardContent className="p-6 pt-0">
         <Tabs defaultValue={isSupplier ? 'pos' : 'sos'} className="w-full">
-          <TabsList className="grid w-full max-w-md grid-cols-2 mb-4">
+          <TabsList className={`grid w-full max-w-md ${isSupplier ? 'grid-cols-2' : 'grid-cols-3'} mb-4`}>
             {isSupplier ? (
               <>
                 <TabsTrigger value="pos">Purchase Orders</TabsTrigger>
@@ -330,6 +411,7 @@ export function PartnerTransactions({ partnerId, partnerType }: PartnerTransacti
               <>
                 <TabsTrigger value="sos">Sales Orders</TabsTrigger>
                 <TabsTrigger value="dns">Delivery Notes</TabsTrigger>
+                <TabsTrigger value="invoices">Sales Invoices</TabsTrigger>
               </>
             )}
           </TabsList>
@@ -350,6 +432,9 @@ export function PartnerTransactions({ partnerId, partnerType }: PartnerTransacti
               </TabsContent>
               <TabsContent value="dns" className="mt-0">
                 {renderDNList()}
+              </TabsContent>
+              <TabsContent value="invoices" className="mt-0">
+                {renderInvoiceList()}
               </TabsContent>
             </>
           )}
