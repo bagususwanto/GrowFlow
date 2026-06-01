@@ -16,12 +16,12 @@ import {
   TableRow,
 } from "@web/components/ui/table"
 import { Badge } from "@web/components/ui/badge"
-import { Item } from "@growflow/types"
+import { LowStockItem } from "@growflow/types"
 import Link from "next/link"
 import { AlertTriangle } from "lucide-react"
 
 interface LowStockWidgetProps {
-  items: Item[]
+  items: LowStockItem[]
 }
 
 export function LowStockWidget({ items }: LowStockWidgetProps) {
@@ -53,8 +53,10 @@ export function LowStockWidget({ items }: LowStockWidgetProps) {
                 <TableRow>
                   <TableHead>Code</TableHead>
                   <TableHead>Item Name</TableHead>
-                  <TableHead className="text-right">Min Stock</TableHead>
+                  <TableHead>Warehouse</TableHead>
                   <TableHead>Category</TableHead>
+                  <TableHead className="text-right">Min Stock</TableHead>
+                  <TableHead className="text-right">Current Stock</TableHead>
                   <TableHead className="text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
@@ -63,15 +65,25 @@ export function LowStockWidget({ items }: LowStockWidgetProps) {
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">{item.code}</TableCell>
                     <TableCell>{item.name}</TableCell>
-                    <TableCell className="text-right tabular-nums">{item.minStock}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="font-semibold text-xs">
+                        {item.warehouseName}
+                      </Badge>
+                    </TableCell>
                     <TableCell>
                       <Badge variant="secondary" className="font-normal">
                         {item.category?.name || "Uncategorized"}
                       </Badge>
                     </TableCell>
+                    <TableCell className="text-right tabular-nums text-muted-foreground">
+                      {item.minStock} {item.unit}
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums font-bold text-destructive">
+                      {item.currentStock} {item.unit}
+                    </TableCell>
                     <TableCell className="text-right">
                       <Link
-                        href={`/inventory/items`}
+                        href={`/inventory/stock/adjust?itemId=${item.itemId}&warehouseId=${item.warehouseId || ''}`}
                         className="text-xs text-primary font-medium hover:underline"
                       >
                         Adjust Stock

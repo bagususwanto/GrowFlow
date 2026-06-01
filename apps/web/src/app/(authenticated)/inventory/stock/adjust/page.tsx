@@ -64,10 +64,12 @@ export default function StockAdjustPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <StockAdjustForm
-            onSubmit={handleAdjustSubmit}
-            isSubmitting={adjustStockMutation.isPending}
-          />
+          <React.Suspense fallback={<div className="text-sm text-muted-foreground">Loading form...</div>}>
+            <StockAdjustForm
+              onSubmit={handleAdjustSubmit}
+              isSubmitting={adjustStockMutation.isPending}
+            />
+          </React.Suspense>
         </CardContent>
       </Card>
     </div>

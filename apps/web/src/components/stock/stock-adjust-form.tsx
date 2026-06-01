@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@web/components/ui/select';
+import { useSearchParams } from 'next/navigation';
 import { useItems } from '../items/use-items';
 import { useWarehouses } from '../warehouses/use-warehouses';
 import { Loader2Icon, PackageIcon, WarehouseIcon, ArrowUpRightIcon, FileTextIcon } from 'lucide-react';
@@ -36,6 +37,10 @@ interface StockAdjustFormProps {
 }
 
 export function StockAdjustForm({ onSubmit, isSubmitting }: StockAdjustFormProps) {
+  const searchParams = useSearchParams();
+  const itemIdParam = searchParams.get('itemId') || '';
+  const warehouseIdParam = searchParams.get('warehouseId') || '';
+
   const { data: itemsData, isLoading: isLoadingItems } = useItems({ limit: 100 });
   const { data: warehousesData, isLoading: isLoadingWarehouses } = useWarehouses({ limit: 100 });
 
@@ -56,8 +61,8 @@ export function StockAdjustForm({ onSubmit, isSubmitting }: StockAdjustFormProps
   } = useForm<StockAdjustFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      itemId: '',
-      warehouseId: '',
+      itemId: itemIdParam,
+      warehouseId: warehouseIdParam,
       adjustmentType: 'INCREASE',
       qty: 1,
       note: '',

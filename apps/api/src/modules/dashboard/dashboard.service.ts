@@ -22,38 +22,62 @@ export class DashboardService {
     const activeItems = await this.prisma.item.findMany({
       where: { deletedAt: null, isActive: true },
       include: {
-        stockBalances: true,
+        stockBalances: {
+          include: {
+            warehouse: true,
+          },
+        },
         category: true,
       },
     });
-    const lowStockItems = activeItems
-      .filter((item) => {
-        const totalStock = item.stockBalances.reduce((sum, bal) => sum + bal.qty, 0);
-        return totalStock <= item.minStock;
-      })
-      .map((item) => ({
-        id: item.id,
-        code: item.code,
-        name: item.name,
-        unit: item.unit,
-        categoryId: item.categoryId,
-        category: item.category
-          ? {
-              id: item.category.id,
-              name: item.category.name,
-              description: item.category.description,
-              isActive: item.category.isActive,
-              deletedAt: item.category.deletedAt ? item.category.deletedAt.toISOString() : null,
-              createdAt: item.category.createdAt.toISOString(),
-              updatedAt: item.category.updatedAt.toISOString(),
-            }
-          : null,
-        minStock: item.minStock,
-        isActive: item.isActive,
-        deletedAt: item.deletedAt ? item.deletedAt.toISOString() : null,
-        createdAt: item.createdAt.toISOString(),
-        updatedAt: item.updatedAt.toISOString(),
-      }));
+
+    const lowStockItems: any[] = [];
+    for (const item of activeItems) {
+      if (item.minStock <= 0) continue;
+
+      // Check each warehouse balance
+      for (const bal of item.stockBalances) {
+        if (bal.qty <= item.minStock) {
+          lowStockItems.push({
+            id: `${item.id}-${bal.warehouseId}`,
+            code: item.code,
+            name: item.name,
+            unit: item.unit,
+            minStock: item.minStock,
+            currentStock: bal.qty,
+            warehouseName: bal.warehouse.name,
+            itemId: item.id,
+            warehouseId: bal.warehouseId,
+            category: item.category
+              ? {
+                  id: item.category.id,
+                  name: item.category.name,
+                }
+              : null,
+          });
+        }
+      }
+
+      // If no warehouse balances exist, stock is 0 globally
+      if (item.stockBalances.length === 0) {
+        lowStockItems.push({
+          id: `${item.id}-none`,
+          code: item.code,
+          name: item.name,
+          unit: item.unit,
+          minStock: item.minStock,
+          currentStock: 0,
+          warehouseName: 'No Warehouse Stocked',
+          itemId: item.id,
+          category: item.category
+            ? {
+                id: item.category.id,
+                name: item.category.name,
+              }
+            : null,
+        });
+      }
+    }
 
     // Purchase Orders stats
     const totalPurchaseOrders = await this.prisma.purchaseOrder.count({
