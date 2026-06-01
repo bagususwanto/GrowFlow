@@ -235,6 +235,81 @@ export class DeliveryNotesService {
         where: { id: dn.salesOrderId },
         data: { status: soStatus },
       });
+
+      // Auto-generate Sales Invoice jika SO sudah DONE (semua item dikirim)
+      if (soStatus === SalesOrderStatus.DONE) {
+        // Cek jika invoice sudah ada (antisipasi double trigger)
+        const existingInvoice = await tx.salesInvoice.findUnique({
+          where: { salesOrderId: dn.salesOrderId },
+        });
+
+        if (!existingInvoice) {
+          // Ambil customer default paymentTermsDays
+          const customer = await tx.partner.findFirst({
+            where: { id: so.customerId, deletedAt: null },
+          });
+          const paymentTermsDays = customer?.paymentTermsDays ?? 30;
+
+          // Generate Invoice Number (INV-YYYYMM-XXXX)
+          const date = new Date();
+          const year = date.getFullYear();
+          const month = date.getMonth() + 1;
+
+          const docSeq = await tx.documentSequence.upsert({
+            where: {
+              type_year_month: {
+                type: 'INV',
+                year,
+                month,
+              },
+            },
+            update: {
+              lastSeq: {
+                increment: 1,
+              },
+            },
+            create: {
+              type: 'INV',
+              year,
+              month,
+              lastSeq: 1,
+            },
+          });
+
+          const paddedSeq = String(docSeq.lastSeq).padStart(4, '0');
+          const paddedMonth = String(month).padStart(2, '0');
+          const invoiceNumber = `INV-${year}${paddedMonth}-${paddedSeq}`;
+
+          const invoiceDate = new Date();
+          const dueDate = new Date();
+          dueDate.setDate(invoiceDate.getDate() + paymentTermsDays);
+
+          // Buat Invoice dan salin line items
+          await tx.salesInvoice.create({
+            data: {
+              number: invoiceNumber,
+              salesOrderId: dn.salesOrderId,
+              customerId: so.customerId,
+              status: 'DRAFT',
+              invoiceDate,
+              dueDate,
+              paymentTermsDays,
+              totalAmount: so.totalAmount,
+              paidAmount: 0,
+              createdById: userId,
+              lineItems: {
+                create: so.lineItems.map((li) => ({
+                  soLineItemId: li.id,
+                  itemId: li.itemId,
+                  qty: li.qty,
+                  unitPrice: li.unitPrice,
+                  totalPrice: li.totalPrice,
+                })),
+              },
+            },
+          });
+        }
+      }
     });
 
     return this.findOne(id);
