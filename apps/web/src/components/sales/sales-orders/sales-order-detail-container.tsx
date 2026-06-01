@@ -19,7 +19,7 @@ import { useBreadcrumbLabel } from '@web/hooks/use-breadcrumb-label';
 function formatDate(dateStr: string, includeTime = false) {
   try {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('id-ID', {
+    return date.toLocaleDateString('en-US', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',
@@ -57,7 +57,7 @@ export function SalesOrderDetailContainer() {
       toast.promise(confirmMutation.mutateAsync(id), {
         loading: 'Confirming Sales Order...',
         success: 'Sales Order confirmed successfully',
-        error: (err) => err?.response?.data?.message || 'Failed to confirm SO',
+        error: (err) => err?.message || 'Failed to confirm SO',
       });
     }
   };
@@ -77,7 +77,7 @@ export function SalesOrderDetailContainer() {
       toast.promise(cancelMutation.mutateAsync(id), {
         loading: 'Cancelling Sales Order...',
         success: 'Sales Order cancelled',
-        error: (err) => err?.response?.data?.message || 'Failed to cancel SO',
+        error: (err) => err?.message || 'Failed to cancel SO',
       });
     }
   };

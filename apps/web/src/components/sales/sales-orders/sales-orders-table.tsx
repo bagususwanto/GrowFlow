@@ -153,7 +153,7 @@ export function SalesOrdersTable() {
         toast.promise(confirmMutation.mutateAsync(so.id), {
           loading: `Confirming SO ${so.number}...`,
           success: `SO ${so.number} confirmed successfully`,
-          error: (err) => err?.response?.data?.message || 'Failed to confirm SO',
+          error: (err) => err?.message || 'Failed to confirm SO',
         });
       }
     },

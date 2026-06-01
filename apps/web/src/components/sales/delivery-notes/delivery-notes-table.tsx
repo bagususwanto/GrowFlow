@@ -147,7 +147,7 @@ export function DeliveryNotesTable() {
         toast.promise(confirmMutation.mutateAsync(dn.id), {
           loading: `Confirming DN ${dn.number}...`,
           success: `DN ${dn.number} confirmed successfully. Warehouse stock updated.`,
-          error: (err) => err?.response?.data?.message || 'Failed to confirm DN',
+          error: (err) => err?.message || 'Failed to confirm DN',
         });
       }
     },

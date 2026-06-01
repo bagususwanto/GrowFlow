@@ -53,7 +53,7 @@ export function DeliveryNoteDetailContainer() {
       toast.promise(confirmMutation.mutateAsync(id), {
         loading: 'Confirming Delivery Note...',
         success: 'Delivery Note confirmed successfully. Warehouse stock updated.',
-        error: (err) => err?.response?.data?.message || 'Failed to confirm DN',
+        error: (err) => err?.message || 'Failed to confirm DN',
       });
     }
   };
