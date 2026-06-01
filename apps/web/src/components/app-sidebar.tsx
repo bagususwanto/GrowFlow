@@ -43,6 +43,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: "/dashboard",
           icon: <LayoutDashboard />,
         },
+        {
+          title: "Partners Directory",
+          url: "/relations/partners",
+          icon: <Handshake />,
+          permission: "read:partners",
+        },
       ],
     },
     {
@@ -123,17 +129,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: "/sales/products",
           icon: <Package />,
           permission: "read:items",
-        },
-      ],
-    },
-    {
-      label: "Relations",
-      items: [
-        {
-          title: "Partners",
-          url: "/relations/partners",
-          icon: <Handshake />,
-          permission: "read:partners",
         },
       ],
     },
