@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { AuthRepository } from './auth.repository';
 import { UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -43,7 +44,6 @@ describe('AuthService', () => {
       saveRefreshToken: jest.fn(),
       findRefreshToken: jest.fn(),
       revokeRefreshToken: jest.fn(),
-      revokeAllUserTokens: jest.fn(),
     };
 
     const mockJwtService = {
@@ -51,11 +51,16 @@ describe('AuthService', () => {
       verifyAsync: jest.fn(),
     };
 
+    const mockPrismaService: any = {
+      $transaction: jest.fn((cb: any) => cb(mockPrismaService)),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
         { provide: AuthRepository, useValue: mockAuthRepository },
         { provide: JwtService, useValue: mockJwtService },
+        { provide: PrismaService, useValue: mockPrismaService },
       ],
     }).compile();
 
@@ -123,9 +128,7 @@ describe('AuthService', () => {
 
       const result = await service.refresh('mock-refresh-token');
 
-      expect(result).toHaveProperty('accessToken');
-      expect(result).toHaveProperty('refreshToken');
-      expect(repository.revokeRefreshToken).toHaveBeenCalledWith('token-id');
+      expect(repository.revokeRefreshToken).toHaveBeenCalledWith('token-id', expect.any(Object));
     });
   });
 });

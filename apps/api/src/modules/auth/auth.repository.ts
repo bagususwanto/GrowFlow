@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
-import { Role, User, RefreshToken } from '@prisma/client';
+import { Role, User, RefreshToken, Prisma } from '@prisma/client';
 
 @Injectable()
 export class AuthRepository {
@@ -24,8 +24,10 @@ export class AuthRepository {
     userId: string,
     tokenHash: string,
     expiresAt: Date,
+    tx?: Prisma.TransactionClient,
   ): Promise<RefreshToken> {
-    return this.prisma.refreshToken.create({
+    const prisma = tx || this.prisma;
+    return prisma.refreshToken.create({
       data: {
         userId,
         tokenHash,
@@ -40,16 +42,13 @@ export class AuthRepository {
     });
   }
 
-  async revokeRefreshToken(id: string): Promise<RefreshToken> {
-    return this.prisma.refreshToken.update({
+  async revokeRefreshToken(
+    id: string,
+    tx?: Prisma.TransactionClient,
+  ): Promise<RefreshToken> {
+    const prisma = tx || this.prisma;
+    return prisma.refreshToken.update({
       where: { id },
-      data: { revokedAt: new Date() },
-    });
-  }
-
-  async revokeAllUserTokens(userId: string): Promise<void> {
-    await this.prisma.refreshToken.updateMany({
-      where: { userId, revokedAt: null },
       data: { revokedAt: new Date() },
     });
   }

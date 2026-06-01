@@ -9,16 +9,30 @@ import * as crypto from 'crypto';
 import { env } from '../../config/env.schema';
 import { REFRESH_TOKEN_EXPIRES_DAYS } from '../../common/constants';
 import { LoginResponse, AuthUser } from '@growflow/types';
+import { PrismaService } from '../../infrastructure/prisma/prisma.service';
+import { User, Role } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly authRepository: AuthRepository,
     private readonly jwtService: JwtService,
+    private readonly prisma: PrismaService,
   ) {}
 
   private hashToken(token: string): string {
     return crypto.createHash('sha256').update(token).digest('hex');
+  }
+
+  private mapToAuthUser(user: User & { role: Role }): AuthUser {
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role.name as AuthUser['role'],
+      isActive: user.isActive,
+      permissions: JSON.parse(user.role.permissions as string || '[]'),
+    };
   }
 
   async login(dto: LoginDto): Promise<LoginResponse> {
@@ -36,14 +50,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const authUser: AuthUser = {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role.name as AuthUser['role'],
-      isActive: user.isActive,
-      permissions: JSON.parse(user.role.permissions as string || '[]'),
-    };
+    const authUser = this.mapToAuthUser(user);
 
     const accessToken = await this.jwtService.signAsync(
       {
@@ -105,17 +112,7 @@ export class AuthService {
         throw new UnauthorizedException('User is inactive or not found');
       }
 
-      // Revoke the old refresh token (Refresh Token Rotation)
-      await this.authRepository.revokeRefreshToken(tokenRecord.id);
-
-      const authUser: AuthUser = {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role.name as AuthUser['role'],
-        isActive: user.isActive,
-        permissions: JSON.parse(user.role.permissions as string || '[]'),
-      };
+      const authUser = this.mapToAuthUser(user);
 
       const accessToken = await this.jwtService.signAsync(
         {
@@ -142,18 +139,29 @@ export class AuthService {
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + REFRESH_TOKEN_EXPIRES_DAYS);
 
-      await this.authRepository.saveRefreshToken(user.id, newTokenHash, expiresAt);
+      // Wrap revoke old and save new refresh token in a transaction
+      await this.prisma.$transaction(async (tx) => {
+        await this.authRepository.revokeRefreshToken(tokenRecord.id, tx);
+        await this.authRepository.saveRefreshToken(user.id, newTokenHash, expiresAt, tx);
+      });
 
       return {
         accessToken,
         refreshToken: newRefreshToken,
         user: authUser,
       };
-    } catch (e) {
-      if (e instanceof UnauthorizedException) {
+    } catch (e: any) {
+      if (
+        e instanceof UnauthorizedException ||
+        e instanceof BadRequestException
+      ) {
         throw e;
       }
-      throw new UnauthorizedException('Invalid refresh token');
+      // Re-verify specific error handling to prevent swallowing unexpected server errors
+      if (e && (e.name === 'JsonWebTokenError' || e.name === 'TokenExpiredError')) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+      throw e;
     }
   }
 
@@ -170,26 +178,12 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
-    return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role.name as AuthUser['role'],
-      isActive: user.isActive,
-      permissions: JSON.parse(user.role.permissions as string || '[]'),
-    };
+    return this.mapToAuthUser(user);
   }
 
   async updateProfile(userId: string, dto: UpdateProfileDto): Promise<AuthUser> {
     const user = await this.authRepository.updateUser(userId, { name: dto.name });
-    return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role.name as AuthUser['role'],
-      isActive: user.isActive,
-      permissions: JSON.parse(user.role.permissions as string || '[]'),
-    };
+    return this.mapToAuthUser(user);
   }
 
   async updatePassword(userId: string, dto: UpdatePasswordDto): Promise<void> {
@@ -209,3 +203,4 @@ export class AuthService {
     await this.authRepository.updateUser(userId, { passwordHash });
   }
 }
+

@@ -148,36 +148,37 @@ export class DeliveryNotesService {
       throw new BadRequestException(`Cannot confirm Delivery Note for Sales Order with status ${so.status}`);
     }
 
-    for (const item of dn.lineItems) {
-      const soLine = so.lineItems.find((l) => l.id === item.soLineItemId);
-      if (!soLine) {
-        throw new BadRequestException(`SO Line Item ${item.soLineItemId} does not belong to SO ${dn.salesOrderId}`);
-      }
-
-      const remaining = soLine.qty - soLine.qtyDelivered;
-      if (item.qty > remaining) {
-        throw new UnprocessableEntityException(
-          `Cannot deliver ${item.qty} units of item ${item.item.name}. Only ${remaining} units remaining on SO.`,
-        );
-      }
-
-      const balance = await this.prisma.stockBalance.findUnique({
-        where: {
-          itemId_warehouseId: {
-            itemId: item.itemId,
-            warehouseId: so.warehouseId,
-          },
-        },
-      });
-      const availableQty = balance ? balance.qty : 0;
-      if (availableQty < item.qty) {
-        throw new UnprocessableEntityException(
-          `Insufficient physical stock for delivery. Item ${item.item.name} only has ${availableQty} units available in the warehouse.`,
-        );
-      }
-    }
-
     await this.prisma.$transaction(async (tx) => {
+      // Perform the validation check inside the transaction to prevent TOCTOU race conditions
+      for (const item of dn.lineItems) {
+        const soLine = so.lineItems.find((l) => l.id === item.soLineItemId);
+        if (!soLine) {
+          throw new BadRequestException(`SO Line Item ${item.soLineItemId} does not belong to SO ${dn.salesOrderId}`);
+        }
+
+        const remaining = soLine.qty - soLine.qtyDelivered;
+        if (item.qty > remaining) {
+          throw new UnprocessableEntityException(
+            `Cannot deliver ${item.qty} units of item ${item.item.name}. Only ${remaining} units remaining on SO.`,
+          );
+        }
+
+        const balance = await tx.stockBalance.findUnique({
+          where: {
+            itemId_warehouseId: {
+              itemId: item.itemId,
+              warehouseId: so.warehouseId,
+            },
+          },
+        });
+        const availableQty = balance ? balance.qty : 0;
+        if (availableQty < item.qty) {
+          throw new UnprocessableEntityException(
+            `Insufficient physical stock for delivery. Item ${item.item.name} only has ${availableQty} units available in the warehouse.`,
+          );
+        }
+      }
+
       await tx.deliveryNote.update({
         where: { id },
         data: { status: DeliveryNoteStatus.CONFIRMED },

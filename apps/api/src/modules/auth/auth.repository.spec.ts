@@ -112,16 +112,4 @@ describe('AuthRepository', () => {
     });
   });
 
-  describe('revokeAllUserTokens', () => {
-    it('should query prisma.refreshToken.updateMany to set revokedAt date for all user active tokens', async () => {
-      (prisma.refreshToken.updateMany as jest.Mock).mockResolvedValue({ count: 2 });
-
-      await repository.revokeAllUserTokens('user-uuid');
-
-      expect(prisma.refreshToken.updateMany).toHaveBeenCalledWith({
-        where: { userId: 'user-uuid', revokedAt: null },
-        data: { revokedAt: expect.any(Date) },
-      });
-    });
-  });
 });
