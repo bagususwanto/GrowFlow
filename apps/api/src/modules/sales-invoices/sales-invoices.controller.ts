@@ -70,4 +70,20 @@ export class SalesInvoicesController {
   cancel(@Param('id') id: string) {
     return this.service.cancel(id);
   }
+
+  @Get(':id/pdf')
+  @Roles('superadmin', 'manager', 'staff', 'finance')
+  @ApiOperation({ summary: 'Generate and stream Sales Invoice PDF' })
+  async generatePdf(
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    const invoice = await this.service.findOne(id);
+    const pdfStream = await this.service.generatePdfStream(invoice);
+    
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="Invoice-${invoice.number}.pdf"`);
+    
+    pdfStream.pipe(res);
+  }
 }

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import React from 'react';
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { SalesInvoicesRepository } from './sales-invoices.repository';
 import { ListSalesInvoicesQueryDto } from './dto/list-sales-invoices-query.dto';
@@ -249,5 +250,12 @@ export class SalesInvoicesService {
 
     await this.repository.updateStatus(id, SalesInvoiceStatus.CANCELLED);
     return this.findOne(id);
+  }
+
+  async generatePdfStream(invoice: any): Promise<NodeJS.ReadableStream> {
+    const { renderToStream } = await import('@react-pdf/renderer');
+    const { SalesInvoicePdf } = await import('./pdf-template');
+    
+    return renderToStream(<SalesInvoicePdf invoice={invoice} />);
   }
 }
