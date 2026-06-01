@@ -49,7 +49,11 @@ function formatDate(dateStr: string, includeTime = false) {
 }
 
 function formatCurrency(val: number) {
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    maximumFractionDigits: 0,
+  }).format(val);
 }
 
 export function SalesInvoiceDetailContainer() {
@@ -84,7 +88,11 @@ export function SalesInvoiceDetailContainer() {
     }
   };
 
-  const handleRecordPayment = async (data: { amount: number; paymentDate?: string; note?: string }) => {
+  const handleRecordPayment = async (data: {
+    amount: number;
+    paymentDate?: string;
+    note?: string;
+  }) => {
     toast.promise(paymentMutation.mutateAsync(data), {
       loading: 'Recording payment...',
       success: () => {
@@ -95,7 +103,11 @@ export function SalesInvoiceDetailContainer() {
     });
   };
 
-  const handleCreateCreditNote = async (data: { amount: number; reason: string; note?: string }) => {
+  const handleCreateCreditNote = async (data: {
+    amount: number;
+    reason: string;
+    note?: string;
+  }) => {
     toast.promise(creditNoteMutation.mutateAsync(data), {
       loading: 'Applying Credit Note...',
       success: () => {
@@ -144,13 +156,17 @@ export function SalesInvoiceDetailContainer() {
 
   const outstanding = Number(invoice.totalAmount) - Number(invoice.paidAmount);
 
-  const appliedCreditNotesSum = invoice.creditNotes
-    ?.filter((cn: SalesCreditNote) => cn.status === 'APPLIED')
-    ?.reduce((sum: number, cn: SalesCreditNote) => sum + Number(cn.amount), 0) ?? 0;
+  const appliedCreditNotesSum =
+    invoice.creditNotes
+      ?.filter((cn: SalesCreditNote) => cn.status === 'APPLIED')
+      ?.reduce((sum: number, cn: SalesCreditNote) => sum + Number(cn.amount), 0) ?? 0;
 
   const currentOutstanding = outstanding - appliedCreditNotesSum;
 
-  const isFinanceOrAdmin = currentUser?.role === 'superadmin' || currentUser?.role === 'manager' || currentUser?.role === 'finance';
+  const isFinanceOrAdmin =
+    currentUser?.role === 'superadmin' ||
+    currentUser?.role === 'manager' ||
+    currentUser?.role === 'finance';
 
   return (
     <div className="space-y-6">
@@ -187,7 +203,7 @@ export function SalesInvoiceDetailContainer() {
           )}
 
           {isDraft && isFinanceOrAdmin && (
-            <Button size="sm" className="bg-emerald-600 hover:bg-emerald-500 text-white" onClick={handleSend} disabled={sendMutation.isPending}>
+            <Button size="sm" onClick={handleSend} disabled={sendMutation.isPending}>
               <SendIcon className="w-4 h-4 mr-2" />
               Send Invoice
             </Button>
@@ -195,7 +211,11 @@ export function SalesInvoiceDetailContainer() {
 
           {(isSent || isPartial) && isFinanceOrAdmin && (
             <>
-              <Button size="sm" className="bg-amber-600 hover:bg-amber-500 text-white" onClick={() => setIsPaymentModalOpen(true)}>
+              <Button
+                size="sm"
+                className="bg-amber-600 hover:bg-amber-500 text-white"
+                onClick={() => setIsPaymentModalOpen(true)}
+              >
                 <DollarSignIcon className="w-4 h-4 mr-2" />
                 Record Payment
               </Button>
@@ -207,7 +227,12 @@ export function SalesInvoiceDetailContainer() {
           )}
 
           {!isPaid && !isCancelled && Number(invoice.paidAmount) === 0 && isFinanceOrAdmin && (
-            <Button variant="destructive" size="sm" onClick={handleCancel} disabled={cancelMutation.isPending}>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleCancel}
+              disabled={cancelMutation.isPending}
+            >
               <XCircleIcon className="w-4 h-4 mr-2" />
               Cancel Invoice
             </Button>
@@ -226,7 +251,9 @@ export function SalesInvoiceDetailContainer() {
                   <ReceiptTextIcon className="w-5 h-5 text-muted-foreground" />
                   {invoice.number}
                 </CardTitle>
-                <p className="text-xs text-muted-foreground mt-1">Created on {formatDate(invoice.createdAt, true)}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Created on {formatDate(invoice.createdAt, true)}
+                </p>
               </div>
               <SalesInvoiceStatusBadge status={invoice.status} className="text-xs py-1 px-3" />
             </CardHeader>
@@ -246,12 +273,14 @@ export function SalesInvoiceDetailContainer() {
                       <tr key={li.id}>
                         <td className="p-3">
                           <div className="font-semibold">{li.item?.name || 'Unknown Item'}</div>
-                          <div className="text-xs text-muted-foreground font-mono">{li.item?.code}</div>
+                          <div className="text-xs text-muted-foreground font-mono">
+                            {li.item?.code}
+                          </div>
                         </td>
-                        <td className="p-3 text-right font-medium">{li.qty} {li.item?.unit}</td>
-                        <td className="p-3 text-right">
-                          {formatCurrency(li.unitPrice)}
+                        <td className="p-3 text-right font-medium">
+                          {li.qty} {li.item?.unit}
                         </td>
+                        <td className="p-3 text-right">{formatCurrency(li.unitPrice)}</td>
                         <td className="p-3 text-right font-semibold">
                           {formatCurrency(li.totalPrice)}
                         </td>
@@ -269,18 +298,26 @@ export function SalesInvoiceDetailContainer() {
                 </div>
                 <div className="flex items-center gap-12 text-sm">
                   <span className="text-muted-foreground">Sudah Dibayar:</span>
-                  <span className="font-semibold text-emerald-500">{formatCurrency(invoice.paidAmount)}</span>
+                  <span className="font-semibold text-emerald-500">
+                    {formatCurrency(invoice.paidAmount)}
+                  </span>
                 </div>
                 {appliedCreditNotesSum > 0 && (
                   <div className="flex items-center gap-12 text-sm">
                     <span className="text-muted-foreground">Kredit Note Diberikan:</span>
-                    <span className="font-semibold text-rose-500">-{formatCurrency(appliedCreditNotesSum)}</span>
+                    <span className="font-semibold text-rose-500">
+                      -{formatCurrency(appliedCreditNotesSum)}
+                    </span>
                   </div>
                 )}
                 <Separator className="w-64 my-1" />
                 <div className="flex items-center gap-12">
-                  <span className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">Sisa Tagihan</span>
-                  <span className={`text-lg font-bold ${currentOutstanding > 0 ? 'text-amber-500' : 'text-emerald-500'}`}>
+                  <span className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">
+                    Sisa Tagihan
+                  </span>
+                  <span
+                    className={`text-lg font-bold ${currentOutstanding > 0 ? 'text-amber-500' : 'text-emerald-500'}`}
+                  >
                     {formatCurrency(currentOutstanding)}
                   </span>
                 </div>
@@ -299,15 +336,28 @@ export function SalesInvoiceDetailContainer() {
             <CardContent className="pt-4 space-y-6">
               {/* Payment Logs */}
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Customer Payments</h4>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">
+                  Customer Payments
+                </h4>
                 {invoice.payments && invoice.payments.length > 0 ? (
                   <div className="border rounded-lg divide-y text-sm">
                     {invoice.payments.map((payment: SalesInvoicePayment) => (
-                      <div key={payment.id} className="flex justify-between items-center p-3 hover:bg-muted/10">
+                      <div
+                        key={payment.id}
+                        className="flex justify-between items-center p-3 hover:bg-muted/10"
+                      >
                         <div>
-                          <span className="font-semibold text-emerald-600 dark:text-emerald-400">Payment Recorded</span>
-                          {payment.note && <div className="text-xs text-muted-foreground mt-0.5">{payment.note}</div>}
-                          <div className="text-[10px] text-muted-foreground mt-1">Date: {formatDate(payment.paymentDate)}</div>
+                          <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                            Payment Recorded
+                          </span>
+                          {payment.note && (
+                            <div className="text-xs text-muted-foreground mt-0.5">
+                              {payment.note}
+                            </div>
+                          )}
+                          <div className="text-[10px] text-muted-foreground mt-1">
+                            Date: {formatDate(payment.paymentDate)}
+                          </div>
                         </div>
                         <div className="font-bold">{formatCurrency(payment.amount)}</div>
                       </div>
@@ -322,20 +372,33 @@ export function SalesInvoiceDetailContainer() {
 
               {/* Credit Note Logs */}
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Credit Notes</h4>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">
+                  Credit Notes
+                </h4>
                 {invoice.creditNotes && invoice.creditNotes.length > 0 ? (
                   <div className="border rounded-lg divide-y text-sm">
                     {invoice.creditNotes.map((cn: SalesCreditNote) => (
-                      <div key={cn.id} className="flex justify-between items-center p-3 hover:bg-muted/10">
+                      <div
+                        key={cn.id}
+                        className="flex justify-between items-center p-3 hover:bg-muted/10"
+                      >
                         <div>
                           <span className="font-semibold text-rose-500 font-mono">{cn.number}</span>
                           <div className="text-xs text-foreground mt-0.5">{cn.reason}</div>
-                          {cn.note && <div className="text-xs text-muted-foreground mt-0.5">{cn.note}</div>}
-                          <div className="text-[10px] text-muted-foreground mt-1">Issued: {cn.issuedAt ? formatDate(cn.issuedAt) : '-'}</div>
+                          {cn.note && (
+                            <div className="text-xs text-muted-foreground mt-0.5">{cn.note}</div>
+                          )}
+                          <div className="text-[10px] text-muted-foreground mt-1">
+                            Issued: {cn.issuedAt ? formatDate(cn.issuedAt) : '-'}
+                          </div>
                         </div>
                         <div className="text-right">
-                          <div className="font-bold text-rose-500">-{formatCurrency(cn.amount)}</div>
-                          <div className="text-[10px] uppercase font-semibold text-muted-foreground mt-0.5">{cn.status}</div>
+                          <div className="font-bold text-rose-500">
+                            -{formatCurrency(cn.amount)}
+                          </div>
+                          <div className="text-[10px] uppercase font-semibold text-muted-foreground mt-0.5">
+                            {cn.status}
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -353,20 +416,31 @@ export function SalesInvoiceDetailContainer() {
         {/* Sidebar info metadata */}
         <Card className="h-fit">
           <CardHeader className="pb-2 border-b">
-            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Document Info</CardTitle>
+            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              Document Info
+            </CardTitle>
           </CardHeader>
           <CardContent className="pt-4 space-y-4 text-sm">
             <div>
-              <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Customer</div>
+              <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+                Customer
+              </div>
               <div className="font-bold text-foreground mt-1">{invoice.customer?.name}</div>
-              <div className="text-xs text-muted-foreground font-mono">{invoice.customer?.code}</div>
+              <div className="text-xs text-muted-foreground font-mono">
+                {invoice.customer?.code}
+              </div>
             </div>
 
             <Separator />
 
             <div>
-              <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Sales Order Ref</div>
-              <Link href={`/sales/sales-orders/${invoice.salesOrderId}`} className="font-semibold text-primary hover:underline font-mono block mt-1">
+              <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+                Sales Order Ref
+              </div>
+              <Link
+                href={`/sales/sales-orders/${invoice.salesOrderId}`}
+                className="font-semibold text-primary hover:underline font-mono block mt-1"
+              >
                 {invoice.salesOrder?.number}
               </Link>
             </div>
@@ -374,24 +448,38 @@ export function SalesInvoiceDetailContainer() {
             <Separator />
 
             <div>
-              <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Invoice Date</div>
-              <div className="font-semibold text-foreground mt-1">{formatDate(invoice.invoiceDate)}</div>
+              <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+                Invoice Date
+              </div>
+              <div className="font-semibold text-foreground mt-1">
+                {formatDate(invoice.invoiceDate)}
+              </div>
             </div>
 
             <Separator />
 
             <div>
-              <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Due Date</div>
-              <div className="font-semibold text-foreground mt-1">{formatDate(invoice.dueDate)}</div>
-              <div className="text-xs text-muted-foreground mt-0.5">Payment Terms: {invoice.paymentTermsDays} Days</div>
+              <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+                Due Date
+              </div>
+              <div className="font-semibold text-foreground mt-1">
+                {formatDate(invoice.dueDate)}
+              </div>
+              <div className="text-xs text-muted-foreground mt-0.5">
+                Payment Terms: {invoice.paymentTermsDays} Days
+              </div>
             </div>
 
             {invoice.sentAt && (
               <>
                 <Separator />
                 <div>
-                  <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Sent to Customer</div>
-                  <div className="font-semibold text-foreground mt-1">{formatDate(invoice.sentAt, true)}</div>
+                  <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+                    Sent to Customer
+                  </div>
+                  <div className="font-semibold text-foreground mt-1">
+                    {formatDate(invoice.sentAt, true)}
+                  </div>
                 </div>
               </>
             )}
@@ -400,8 +488,12 @@ export function SalesInvoiceDetailContainer() {
               <>
                 <Separator />
                 <div>
-                  <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Notes</div>
-                  <div className="mt-1 p-2 bg-muted rounded text-xs leading-relaxed text-muted-foreground">{invoice.note}</div>
+                  <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+                    Notes
+                  </div>
+                  <div className="mt-1 p-2 bg-muted rounded text-xs leading-relaxed text-muted-foreground">
+                    {invoice.note}
+                  </div>
                 </div>
               </>
             )}
