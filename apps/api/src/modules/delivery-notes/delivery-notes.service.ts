@@ -87,6 +87,14 @@ export class DeliveryNotesService {
     }
 
     // 2. Validasi line items dan ketersediaan stok fisik
+    const itemIds = dto.lineItems.map((item) => item.itemId);
+    const balances = await this.prisma.stockBalance.findMany({
+      where: {
+        itemId: { in: itemIds },
+        warehouseId: so.warehouseId,
+      },
+    });
+
     for (const item of dto.lineItems) {
       const soLine = so.lineItems.find((l) => l.id === item.soLineItemId);
       if (!soLine) {
@@ -104,15 +112,8 @@ export class DeliveryNotesService {
         );
       }
 
-      // Validasi ketersediaan stok fisik di gudang asal
-      const balance = await this.prisma.stockBalance.findUnique({
-        where: {
-          itemId_warehouseId: {
-            itemId: item.itemId,
-            warehouseId: so.warehouseId,
-          },
-        },
-      });
+      // Validasi ketersediaan stok fisik di gudang asal dari hasil batch
+      const balance = balances.find((b) => b.itemId === item.itemId);
       const availableQty = balance ? balance.qty : 0;
       if (availableQty < item.qty) {
         throw new UnprocessableEntityException(
@@ -150,6 +151,14 @@ export class DeliveryNotesService {
 
     await this.prisma.$transaction(async (tx) => {
       // Perform the validation check inside the transaction to prevent TOCTOU race conditions
+      const itemIds = dn.lineItems.map((item) => item.itemId);
+      const balances = await tx.stockBalance.findMany({
+        where: {
+          itemId: { in: itemIds },
+          warehouseId: so.warehouseId,
+        },
+      });
+
       for (const item of dn.lineItems) {
         const soLine = so.lineItems.find((l) => l.id === item.soLineItemId);
         if (!soLine) {
@@ -163,14 +172,7 @@ export class DeliveryNotesService {
           );
         }
 
-        const balance = await tx.stockBalance.findUnique({
-          where: {
-            itemId_warehouseId: {
-              itemId: item.itemId,
-              warehouseId: so.warehouseId,
-            },
-          },
-        });
+        const balance = balances.find((b) => b.itemId === item.itemId);
         const availableQty = balance ? balance.qty : 0;
         if (availableQty < item.qty) {
           throw new UnprocessableEntityException(

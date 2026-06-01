@@ -58,7 +58,7 @@ describe('PurchaseOrdersService', () => {
 
     const mockPrisma = {
       partner: { findFirst: jest.fn() },
-      item: { findFirst: jest.fn() },
+      item: { findFirst: jest.fn(), findMany: jest.fn() },
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -81,7 +81,7 @@ describe('PurchaseOrdersService', () => {
   describe('create', () => {
     it('should create a PO when supplier and items are valid', async () => {
       prisma.partner.findFirst.mockResolvedValue({ id: 'supplier-id' } as any);
-      prisma.item.findFirst.mockResolvedValue({ id: 'item-id' } as any);
+      prisma.item.findMany.mockResolvedValue([{ id: 'item-id' }] as any);
       repository.create.mockResolvedValue(mockPoDb);
 
       const result = await service.create(

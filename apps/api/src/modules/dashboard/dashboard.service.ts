@@ -10,26 +10,68 @@ export class DashboardService {
   async getSummary(role: RoleName): Promise<DashboardSummaryResponse> {
     const summary: DashboardSummaryResponse = {};
 
-    // 1. Fetch data from DB
-    // We fetch everything inside the service, but only map it to the response if the role permits it.
-    
-    // Total Active Items
-    const totalItems = await this.prisma.item.count({
-      where: { deletedAt: null, isActive: true },
-    });
-
-    // Low stock items query
-    const activeItems = await this.prisma.item.findMany({
-      where: { deletedAt: null, isActive: true },
-      include: {
-        stockBalances: {
-          include: {
-            warehouse: true,
+    // 1. Fetch data from DB in parallel to resolve N+1 sequential latency issues
+    const [
+      totalItems,
+      activeItems,
+      totalPurchaseOrders,
+      pendingPurchaseOrders,
+      totalSalesOrders,
+      pendingSalesOrders,
+      prismaRecentPOs,
+      prismaRecentSOs,
+    ] = await Promise.all([
+      // Total Active Items
+      this.prisma.item.count({
+        where: { deletedAt: null, isActive: true },
+      }),
+      // Low stock items query
+      this.prisma.item.findMany({
+        where: { deletedAt: null, isActive: true },
+        include: {
+          stockBalances: {
+            include: {
+              warehouse: true,
+            },
           },
+          category: true,
         },
-        category: true,
-      },
-    });
+      }),
+      // Purchase Orders stats
+      this.prisma.purchaseOrder.count({
+        where: { deletedAt: null },
+      }),
+      this.prisma.purchaseOrder.count({
+        where: { deletedAt: null, status: 'SUBMITTED' }, // Waiting for approval
+      }),
+      // Sales Orders stats
+      this.prisma.salesOrder.count({
+        where: { deletedAt: null },
+      }),
+      this.prisma.salesOrder.count({
+        where: { deletedAt: null, status: 'CONFIRMED' }, // Confirmed but pending delivery
+      }),
+      // Recent POs
+      this.prisma.purchaseOrder.findMany({
+        where: { deletedAt: null },
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+        include: {
+          supplier: true,
+          createdBy: true,
+        },
+      }),
+      // Recent SOs
+      this.prisma.salesOrder.findMany({
+        where: { deletedAt: null },
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+        include: {
+          customer: true,
+          createdBy: true,
+        },
+      }),
+    ]);
 
     const lowStockItems: any[] = [];
     for (const item of activeItems) {
@@ -79,35 +121,6 @@ export class DashboardService {
       }
     }
 
-    // Purchase Orders stats
-    const totalPurchaseOrders = await this.prisma.purchaseOrder.count({
-      where: { deletedAt: null },
-    });
-
-    const pendingPurchaseOrders = await this.prisma.purchaseOrder.count({
-      where: { deletedAt: null, status: 'SUBMITTED' }, // Waiting for approval
-    });
-
-    // Sales Orders stats
-    const totalSalesOrders = await this.prisma.salesOrder.count({
-      where: { deletedAt: null },
-    });
-
-    const pendingSalesOrders = await this.prisma.salesOrder.count({
-      where: { deletedAt: null, status: 'CONFIRMED' }, // Confirmed but pending delivery
-    });
-
-    // Recent POs
-    const prismaRecentPOs = await this.prisma.purchaseOrder.findMany({
-      where: { deletedAt: null },
-      orderBy: { createdAt: 'desc' },
-      take: 5,
-      include: {
-        supplier: true,
-        createdBy: true,
-      },
-    });
-
     const recentPurchaseOrders = prismaRecentPOs.map((po) => ({
       id: po.id,
       number: po.number,
@@ -135,17 +148,6 @@ export class DashboardService {
           }
         : undefined,
     }));
-
-    // Recent SOs
-    const prismaRecentSOs = await this.prisma.salesOrder.findMany({
-      where: { deletedAt: null },
-      orderBy: { createdAt: 'desc' },
-      take: 5,
-      include: {
-        customer: true,
-        createdBy: true,
-      },
-    });
 
     const recentSalesOrders = prismaRecentSOs.map((so) => ({
       id: so.id,

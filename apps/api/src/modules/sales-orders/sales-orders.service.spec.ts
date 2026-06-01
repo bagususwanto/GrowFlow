@@ -61,8 +61,8 @@ describe('SalesOrdersService', () => {
     const mockPrisma = {
       partner: { findFirst: jest.fn() },
       warehouse: { findFirst: jest.fn() },
-      item: { findFirst: jest.fn() },
-      stockBalance: { findUnique: jest.fn() },
+      item: { findFirst: jest.fn(), findMany: jest.fn() },
+      stockBalance: { findUnique: jest.fn(), findMany: jest.fn() },
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -86,7 +86,7 @@ describe('SalesOrdersService', () => {
     it('should create a SO when customer, warehouse and items are valid', async () => {
       prisma.partner.findFirst.mockResolvedValue({ id: 'customer-id' } as any);
       prisma.warehouse.findFirst.mockResolvedValue({ id: 'warehouse-id' } as any);
-      prisma.item.findFirst.mockResolvedValue({ id: 'item-id' } as any);
+      prisma.item.findMany.mockResolvedValue([{ id: 'item-id' }] as any);
       repository.create.mockResolvedValue(mockSoDb);
 
       const result = await service.create(
@@ -126,7 +126,7 @@ describe('SalesOrdersService', () => {
         .mockResolvedValueOnce(mockSoDb)
         .mockResolvedValueOnce({ ...mockSoDb, status: SalesOrderStatus.CONFIRMED, confirmedById: 'user-id', confirmedAt: mockDate });
 
-      prisma.stockBalance.findUnique.mockResolvedValue({ itemId: 'item-id', warehouseId: 'warehouse-id', qty: 20 });
+      prisma.stockBalance.findMany.mockResolvedValue([{ itemId: 'item-id', warehouseId: 'warehouse-id', qty: 20 }] as any);
 
       const result = await service.confirm('so-id-1', 'user-id');
 
@@ -139,7 +139,7 @@ describe('SalesOrdersService', () => {
 
     it('should throw UnprocessableEntityException if stock is insufficient', async () => {
       repository.findById.mockResolvedValue(mockSoDb);
-      prisma.stockBalance.findUnique.mockResolvedValue({ itemId: 'item-id', warehouseId: 'warehouse-id', qty: 5 }); // Butuh 10, cuma ada 5
+      prisma.stockBalance.findMany.mockResolvedValue([{ itemId: 'item-id', warehouseId: 'warehouse-id', qty: 5 }] as any); // Butuh 10, cuma ada 5
 
       await expect(
         service.confirm('so-id-1', 'user-id'),

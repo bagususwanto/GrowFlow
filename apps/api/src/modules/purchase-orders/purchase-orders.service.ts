@@ -83,13 +83,12 @@ export class PurchaseOrdersService {
     }
 
     // Validasi Items
-    for (const item of dto.lineItems) {
-      const dbItem = await this.prisma.item.findFirst({
-        where: { id: item.itemId, deletedAt: null },
-      });
-      if (!dbItem) {
-        throw new BadRequestException(`Item with ID ${item.itemId} is invalid or does not exist`);
-      }
+    const itemIds = dto.lineItems.map((item) => item.itemId);
+    const dbItems = await this.prisma.item.findMany({
+      where: { id: { in: itemIds }, deletedAt: null },
+    });
+    if (dbItems.length !== itemIds.length) {
+      throw new BadRequestException('One or more item IDs in the line items are invalid or do not exist');
     }
 
     const po = await this.repository.create(dto, userId);
@@ -116,13 +115,12 @@ export class PurchaseOrdersService {
     }
 
     if (dto.lineItems) {
-      for (const item of dto.lineItems) {
-        const dbItem = await this.prisma.item.findFirst({
-          where: { id: item.itemId, deletedAt: null },
-        });
-        if (!dbItem) {
-          throw new BadRequestException(`Item with ID ${item.itemId} is invalid or does not exist`);
-        }
+      const itemIds = dto.lineItems.map((item) => item.itemId);
+      const dbItems = await this.prisma.item.findMany({
+        where: { id: { in: itemIds }, deletedAt: null },
+      });
+      if (dbItems.length !== itemIds.length) {
+        throw new BadRequestException('One or more item IDs in the line items are invalid or do not exist');
       }
     }
 
