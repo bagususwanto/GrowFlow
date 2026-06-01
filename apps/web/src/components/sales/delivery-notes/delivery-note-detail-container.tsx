@@ -17,7 +17,7 @@ import { useBreadcrumbLabel } from '@web/hooks/use-breadcrumb-label';
 function formatDate(dateStr: string, includeTime = false) {
   try {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('id-ID', {
+    return date.toLocaleDateString('en-US', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',

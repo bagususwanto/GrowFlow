@@ -18,7 +18,7 @@ import { EllipsisVerticalIcon, ArrowUpDownIcon, ArrowUpIcon, ArrowDownIcon, EyeI
 function formatDate(dateStr: string) {
   try {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('id-ID', {
+    return date.toLocaleDateString('en-US', {
       day: '2-digit',
       month: 'short',
       year: 'numeric'

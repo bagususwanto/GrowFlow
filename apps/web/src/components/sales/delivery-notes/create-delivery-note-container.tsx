@@ -108,7 +108,7 @@ export function CreateDeliveryNoteContainer() {
   const onSubmit = async (data: DNFormValues) => {
     const totalQty = data.lineItems.reduce((sum, item) => sum + item.qty, 0);
     if (totalQty === 0) {
-      toast.error('Total pengiriman barang harus lebih besar dari nol');
+      toast.error('Total items to deliver must be greater than zero');
       return;
     }
 
@@ -152,8 +152,8 @@ export function CreateDeliveryNoteContainer() {
           <span className="sr-only">Back</span>
         </Button>
         <div>
-          <h2 className="text-xl font-bold tracking-tight">Kirim Barang (Delivery Note)</h2>
-          <p className="text-xs text-muted-foreground">Buat surat jalan pengiriman barang berdasarkan Sales Order.</p>
+          <h2 className="text-xl font-bold tracking-tight">Deliver Goods (Delivery Note)</h2>
+          <p className="text-xs text-muted-foreground">Create a delivery note document based on a Sales Order.</p>
         </div>
       </div>
 
@@ -163,7 +163,7 @@ export function CreateDeliveryNoteContainer() {
             <div className="space-y-4">
               <div>
                 <h3 className="text-sm font-semibold text-foreground">General Information</h3>
-                <p className="text-xs text-muted-foreground">Pilih SO tujuan pengiriman, tanggal kirim, dan catatan tambahan.</p>
+                <p className="text-xs text-muted-foreground">Select destination Sales Order, delivery date, and optional notes.</p>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-3">
@@ -217,7 +217,7 @@ export function CreateDeliveryNoteContainer() {
                   </Label>
                   <Input
                     id="note"
-                    placeholder="e.g. Kurir pengiriman, nomor kendaraan..."
+                    placeholder="e.g. Courier, vehicle number..."
                     className="h-9"
                     {...register('note')}
                   />
@@ -231,18 +231,18 @@ export function CreateDeliveryNoteContainer() {
             <div className="space-y-4">
               <div>
                 <h3 className="text-sm font-semibold text-foreground">Items to Deliver</h3>
-                <p className="text-xs text-muted-foreground">Masukkan jumlah barang fisik yang siap dikirim.</p>
+                <p className="text-xs text-muted-foreground">Enter the physical quantity of goods ready to be shipped.</p>
               </div>
 
               {isLoadingSo ? (
                 <Skeleton className="w-full h-40" />
               ) : selectedSoId && fields.length === 0 ? (
                 <div className="p-8 text-center text-muted-foreground border rounded-lg bg-muted/20">
-                  Semua barang di SO ini telah terkirim sepenuhnya.
+                  All items in this Sales Order have been fully delivered.
                 </div>
               ) : !selectedSoId ? (
                 <div className="p-8 text-center text-muted-foreground border rounded-lg bg-muted/20">
-                  Silakan pilih Sales Order terlebih dahulu untuk memunculkan daftar item.
+                  Please select a Sales Order first to load the items list.
                 </div>
               ) : (
                 <div className="border rounded-lg overflow-hidden">
