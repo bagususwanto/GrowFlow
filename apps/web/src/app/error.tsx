@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Link from 'next/link';
 import { Card, CardContent } from '@web/components/ui/card';
 import { Button } from '@web/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@web/components/ui/alert';
@@ -34,7 +35,7 @@ export default function GlobalError({ error, reset }: ErrorProps) {
             </p>
           </div>
 
-          {error.message && (
+          {process.env.NODE_ENV === 'development' && error.message && (
             <Alert variant="destructive" className="text-left">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle className="text-xs font-semibold uppercase tracking-wider">
@@ -55,8 +56,9 @@ export default function GlobalError({ error, reset }: ErrorProps) {
             </Button>
             <Button
               variant="outline"
-              onClick={() => { window.location.href = '/dashboard'; }}
               className="w-full"
+              nativeButton={false}
+              render={<Link href="/dashboard" />}
             >
               <LayoutDashboard className="h-4 w-4" />
               Kembali ke Dashboard

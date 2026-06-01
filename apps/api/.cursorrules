@@ -1,0 +1,24 @@
+# GrowFlow API - Best Practices for AI
+
+When working on this API project (NestJS + Prisma), please strictly follow these guidelines:
+
+1. **Type Safety & Testing**
+   - NEVER use `any` in unit tests.
+   - Always use `jest.Mocked<T>` for mock services, repositories, and Prisma instances.
+   - Ensure full type annotations across all components (DTOs, services, controllers).
+
+2. **Database & Prisma**
+   - **Atomicity:** Always use Prisma `$transaction` for operations that mutate multiple records or require atomicity (e.g., stock balance updates, delivery notes, goods receipts).
+   - **Performance:** Batch independent database queries using `Promise.all` to prevent sequential latency. Watch out for N+1 query patterns.
+   - **Encapsulation:** Keep database access encapsulated within the Repository layer.
+   - **Schema Changes:** Remember to run `npx prisma generate` after modifying `schema.prisma` (e.g., adding `@@index`).
+
+3. **DRY (Don't Repeat Yourself)**
+   - Utilize shared enums and common DTOs (like `SortOrder` from `src/common/dto/sort-order.enum.ts`) rather than redeclaring them in every module.
+   - Centralize constants (e.g., `BCRYPT_ROUNDS`) in common configuration files.
+
+4. **Architecture**
+   - Strictly follow the layered architecture: `Controller` -> `Service` -> `Repository`.
+   - Controllers handle HTTP concerns and DTO validation.
+   - Services contain pure business logic.
+   - Repositories handle Prisma queries.
