@@ -16,6 +16,7 @@ import { PurchaseOrdersModule } from './modules/purchase-orders/purchase-orders.
 import { GoodsReceiptsModule } from './modules/goods-receipts/goods-receipts.module';
 import { SalesOrdersModule } from './modules/sales-orders/sales-orders.module';
 import { DeliveryNotesModule } from './modules/delivery-notes/delivery-notes.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 
@@ -40,6 +41,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     GoodsReceiptsModule,
     SalesOrdersModule,
     DeliveryNotesModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [
