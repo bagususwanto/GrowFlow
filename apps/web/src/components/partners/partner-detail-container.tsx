@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { usePartner, useDeletePartner } from './use-partners';
 import { Card, CardContent } from '@web/components/ui/card';
@@ -40,6 +40,8 @@ interface PartnerDetailContainerProps {
 
 export function PartnerDetailContainer({ id }: PartnerDetailContainerProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromPath = searchParams.get('from') || '/partners';
   const confirm = useConfirm();
   const { data: partner, isLoading, isError, error } = usePartner(id);
   const deleteMutation = useDeletePartner();
@@ -67,7 +69,7 @@ export function PartnerDetailContainer({ id }: PartnerDetailContainerProps) {
   }, [invoicesData]);
 
   const handleEdit = () => {
-    router.push(`/partners/${id}/edit`);
+    router.push(`/partners/${id}/edit?from=${encodeURIComponent(fromPath)}`);
   };
 
   const handleDelete = async () => {
@@ -90,7 +92,7 @@ export function PartnerDetailContainer({ id }: PartnerDetailContainerProps) {
           success: `Partner ${partner.name} deleted successfully`,
           error: 'Failed to delete partner',
         });
-        router.push('/partners');
+        router.push(fromPath);
       } catch (err) {
         const apiError = err as ApiError;
         toast.error(apiError.message || 'Failed to delete partner');
@@ -146,7 +148,7 @@ export function PartnerDetailContainer({ id }: PartnerDetailContainerProps) {
             size="icon"
             nativeButton={false}
             render={
-              <Link href="/partners" title="Back to Partners">
+              <Link href={fromPath} title="Back">
                 <ChevronLeftIcon className="h-4 w-4" />
               </Link>
             }

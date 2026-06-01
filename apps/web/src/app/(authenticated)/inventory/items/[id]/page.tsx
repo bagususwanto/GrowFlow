@@ -12,10 +12,15 @@ interface ItemDetailPageProps {
   params: Promise<{
     id: string;
   }>;
+  searchParams: Promise<{
+    from?: string;
+  }>;
 }
 
-export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
+export default async function ItemDetailPage({ params, searchParams }: ItemDetailPageProps) {
   const { id } = await params;
+  const { from } = await searchParams;
+  const fallbackUrl = from || "/inventory/items";
 
   return (
     <div className="space-y-6 px-4 lg:px-6">
@@ -25,7 +30,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
           size="icon"
           nativeButton={false}
           render={
-            <Link href="/inventory/items" title="Back to Items">
+            <Link href={fallbackUrl} title="Back">
               <ChevronLeftIcon className="h-4 w-4" />
             </Link>
           }

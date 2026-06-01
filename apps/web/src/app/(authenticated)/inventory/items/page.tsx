@@ -44,7 +44,7 @@ export default function ItemsPage() {
                   size="sm"
                   nativeButton={false}
                   render={
-                    <Link href="/inventory/items/new">
+                    <Link href={`/inventory/items/new?from=${encodeURIComponent('/inventory/items')}`}>
                       <PlusIcon className="mr-1.5 w-3.5 h-3.5" />
                       Add Item
                     </Link>

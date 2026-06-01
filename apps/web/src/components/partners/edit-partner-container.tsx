@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { usePartner, useUpdatePartner } from './use-partners';
 import { PartnerForm, PartnerFormValues } from './partner-form';
 import { Card, CardContent } from '@web/components/ui/card';
@@ -17,6 +17,8 @@ interface EditPartnerContainerProps {
 
 export function EditPartnerContainer({ id }: EditPartnerContainerProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromPath = searchParams.get('from') || '/partners';
   const { data: partner, isLoading, isError, error } = usePartner(id);
   const updateMutation = useUpdatePartner(id);
 
@@ -29,9 +31,10 @@ export function EditPartnerContainer({ id }: EditPartnerContainerProps) {
         phone: data.phone || undefined,
         address: data.address || undefined,
         isActive: data.isActive,
+        paymentTermsDays: data.paymentTermsDays,
       });
       toast.success('Partner updated successfully');
-      router.push('/partners');
+      router.push(fromPath);
     } catch (error) {
       const apiError = error as ApiError;
       toast.error(apiError.message || 'Failed to update partner');

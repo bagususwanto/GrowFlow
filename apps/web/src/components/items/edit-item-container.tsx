@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useItem, useUpdateItem } from "./use-items";
 import { ItemForm, ItemFormValues } from "./item-form";
 import { Card, CardContent } from "@web/components/ui/card";
@@ -17,6 +17,8 @@ interface EditItemContainerProps {
 
 export function EditItemContainer({ id }: EditItemContainerProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromPath = searchParams.get('from') || '/inventory/items';
   const { data: item, isLoading, isError, error } = useItem(id);
   const updateMutation = useUpdateItem(id);
 
@@ -31,7 +33,7 @@ export function EditItemContainer({ id }: EditItemContainerProps) {
         isActive: data.isActive,
       });
       toast.success("Item updated successfully");
-      router.push("/inventory/items");
+      router.push(fromPath);
     } catch (error) {
       const apiError = error as ApiError;
       toast.error(apiError.message || "Failed to update item");

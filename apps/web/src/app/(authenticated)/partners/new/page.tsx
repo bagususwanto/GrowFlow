@@ -8,7 +8,16 @@ export const metadata = {
   description: 'Create a new customer or supplier.',
 };
 
-export default function NewPartnerPage() {
+interface NewPartnerPageProps {
+  searchParams: Promise<{
+    from?: string;
+  }>;
+}
+
+export default async function NewPartnerPage({ searchParams }: NewPartnerPageProps) {
+  const { from } = await searchParams;
+  const fallbackUrl = from || '/partners';
+
   return (
     <div className="space-y-6 px-4 lg:px-6">
       <div className="flex items-center gap-3">
@@ -17,7 +26,7 @@ export default function NewPartnerPage() {
           size="icon"
           nativeButton={false}
           render={
-            <Link href="/partners" title="Back to Partners">
+            <Link href={fallbackUrl} title="Back">
               <ChevronLeftIcon className="h-4 w-4" />
             </Link>
           }

@@ -45,7 +45,7 @@ export default function SalesOverviewPage() {
       icon: <Users className="h-6 w-6 text-amber-500" />,
       gradient: 'from-amber-500/10 to-orange-500/10 dark:from-amber-500/20 dark:to-orange-500/20',
       actionText: 'Customers',
-      quickActionHref: '/partners/new',
+      quickActionHref: `/partners/new?from=${encodeURIComponent('/sales/customers')}`,
       quickActionText: 'Add Customer',
     },
     {
@@ -55,7 +55,7 @@ export default function SalesOverviewPage() {
       icon: <Package className="h-6 w-6 text-orange-500" />,
       gradient: 'from-orange-500/10 to-rose-500/10 dark:from-orange-500/20 dark:to-rose-500/20',
       actionText: 'Catalog',
-      quickActionHref: '/inventory/items/new',
+      quickActionHref: `/inventory/items/new?from=${encodeURIComponent('/sales/products')}`,
       quickActionText: 'Add Item',
     },
   ];

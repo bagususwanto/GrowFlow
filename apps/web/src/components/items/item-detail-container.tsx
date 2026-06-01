@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useItem, useDeleteItem } from './use-items';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@web/components/ui/card';
 import { Button } from '@web/components/ui/button';
@@ -32,6 +32,8 @@ interface ItemDetailContainerProps {
 
 export function ItemDetailContainer({ id }: ItemDetailContainerProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromPath = searchParams.get('from') || '/inventory/items';
   const { data: item, isLoading, isError, error } = useItem(id);
   const deleteMutation = useDeleteItem();
   const confirm = useConfirm();
@@ -39,7 +41,7 @@ export function ItemDetailContainer({ id }: ItemDetailContainerProps) {
   useBreadcrumbLabel(id, item?.name);
 
   const handleEdit = () => {
-    router.push(`/inventory/items/${id}/edit`);
+    router.push(`/inventory/items/${id}/edit?from=${encodeURIComponent(fromPath)}`);
   };
 
   const handleDelete = async () => {
@@ -63,7 +65,7 @@ export function ItemDetailContainer({ id }: ItemDetailContainerProps) {
           success: `Item ${item.name} deleted successfully`,
           error: 'Failed to delete item',
         });
-        router.push('/inventory/items');
+        router.push(fromPath);
       } catch (err) {
         const apiError = err as ApiError;
         toast.error(apiError.message || 'Failed to delete item');

@@ -118,6 +118,18 @@ export const getColumns = ({ onView, onEdit, onDelete, sortBy, sortOrder, onSort
     },
   },
   {
+    accessorKey: 'paymentTermsDays',
+    header: 'Payment Terms',
+    cell: ({ row }) => {
+      const days = row.original.paymentTermsDays;
+      return (
+        <span className="text-sm font-medium">
+          {days !== undefined && days !== null ? `${days} Days` : '-'}
+        </span>
+      );
+    },
+  },
+  {
     accessorKey: 'isActive',
     header: 'Status',
     cell: ({ row }) => {

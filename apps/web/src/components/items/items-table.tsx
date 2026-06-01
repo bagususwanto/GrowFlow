@@ -137,16 +137,16 @@ export function ItemsTable() {
 
   const handleView = React.useCallback(
     (item: Item) => {
-      router.push(`/inventory/items/${item.id}`);
+      router.push(`/inventory/items/${item.id}?from=${encodeURIComponent(pathname)}`);
     },
-    [router],
+    [router, pathname],
   );
 
   const handleEdit = React.useCallback(
     (item: Item) => {
-      router.push(`/inventory/items/${item.id}/edit`);
+      router.push(`/inventory/items/${item.id}/edit?from=${encodeURIComponent(pathname)}`);
     },
-    [router],
+    [router, pathname],
   );
 
   const handleDelete = React.useCallback(

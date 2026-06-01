@@ -10,15 +10,23 @@ interface EditPartnerPageProps {
   params: Promise<{
     id: string;
   }>;
+  searchParams: Promise<{
+    from?: string;
+  }>;
 }
 
-export default async function EditPartnerPage({ params }: EditPartnerPageProps) {
+export default async function EditPartnerPage({ params, searchParams }: EditPartnerPageProps) {
   const { id } = await params;
+  const { from } = await searchParams;
+
+  const fallbackUrl = from
+    ? `/partners/${id}?from=${encodeURIComponent(from)}`
+    : `/partners/${id}`;
 
   return (
     <div className="space-y-6 px-4 lg:px-6">
       <div className="flex items-center gap-3">
-        <BackButton fallbackUrl={`/partners/${id}`} />
+        <BackButton fallbackUrl={fallbackUrl} />
         <div className="space-y-0.5">
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Edit Partner

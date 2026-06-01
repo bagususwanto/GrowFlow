@@ -1,6 +1,6 @@
 import * as React from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { ChevronDown, ChevronRight } from "lucide-react"
 import {
   SidebarGroup,
@@ -28,6 +28,8 @@ export function NavMain({
   groups: NavGroup[]
 }) {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const fromParam = searchParams.get('from')
   const [collapsed, setCollapsed] = React.useState<Record<string, boolean>>({})
 
   React.useEffect(() => {
@@ -79,10 +81,11 @@ export function NavMain({
               <SidebarGroupContent className="flex flex-col gap-2 transition-all duration-200">
                 <SidebarMenu>
                   {group.items.map((item) => {
+                    const activePath = fromParam || pathname;
                     const isActive =
                       item.url === "/dashboard" || item.url === "/"
-                        ? pathname === item.url
-                        : pathname === item.url || (item.url !== "#" && pathname?.startsWith(item.url + "/"));
+                        ? activePath === item.url
+                        : activePath === item.url || (item.url !== "#" && activePath?.startsWith(item.url + "/"));
                     return (
                       <SidebarMenuItem key={item.title}>
                         <SidebarMenuButton

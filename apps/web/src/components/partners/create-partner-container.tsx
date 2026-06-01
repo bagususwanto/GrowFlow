@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useCreatePartner } from './use-partners';
 import { PartnerForm, PartnerFormValues } from './partner-form';
 import { Card, CardContent } from '@web/components/ui/card';
@@ -10,6 +10,8 @@ import { ApiError } from '@growflow/types';
 
 export function CreatePartnerContainer() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromPath = searchParams.get('from') || '/partners';
   const createMutation = useCreatePartner();
 
   const handleSubmit = async (data: PartnerFormValues) => {
@@ -20,9 +22,10 @@ export function CreatePartnerContainer() {
         email: data.email || undefined,
         phone: data.phone || undefined,
         address: data.address || undefined,
+        paymentTermsDays: data.paymentTermsDays,
       });
       toast.success('Partner created successfully');
-      router.push('/partners');
+      router.push(fromPath);
     } catch (error) {
       const apiError = error as ApiError;
       toast.error(apiError.message || 'Failed to create partner');

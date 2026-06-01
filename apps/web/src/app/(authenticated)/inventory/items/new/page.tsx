@@ -8,7 +8,16 @@ export const metadata = {
   description: "Create a new item in the catalog.",
 };
 
-export default function CreateItemPage() {
+interface CreateItemPageProps {
+  searchParams: Promise<{
+    from?: string;
+  }>;
+}
+
+export default async function CreateItemPage({ searchParams }: CreateItemPageProps) {
+  const { from } = await searchParams;
+  const fallbackUrl = from || "/inventory/items";
+
   return (
     <div className="space-y-6 px-4 lg:px-6">
       <div className="flex items-center gap-3">
@@ -17,7 +26,7 @@ export default function CreateItemPage() {
           size="icon"
           nativeButton={false}
           render={
-            <Link href="/inventory/items" title="Back to Items">
+            <Link href={fallbackUrl} title="Back">
               <ChevronLeftIcon className="h-4 w-4" />
             </Link>
           }

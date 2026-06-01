@@ -149,16 +149,16 @@ export function PartnersTable({ fixedType, hideTypeFilter }: PartnersTableProps 
 
   const handleView = React.useCallback(
     (partner: { id: string }) => {
-      router.push(`/partners/${partner.id}`);
+      router.push(`/partners/${partner.id}?from=${encodeURIComponent(pathname)}`);
     },
-    [router],
+    [router, pathname],
   );
 
   const handleEdit = React.useCallback(
     (partner: { id: string }) => {
-      router.push(`/partners/${partner.id}/edit`);
+      router.push(`/partners/${partner.id}/edit?from=${encodeURIComponent(pathname)}`);
     },
-    [router],
+    [router, pathname],
   );
 
   const handleDelete = React.useCallback(

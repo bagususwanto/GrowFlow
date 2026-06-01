@@ -1,6 +1,9 @@
 import { Suspense } from 'react';
+import Link from 'next/link';
 import { PartnersTable } from '@web/components/partners/partners-table';
 import { Skeleton } from '@web/components/ui/skeleton';
+import { Button } from '@web/components/ui/button';
+import { PlusIcon } from 'lucide-react';
 
 export const metadata = {
   title: 'Suppliers | GrowFlow',
@@ -16,6 +19,17 @@ export default function PurchasingSuppliersPage() {
           <p className="text-muted-foreground text-sm">
             Manage your purchasing suppliers and supply chain contacts.
           </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            nativeButton={false}
+            render={
+              <Link href={`/partners/new?from=${encodeURIComponent('/purchasing/suppliers')}`}>
+                <PlusIcon className="mr-2 w-4 h-4" />
+                Add Supplier
+              </Link>
+            }
+          />
         </div>
       </div>
 

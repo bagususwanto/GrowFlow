@@ -68,50 +68,85 @@ export function PartnerForm({ initialData, onSubmit, isSubmitting }: PartnerForm
           <p className="text-xs text-muted-foreground">Specify the partner name and choose their business classification.</p>
         </div>
 
-        {isEdit && (
-          <div className="space-y-1.5 w-full sm:w-1/2">
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Partner Code</Label>
-            <Input disabled value={initialData.code} className="h-9 font-mono" />
-          </div>
-        )}
-
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label htmlFor="name" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Partner Name
-            </Label>
-            <div className="relative">
-              <UserIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input id="name" type="text" placeholder="e.g. Acme Corp" className="pl-9 h-9" {...register('name')} />
-            </div>
-            {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
-          </div>
+          {isEdit ? (
+            <>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Partner Code</Label>
+                <Input disabled value={initialData.code} className="h-9 font-mono bg-muted/50" />
+              </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="type" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Partner Type
-            </Label>
-            <Controller
-              name="type"
-              control={control}
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange} disabled={isEdit}>
-                  <SelectTrigger className="w-full h-9 relative pl-9" id="type">
-                    <ShieldCheckIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="SUPPLIER">Supplier</SelectItem>
-                    <SelectItem value="CUSTOMER">Customer</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-            />
-            {errors.type && <p className="text-xs text-destructive">{errors.type.message}</p>}
-            {!isEdit && (
-              <p className="text-[10px] text-muted-foreground">Code prefix will be: SUPPLIER (SUP-), CUSTOMER (CUS-)</p>
-            )}
-          </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="type" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Partner Type
+                </Label>
+                <Controller
+                  name="type"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange} disabled>
+                      <SelectTrigger className="w-full h-9 relative pl-9 bg-muted/50" id="type">
+                        <ShieldCheckIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SUPPLIER">Supplier</SelectItem>
+                        <SelectItem value="CUSTOMER">Customer</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
+
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label htmlFor="name" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Partner Name
+                </Label>
+                <div className="relative">
+                  <UserIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input id="name" type="text" placeholder="e.g. Acme Corp" className="pl-9 h-9" {...register('name')} />
+                </div>
+                {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="space-y-1.5">
+                <Label htmlFor="name" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Partner Name
+                </Label>
+                <div className="relative">
+                  <UserIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input id="name" type="text" placeholder="e.g. Acme Corp" className="pl-9 h-9" {...register('name')} />
+                </div>
+                {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="type" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Partner Type
+                </Label>
+                <Controller
+                  name="type"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="w-full h-9 relative pl-9" id="type">
+                        <ShieldCheckIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SUPPLIER">Supplier</SelectItem>
+                        <SelectItem value="CUSTOMER">Customer</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.type && <p className="text-xs text-destructive">{errors.type.message}</p>}
+                <p className="text-[10px] text-muted-foreground mt-1">Code prefix will be: SUPPLIER (SUP-), CUSTOMER (CUS-)</p>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -158,24 +193,8 @@ export function PartnerForm({ initialData, onSubmit, isSubmitting }: PartnerForm
             {errors.paymentTermsDays && <p className="text-xs text-destructive">{errors.paymentTermsDays.message}</p>}
           </div>
 
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="address" optional className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Address
-            </Label>
-            <div className="relative">
-              <MapPinIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <textarea
-                id="address"
-                placeholder="Street address, city, region..."
-                className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-9"
-                {...register('address')}
-              />
-            </div>
-            {errors.address && <p className="text-xs text-destructive">{errors.address.message}</p>}
-          </div>
-
           {isEdit && (
-            <div className="space-y-1.5 sm:col-span-2">
+            <div className="space-y-1.5">
               <Label htmlFor="isActive" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Partner Status
               </Label>
@@ -202,6 +221,22 @@ export function PartnerForm({ initialData, onSubmit, isSubmitting }: PartnerForm
               />
             </div>
           )}
+
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="address" optional className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Address
+            </Label>
+            <div className="relative">
+              <MapPinIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <textarea
+                id="address"
+                placeholder="Street address, city, region..."
+                className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-9"
+                {...register('address')}
+              />
+            </div>
+            {errors.address && <p className="text-xs text-destructive">{errors.address.message}</p>}
+          </div>
         </div>
       </div>
 

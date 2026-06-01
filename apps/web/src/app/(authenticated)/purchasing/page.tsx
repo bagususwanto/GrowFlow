@@ -35,7 +35,7 @@ export default function PurchasingOverviewPage() {
       icon: <Users className="h-6 w-6 text-blue-500" />,
       gradient: 'from-blue-500/10 to-indigo-500/10 dark:from-blue-500/20 dark:to-indigo-500/20',
       actionText: 'Suppliers',
-      quickActionHref: '/partners/new',
+      quickActionHref: `/partners/new?from=${encodeURIComponent('/purchasing/suppliers')}`,
       quickActionText: 'Add Supplier',
     },
     {
@@ -45,7 +45,7 @@ export default function PurchasingOverviewPage() {
       icon: <Package className="h-6 w-6 text-indigo-500" />,
       gradient: 'from-indigo-500/10 to-violet-500/10 dark:from-indigo-500/20 dark:to-violet-500/20',
       actionText: 'Catalog',
-      quickActionHref: '/inventory/items/new',
+      quickActionHref: `/inventory/items/new?from=${encodeURIComponent('/purchasing/products')}`,
       quickActionText: 'Add Item',
     },
   ];
