@@ -69,7 +69,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           title: "Stock",
           url: "/inventory/stock",
           icon: <Boxes />,
-          permission: "read:inventory",
+          permission: "read:stock",
         },
       ],
     },
@@ -80,13 +80,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           title: "Purchase Orders",
           url: "/purchasing/purchase-orders",
           icon: <ShoppingCart />,
-          permission: "read:po",
+          permission: "read:purchase-orders",
         },
         {
           title: "Goods Receipts",
           url: "/purchasing/goods-receipts",
           icon: <Boxes />,
-          permission: "read:grn",
+          permission: "read:goods-receipts",
         },
         {
           title: "Suppliers",
@@ -109,19 +109,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           title: "Sales Orders",
           url: "/sales/sales-orders",
           icon: <ShoppingCart />,
-          permission: "read:so",
+          permission: "read:sales-orders",
         },
         {
           title: "Delivery Notes",
           url: "/sales/delivery-notes",
           icon: <Boxes />,
-          permission: "read:dn",
+          permission: "read:delivery-notes",
         },
         {
           title: "Sales Invoices",
           url: "/sales/invoices",
           icon: <FileTextIcon />,
-          permission: "read:so", // Menggunakan read:so permission dulu / custom
+          permission: "read:invoices",
         },
         {
           title: "Customers",
