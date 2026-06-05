@@ -42,6 +42,12 @@ model User {
   confirmedSalesOrders   SalesOrder[]    @relation("SOConfirmedBy")
   createdDeliveryNotes   DeliveryNote[]  @relation("DNCreatedBy")
 
+  // Phase 5 Accounting Relations
+  createdJournalEntries  JournalEntry[]         @relation("JECreatedBy")
+  postedJournalEntries   JournalEntry[]         @relation("JEPostedBy")
+  receivedVendorInvoices VendorInvoice[]        @relation("VIReceivedBy")
+  createdVendorPayments  VendorInvoicePayment[] @relation("VIPreatedBy")
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -139,6 +145,9 @@ model Partner {
   salesOrders      SalesOrder[]
   salesInvoices    SalesInvoice[]
 
+  // Phase 5 Accounting Relations
+  vendorInvoices VendorInvoice[]
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -229,6 +238,9 @@ model PurchaseOrder {
   lineItems     PurchaseOrderLineItem[]
   goodsReceipts GoodsReceipt[]
 
+  // Phase 5 Accounting Relations
+  vendorInvoices VendorInvoice[]
+
   deletedAt DateTime? @map("deleted_at")
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
@@ -275,6 +287,9 @@ model GoodsReceipt {
   createdBy   User?   @relation("GRNCreatedBy", fields: [createdById], references: [id])
 
   lineItems GoodsReceiptLineItem[]
+
+  // Phase 5 Accounting Relations
+  vendorInvoice VendorInvoice?
 
   deletedAt DateTime? @map("deleted_at")
   createdAt DateTime  @default(now()) @map("created_at")
@@ -341,15 +356,15 @@ model SalesOrder {
 }
 
 model SalesOrderLineItem {
-  id           String     @id @default(uuid())
-  salesOrderId String     @map("sales_order_id")
-  salesOrder   SalesOrder @relation(fields: [salesOrderId], references: [id])
-  itemId       String     @map("item_id")
-  item         Item       @relation(fields: [itemId], references: [id])
+  id           String                 @id @default(uuid())
+  salesOrderId String                 @map("sales_order_id")
+  salesOrder   SalesOrder             @relation(fields: [salesOrderId], references: [id])
+  itemId       String                 @map("item_id")
+  item         Item                   @relation(fields: [itemId], references: [id])
   qty          Int
-  unitPrice    Decimal    @map("unit_price") @db.Decimal(18, 2)
-  totalPrice   Decimal    @map("total_price") @db.Decimal(18, 2) // qty * unitPrice
-  qtyDelivered Int        @default(0) @map("qty_delivered") // tracking DN
+  unitPrice    Decimal                @map("unit_price") @db.Decimal(18, 2)
+  totalPrice   Decimal                @map("total_price") @db.Decimal(18, 2) // qty * unitPrice
+  qtyDelivered Int                    @default(0) @map("qty_delivered") // tracking DN
   dnLineItems  DeliveryNoteLineItem[]
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -392,7 +407,7 @@ model DeliveryNoteLineItem {
   soLineItemId   String             @map("so_line_item_id")
   soLineItem     SalesOrderLineItem @relation(fields: [soLineItemId], references: [id])
   itemId         String             @map("item_id")
-  item               Item               @relation(fields: [itemId], references: [id])
+  item           Item               @relation(fields: [itemId], references: [id])
   qty            Int
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -424,16 +439,16 @@ model SalesInvoice {
   paidAmount       Decimal            @default(0) @map("paid_amount") @db.Decimal(18, 2)
   note             String?
   sentAt           DateTime?          @map("sent_at")
-  
-  createdById      String?            @map("created_by_id")
 
-  lineItems        SalesInvoiceLineItem[]
-  payments         SalesInvoicePayment[]
-  creditNotes      SalesCreditNote[]
+  createdById String? @map("created_by_id")
 
-  deletedAt        DateTime?          @map("deleted_at")
-  createdAt        DateTime           @default(now()) @map("created_at")
-  updatedAt        DateTime           @updatedAt @map("updated_at")
+  lineItems   SalesInvoiceLineItem[]
+  payments    SalesInvoicePayment[]
+  creditNotes SalesCreditNote[]
+
+  deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
 
   @@index([status, customerId, createdAt])
   @@map("sales_invoices")
@@ -450,8 +465,8 @@ model SalesInvoiceLineItem {
   unitPrice      Decimal      @map("unit_price") @db.Decimal(18, 2)
   totalPrice     Decimal      @map("total_price") @db.Decimal(18, 2) // qty * unitPrice
 
-  createdAt      DateTime     @default(now()) @map("created_at")
-  updatedAt      DateTime     @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("sales_invoice_line_items")
 }
@@ -465,8 +480,8 @@ model SalesInvoicePayment {
   note           String?
   recordedById   String?      @map("recorded_by_id")
 
-  createdAt      DateTime     @default(now()) @map("created_at")
-  updatedAt      DateTime     @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("sales_invoice_payments")
 }
@@ -489,8 +504,171 @@ model SalesCreditNote {
   issuedAt       DateTime?             @map("issued_at")
   createdById    String?               @map("created_by_id")
 
-  createdAt      DateTime              @default(now()) @map("created_at")
-  updatedAt      DateTime              @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("sales_credit_notes")
+}
+
+// ==========================================
+// Phase 5 Accounting & Purchase Invoice Models
+// ==========================================
+
+enum AccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+}
+
+enum AccountCategory {
+  CURRENT_ASSET
+  FIXED_ASSET
+  CURRENT_LIABILITY
+  LONG_TERM_LIABILITY
+  EQUITY
+  REVENUE
+  COGS
+  OPERATING_EXPENSE
+  OTHER_EXPENSE
+  OTHER_INCOME
+}
+
+model Account {
+  id              String          @id @default(uuid())
+  code            String          @unique
+  name            String
+  type            AccountType
+  category        AccountCategory
+  parentId        String?         @map("parent_id")
+  parent          Account?        @relation("AccountHierarchy", fields: [parentId], references: [id])
+  children        Account[]       @relation("AccountHierarchy")
+  isSystemAccount Boolean         @default(false) @map("is_system_account")
+  isActive        Boolean         @default(true) @map("is_active")
+  deletedAt       DateTime?       @map("deleted_at")
+
+  journalLines JournalLine[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("accounts")
+}
+
+enum JournalEntryStatus {
+  DRAFT
+  POSTED
+  CANCELLED
+}
+
+model JournalEntry {
+  id          String             @id @default(uuid())
+  number      String             @unique // JE-YYYYMM-XXXX
+  entryDate   DateTime           @default(now()) @map("entry_date")
+  description String?
+  sourceType  String?            @map("source_type") // VENDOR_INVOICE | SALES_INVOICE | VENDOR_PAYMENT | AR_PAYMENT | MANUAL
+  sourceId    String?            @map("source_id") // polymorphic relation ID
+  status      JournalEntryStatus @default(DRAFT)
+
+  postedAt   DateTime? @map("posted_at")
+  postedById String?   @map("posted_by_id")
+  postedBy   User?     @relation("JEPostedBy", fields: [postedById], references: [id])
+
+  createdById String? @map("created_by_id")
+  createdBy   User?   @relation("JECreatedBy", fields: [createdById], references: [id])
+
+  lines JournalLine[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([status, entryDate])
+  @@map("journal_entries")
+}
+
+model JournalLine {
+  id             String       @id @default(uuid())
+  journalEntryId String       @map("journal_entry_id")
+  journalEntry   JournalEntry @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
+  accountId      String       @map("account_id")
+  account        Account      @relation(fields: [accountId], references: [id])
+  debit          Decimal      @default(0) @db.Decimal(18, 2)
+  credit         Decimal      @default(0) @db.Decimal(18, 2)
+  description    String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("journal_lines")
+}
+
+enum VendorInvoiceStatus {
+  DRAFT
+  RECEIVED
+  PARTIAL
+  PAID
+  CANCELLED
+}
+
+model VendorInvoice {
+  id               String              @id @default(uuid())
+  number           String              @unique // BILL-YYYYMM-XXXX
+  goodsReceiptId   String              @unique @map("goods_receipt_id")
+  goodsReceipt     GoodsReceipt        @relation(fields: [goodsReceiptId], references: [id])
+  purchaseOrderId  String              @map("purchase_order_id")
+  purchaseOrder    PurchaseOrder       @relation(fields: [purchaseOrderId], references: [id])
+  supplierId       String              @map("supplier_id")
+  supplier         Partner             @relation(fields: [supplierId], references: [id])
+  status           VendorInvoiceStatus @default(DRAFT)
+  invoiceDate      DateTime            @default(now()) @map("invoice_date")
+  dueDate          DateTime            @map("due_date")
+  paymentTermsDays Int                 @default(30) @map("payment_terms_days")
+  totalAmount      Decimal             @default(0) @map("total_amount") @db.Decimal(18, 2)
+  paidAmount       Decimal             @default(0) @map("paid_amount") @db.Decimal(18, 2)
+  note             String?
+
+  receivedAt   DateTime? @map("received_at")
+  receivedById String?   @map("received_by_id")
+  receivedBy   User?     @relation("VIReceivedBy", fields: [receivedById], references: [id])
+
+  createdById String? @map("created_by_id")
+
+  payments  VendorInvoicePayment[]
+  deletedAt DateTime?              @map("deleted_at")
+  createdAt DateTime               @default(now()) @map("created_at")
+  updatedAt DateTime               @updatedAt @map("updated_at")
+
+  @@index([status, supplierId, createdAt])
+  @@map("vendor_invoices")
+}
+
+model VendorInvoicePayment {
+  id              String        @id @default(uuid())
+  vendorInvoiceId String        @map("vendor_invoice_id")
+  vendorInvoice   VendorInvoice @relation(fields: [vendorInvoiceId], references: [id])
+  amount          Decimal       @db.Decimal(18, 2)
+  paymentDate     DateTime      @default(now()) @map("payment_date")
+  note            String?
+  recordedById    String?       @map("recorded_by_id")
+  recordedBy      User?         @relation("VIPreatedBy", fields: [recordedById], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("vendor_invoice_payments")
+}
+
+model AccountingSettings {
+  id                 String   @id @default("default")
+  apAccountId        String   @map("ap_account_id")
+  arAccountId        String   @map("ar_account_id")
+  cashAccountId      String   @map("cash_account_id")
+  inventoryAccountId String   @map("inventory_account_id")
+  cogsAccountId      String   @map("cogs_account_id")
+  revenueAccountId   String   @map("revenue_account_id")
+  purchaseAccountId  String   @map("purchase_account_id")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  @@map("accounting_settings")
 }
