@@ -619,6 +619,103 @@ async function main() {
     console.info(`  ↩ SalesOrder SO-202602-0001 already exists, skipping.`);
   }
 
+  // ─────────────────────────────────────────────
+  // 12. Chart of Accounts (COA) & Accounting Settings
+  // ─────────────────────────────────────────────
+  console.info('🌱 Seeding Chart of Accounts (COA)...');
+  const { coaData } = require('./coa-data');
+  
+  // Seed parents first (without parentCode), then children (with parentCode)
+  const parents = coaData.filter((c: any) => !c.parentCode);
+  const children = coaData.filter((c: any) => c.parentCode);
+
+  const seededAccounts: Record<string, string> = {};
+
+  for (const acc of parents) {
+    const upserted = await prisma.account.upsert({
+      where: { code: acc.code },
+      update: {
+        name: acc.name,
+        type: acc.type,
+        category: acc.category,
+        isSystemAccount: acc.isSystemAccount ?? false,
+      },
+      create: {
+        code: acc.code,
+        name: acc.name,
+        type: acc.type,
+        category: acc.category,
+        isSystemAccount: acc.isSystemAccount ?? false,
+      },
+    });
+    seededAccounts[acc.code] = upserted.id;
+  }
+
+  for (const acc of children) {
+    const parentId = seededAccounts[acc.parentCode];
+    if (!parentId) {
+      throw new Error(`Parent account not found for code ${acc.code} with parentCode ${acc.parentCode}`);
+    }
+    const upserted = await prisma.account.upsert({
+      where: { code: acc.code },
+      update: {
+        name: acc.name,
+        type: acc.type,
+        category: acc.category,
+        parentId,
+        isSystemAccount: acc.isSystemAccount ?? false,
+      },
+      create: {
+        code: acc.code,
+        name: acc.name,
+        type: acc.type,
+        category: acc.category,
+        parentId,
+        isSystemAccount: acc.isSystemAccount ?? false,
+      },
+    });
+    seededAccounts[acc.code] = upserted.id;
+  }
+  console.info(`  ✔ Seeded ${coaData.length} COA Accounts.`);
+
+  // Initialize AccountingSettings with mapped default accounts
+  console.info('🌱 Seeding default Accounting Settings...');
+  const apAccount = await prisma.account.findUnique({ where: { code: '2-1100' } }); // Hutang Usaha (System)
+  const arAccount = await prisma.account.findUnique({ where: { code: '1-1300' } }); // Piutang Usaha (System)
+  const cashAccount = await prisma.account.findUnique({ where: { code: '1-1200' } }); // Bank default (System)
+  const inventoryAccount = await prisma.account.findUnique({ where: { code: '1-1400' } }); // Persediaan Barang Dagang (System)
+  const cogsAccount = await prisma.account.findUnique({ where: { code: '5-1000' } }); // Beban Pokok Penjualan (COGS) (System)
+  const revenueAccount = await prisma.account.findUnique({ where: { code: '4-1100' } }); // Pendapatan Penjualan (System)
+  const purchaseAccount = await prisma.account.findUnique({ where: { code: '5-2000' } }); // Beban Pembelian default (System)
+
+  if (!apAccount || !arAccount || !cashAccount || !inventoryAccount || !cogsAccount || !revenueAccount || !purchaseAccount) {
+    throw new Error('Required system accounts for default settings mapping are missing from the COA data.');
+  }
+
+  await prisma.accountingSettings.upsert({
+    where: { id: 'default' },
+    update: {
+      apAccountId: apAccount.id,
+      arAccountId: arAccount.id,
+      cashAccountId: cashAccount.id,
+      inventoryAccountId: inventoryAccount.id,
+      cogsAccountId: cogsAccount.id,
+      revenueAccountId: revenueAccount.id,
+      purchaseAccountId: purchaseAccount.id,
+    },
+    create: {
+      id: 'default',
+      apAccountId: apAccount.id,
+      arAccountId: arAccount.id,
+      cashAccountId: cashAccount.id,
+      inventoryAccountId: inventoryAccount.id,
+      cogsAccountId: cogsAccount.id,
+      revenueAccountId: revenueAccount.id,
+      purchaseAccountId: purchaseAccount.id,
+    },
+  });
+  console.info('  ✔ Accounting Settings initialized successfully.');
+
   console.info('\n🌱 Seeding finished successfully.');
 }
 
