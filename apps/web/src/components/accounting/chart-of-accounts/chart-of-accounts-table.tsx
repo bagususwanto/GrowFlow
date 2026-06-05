@@ -282,8 +282,13 @@ export function ChartOfAccountsTable() {
                           style={{ paddingLeft: `${depth * 16}px` }}
                           className="flex items-center gap-1.5"
                         >
+                          {depth > 0 && (
+                            <span className="text-muted-foreground/35 font-mono text-xs select-none">
+                              └─
+                            </span>
+                          )}
                           {isHeader && <LandmarkIcon className="w-3.5 h-3.5 text-muted-foreground" />}
-                          <span>{acc.name}</span>
+                          <span className={isHeader ? 'font-semibold' : 'text-muted-foreground/90 font-medium'}>{acc.name}</span>
                         </div>
                       </TableCell>
                       <TableCell>
