@@ -7,11 +7,13 @@ import { z } from 'zod';
 import { PurchaseOrder } from '@growflow/types';
 import { Button } from '@web/components/ui/button';
 import { Input } from '@web/components/ui/input';
+import { DatePicker } from '@web/components/ui/date-picker';
+import { format } from 'date-fns';
 import { Label } from '@web/components/ui/label';
 import { Separator } from '@web/components/ui/separator';
 import { usePartners } from '@web/components/partners/use-partners';
 import { useItems } from '@web/components/items/use-items';
-import { Loader2Icon, ShoppingCartIcon, PlusIcon, Trash2Icon, FileTextIcon, UserIcon, CalendarIcon } from 'lucide-react';
+import { Loader2Icon, ShoppingCartIcon, PlusIcon, Trash2Icon, FileTextIcon, UserIcon } from 'lucide-react';
 import { Combobox } from '@web/components/ui/combobox';
 import { useSearchParams } from 'next/navigation';
 import { PriceLoader } from './price-loader';
@@ -286,15 +288,16 @@ export function PurchaseOrderForm({ initialData, onSubmit, isSubmitting }: Purch
             <Label htmlFor="orderDate" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Order Date
             </Label>
-            <div className="relative">
-              <CalendarIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                id="orderDate"
-                type="date"
-                className="pl-9 h-9"
-                {...register('orderDate')}
-              />
-            </div>
+            <Controller
+              name="orderDate"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  value={field.value}
+                  onChange={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
+                />
+              )}
+            />
             {errors.orderDate && <p className="text-xs text-destructive">{errors.orderDate.message}</p>}
           </div>
 

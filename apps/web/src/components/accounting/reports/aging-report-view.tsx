@@ -4,7 +4,8 @@ import React from 'react';
 import { useAPAging, useARAging } from '@web/hooks/use-accounting';
 import { Card, CardContent } from '@web/components/ui/card';
 import { Button } from '@web/components/ui/button';
-import { Input } from '@web/components/ui/input';
+import { DatePicker } from '@web/components/ui/date-picker';
+import { format } from 'date-fns';
 import { Label } from '@web/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@web/components/ui/table';
 import { Skeleton } from '@web/components/ui/skeleton';
@@ -65,11 +66,9 @@ export function AgingReportView({ type }: AgingReportViewProps) {
           <form onSubmit={handleRunReport} className="flex flex-wrap items-end gap-4">
             <div className="space-y-1.5">
               <Label htmlFor="asOf" className="text-xs font-semibold text-muted-foreground">As Of Date</Label>
-              <Input
-                id="asOf"
-                type="date"
+              <DatePicker
                 value={asOf}
-                onChange={(e) => setAsOf(e.target.value)}
+                onChange={(date) => setAsOf(date ? format(date, 'yyyy-MM-dd') : '')}
                 className="h-9 w-40"
               />
             </div>

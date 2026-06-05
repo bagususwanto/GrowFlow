@@ -1,10 +1,12 @@
 'use client';
 
 import React from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@web/components/ui/dialog';
 import { Button } from '@web/components/ui/button';
 import { Input } from '@web/components/ui/input';
+import { DatePicker } from '@web/components/ui/date-picker';
+import { format } from 'date-fns';
 import { Label } from '@web/components/ui/label';
 import { Textarea } from '@web/components/ui/textarea';
 
@@ -17,7 +19,7 @@ interface RecordPaymentModalProps {
 }
 
 export function RecordPaymentModal({ isOpen, onClose, onSubmit, maxAmount, isPending }: RecordPaymentModalProps) {
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<{
+  const { register, handleSubmit, reset, setValue, control, formState: { errors } } = useForm<{
     amount: number;
     paymentDate: string;
     note: string;
@@ -91,10 +93,16 @@ export function RecordPaymentModal({ isOpen, onClose, onSubmit, maxAmount, isPen
 
           <div className="space-y-2">
             <Label htmlFor="paymentDate">Payment Date</Label>
-            <Input
-              id="paymentDate"
-              type="date"
-              {...register('paymentDate', { required: 'Payment date is required' })}
+            <Controller
+              name="paymentDate"
+              control={control}
+              rules={{ required: 'Payment date is required' }}
+              render={({ field }) => (
+                <DatePicker
+                  value={field.value}
+                  onChange={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
+                />
+              )}
             />
             {errors.paymentDate && (
               <p className="text-xs text-destructive">{errors.paymentDate.message}</p>

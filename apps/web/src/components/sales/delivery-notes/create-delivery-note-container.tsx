@@ -10,11 +10,13 @@ import { useSalesOrders, useSalesOrder } from '@web/hooks/use-sales-orders';
 import { Card, CardContent } from '@web/components/ui/card';
 import { Button } from '@web/components/ui/button';
 import { Input } from '@web/components/ui/input';
+import { DatePicker } from '@web/components/ui/date-picker';
+import { format } from 'date-fns';
 import { Label } from '@web/components/ui/label';
 import { Separator } from '@web/components/ui/separator';
 import { Skeleton } from '@web/components/ui/skeleton';
 import { toast } from 'sonner';
-import { Loader2Icon, TruckIcon, FileTextIcon, CalendarIcon, ChevronLeftIcon } from 'lucide-react';
+import { Loader2Icon, TruckIcon, FileTextIcon, ChevronLeftIcon } from 'lucide-react';
 import { Combobox } from '@web/components/ui/combobox';
 
 const dnLineSchema = z.object({
@@ -199,15 +201,16 @@ export function CreateDeliveryNoteContainer() {
                   <Label htmlFor="deliveryDate" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Delivery Date
                   </Label>
-                  <div className="relative">
-                    <CalendarIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      id="deliveryDate"
-                      type="date"
-                      className="pl-9 h-9"
-                      {...register('deliveryDate')}
-                    />
-                  </div>
+                  <Controller
+                    name="deliveryDate"
+                    control={control}
+                    render={({ field }) => (
+                      <DatePicker
+                        value={field.value}
+                        onChange={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
+                      />
+                    )}
+                  />
                   {errors.deliveryDate && <p className="text-xs text-destructive">{errors.deliveryDate.message}</p>}
                 </div>
 

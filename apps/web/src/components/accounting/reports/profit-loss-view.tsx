@@ -4,7 +4,8 @@ import React from 'react';
 import { useProfitLoss } from '@web/hooks/use-accounting';
 import { Card, CardContent, CardHeader, CardTitle } from '@web/components/ui/card';
 import { Button } from '@web/components/ui/button';
-import { Input } from '@web/components/ui/input';
+import { DatePicker } from '@web/components/ui/date-picker';
+import { format } from 'date-fns';
 import { Label } from '@web/components/ui/label';
 import { Skeleton } from '@web/components/ui/skeleton';
 import { Separator } from '@web/components/ui/separator';
@@ -58,21 +59,17 @@ export function ProfitLossView() {
           <form onSubmit={handleRunReport} className="flex flex-wrap items-end gap-4">
             <div className="space-y-1.5">
               <Label htmlFor="startDate" className="text-xs font-semibold text-muted-foreground">Start Date</Label>
-              <Input
-                id="startDate"
-                type="date"
+              <DatePicker
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={(date) => setStartDate(date ? format(date, 'yyyy-MM-dd') : '')}
                 className="h-9 w-40"
               />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="endDate" className="text-xs font-semibold text-muted-foreground">End Date</Label>
-              <Input
-                id="endDate"
-                type="date"
+              <DatePicker
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                onChange={(date) => setEndDate(date ? format(date, 'yyyy-MM-dd') : '')}
                 className="h-9 w-40"
               />
             </div>

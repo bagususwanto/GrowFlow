@@ -11,12 +11,14 @@ import { useWarehouses } from '@web/components/warehouses/use-warehouses';
 import { Card, CardContent } from '@web/components/ui/card';
 import { Button } from '@web/components/ui/button';
 import { Input } from '@web/components/ui/input';
+import { DatePicker } from '@web/components/ui/date-picker';
+import { format } from 'date-fns';
 import { Label } from '@web/components/ui/label';
 import { Separator } from '@web/components/ui/separator';
 import { Skeleton } from '@web/components/ui/skeleton';
 import { toast } from 'sonner';
 import { ApiError } from '@growflow/types';
-import { Loader2Icon, ShoppingBagIcon, WarehouseIcon, FileTextIcon, CalendarIcon } from 'lucide-react';
+import { Loader2Icon, ShoppingBagIcon, WarehouseIcon, FileTextIcon } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -211,15 +213,16 @@ export function CreateGoodsReceiptContainer() {
                 <Label htmlFor="receivedDate" required className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Received Date
                 </Label>
-                <div className="relative">
-                  <CalendarIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="receivedDate"
-                    type="date"
-                    className="pl-9 h-9"
-                    {...register('receivedDate')}
-                  />
-                </div>
+                <Controller
+                  name="receivedDate"
+                  control={control}
+                  render={({ field }) => (
+                    <DatePicker
+                      value={field.value}
+                      onChange={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
+                    />
+                  )}
+                />
                 {errors.receivedDate && <p className="text-xs text-destructive">{errors.receivedDate.message}</p>}
               </div>
 

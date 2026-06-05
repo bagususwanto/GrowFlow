@@ -9,6 +9,8 @@ import { Card, CardContent } from '@web/components/ui/card';
 import { Button } from '@web/components/ui/button';
 import { Skeleton } from '@web/components/ui/skeleton';
 import { Input } from '@web/components/ui/input';
+import { DatePicker } from '@web/components/ui/date-picker';
+import { format } from 'date-fns';
 import { Badge } from '@web/components/ui/badge';
 import {
   Table,
@@ -273,20 +275,18 @@ export function JournalEntriesTable() {
           </Select>
 
           <div className="flex items-center gap-2">
-            <Input
-              type="date"
+            <DatePicker
               value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="h-9 w-36"
+              onChange={(date) => setStartDate(date ? format(date, 'yyyy-MM-dd') : '')}
               placeholder="Start Date"
+              className="h-9 w-36 text-xs"
             />
             <span className="text-muted-foreground text-xs">to</span>
-            <Input
-              type="date"
+            <DatePicker
               value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="h-9 w-36"
+              onChange={(date) => setEndDate(date ? format(date, 'yyyy-MM-dd') : '')}
               placeholder="End Date"
+              className="h-9 w-36 text-xs"
             />
           </div>
 

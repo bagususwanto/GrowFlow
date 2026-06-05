@@ -19,6 +19,8 @@ import { Button } from '@web/components/ui/button';
 import { Card, CardContent } from '@web/components/ui/card';
 import { Skeleton } from '@web/components/ui/skeleton';
 import { Input } from '@web/components/ui/input';
+import { DatePicker } from '@web/components/ui/date-picker';
+import { format } from 'date-fns';
 import { Label } from '@web/components/ui/label';
 import { Textarea } from '@web/components/ui/textarea';
 import {
@@ -498,22 +500,16 @@ export function VendorInvoicesTable() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="invoiceDate">Invoice Date</Label>
-                <Input
-                  id="invoiceDate"
-                  type="date"
-                  required
+                <DatePicker
                   value={invoiceDate}
-                  onChange={(e) => setInvoiceDate(e.target.value)}
+                  onChange={(date) => setInvoiceDate(date ? format(date, 'yyyy-MM-dd') : '')}
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="dueDate">Due Date</Label>
-                <Input
-                  id="dueDate"
-                  type="date"
-                  required
+                <DatePicker
                   value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
+                  onChange={(date) => setDueDate(date ? format(date, 'yyyy-MM-dd') : '')}
                 />
               </div>
             </div>
@@ -567,12 +563,9 @@ export function VendorInvoicesTable() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="paymentDate">Payment Date</Label>
-              <Input
-                id="paymentDate"
-                type="date"
-                required
+              <DatePicker
                 value={paymentDate}
-                onChange={(e) => setPaymentDate(e.target.value)}
+                onChange={(date) => setPaymentDate(date ? format(date, 'yyyy-MM-dd') : '')}
               />
             </div>
             <div className="space-y-2">

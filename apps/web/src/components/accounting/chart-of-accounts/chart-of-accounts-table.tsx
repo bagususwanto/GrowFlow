@@ -387,7 +387,7 @@ export function ChartOfAccountsTable() {
               <div className="space-y-1.5">
                 <Label htmlFor="type">Account Type</Label>
                 <Select value={type} onValueChange={(val) => setType(val || 'ASSET')} disabled={selectedAccount?.isSystemAccount}>
-                  <SelectTrigger id="type">
+                  <SelectTrigger id="type" className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -403,7 +403,7 @@ export function ChartOfAccountsTable() {
               <div className="space-y-1.5">
                 <Label htmlFor="category">Category</Label>
                 <Select value={category} onValueChange={(val) => setCategory(val || 'CURRENT_ASSET')} disabled={selectedAccount?.isSystemAccount}>
-                  <SelectTrigger id="category">
+                  <SelectTrigger id="category" className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -420,7 +420,7 @@ export function ChartOfAccountsTable() {
             <div className="space-y-1.5">
               <Label htmlFor="parentId">Parent Header Account</Label>
               <Select value={parentId} onValueChange={(val) => setParentId(val || 'none')} disabled={selectedAccount?.isSystemAccount}>
-                <SelectTrigger id="parentId">
+                <SelectTrigger id="parentId" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

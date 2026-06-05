@@ -6,6 +6,8 @@ import { useAccounts, useCreateJournalEntry } from '@web/hooks/use-accounting';
 import { Card, CardContent } from '@web/components/ui/card';
 import { Button } from '@web/components/ui/button';
 import { Input } from '@web/components/ui/input';
+import { DatePicker } from '@web/components/ui/date-picker';
+import { format } from 'date-fns';
 import { Label } from '@web/components/ui/label';
 import { Textarea } from '@web/components/ui/textarea';
 import {
@@ -285,12 +287,9 @@ export function JournalEntryForm() {
             <CardContent className="p-4 space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="entryDate">Journal Date</Label>
-                <Input
-                  id="entryDate"
-                  type="date"
-                  required
+                <DatePicker
                   value={entryDate}
-                  onChange={(e) => setEntryDate(e.target.value)}
+                  onChange={(date) => setEntryDate(date ? format(date, 'yyyy-MM-dd') : '')}
                 />
               </div>
 
