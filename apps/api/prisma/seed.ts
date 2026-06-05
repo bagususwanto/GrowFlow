@@ -44,6 +44,7 @@ async function main() {
         'create:goods-receipts', 'read:goods-receipts', 'update:goods-receipts', 'confirm:goods-receipts',
         'read:sales-orders', 'update:sales-orders', 'confirm:sales-orders', 'cancel:sales-orders', 'delete:sales-orders',
         'create:delivery-notes', 'read:delivery-notes', 'update:delivery-notes', 'confirm:delivery-notes',
+        'read:invoices',
       ],
     },
     {
@@ -63,6 +64,7 @@ async function main() {
         'read:stock',
         'create:purchase-orders', 'read:purchase-orders', 'update:purchase-orders', 'submit:purchase-orders',
         'create:sales-orders', 'read:sales-orders', 'update:sales-orders', 'confirm:sales-orders',
+        'read:invoices',
       ],
     },
     {
@@ -78,11 +80,13 @@ async function main() {
       permissions: [
         'read:items',
         'read:partners',
+        'read:stock',
         'read:stock:mutations',
         'read:purchase-orders',
         'read:goods-receipts',
         'read:sales-orders',
         'read:delivery-notes',
+        'read:invoices',
       ],
     },
     {
