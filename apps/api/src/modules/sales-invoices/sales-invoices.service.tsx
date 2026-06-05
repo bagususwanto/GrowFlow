@@ -6,14 +6,16 @@ import { ListSalesInvoicesQueryDto } from './dto/list-sales-invoices-query.dto';
 import { RecordPaymentDto } from './dto/record-payment.dto';
 import { CreateCreditNoteDto } from './dto/create-credit-note.dto';
 import { PaginatedResponse } from '@growflow/types';
-import { SalesInvoiceStatus, SalesOrderStatus, SalesCreditNoteStatus } from '@prisma/client';
+import { SalesInvoiceStatus, SalesOrderStatus, SalesCreditNoteStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
+import { JournalEntriesService } from '../accounting/journal-entries/journal-entries.service';
 
 @Injectable()
 export class SalesInvoicesService {
   constructor(
     private readonly repository: SalesInvoicesRepository,
     private readonly prisma: PrismaService,
+    private readonly journalEntriesService: JournalEntriesService,
   ) {}
 
   private mapToResponse(invoice: any): any {
@@ -103,11 +105,46 @@ export class SalesInvoicesService {
       throw new BadRequestException(`Only DRAFT invoices can be sent`);
     }
 
-    await this.repository.updateStatus(id, SalesInvoiceStatus.SENT, {
-      sentAt: new Date(),
+    const settings = await this.prisma.accountingSettings.findUnique({
+      where: { id: 'default' },
     });
+    if (!settings) {
+      throw new BadRequestException('Accounting Settings default COA mapping is not configured.');
+    }
 
-    // TODO / Placeholder: Di Fase 5 (Accounting), trigger pembuatan jurnal AR otomatis di sini.
+    await this.prisma.$transaction(async (tx) => {
+      await tx.salesInvoice.update({
+        where: { id },
+        data: {
+          status: SalesInvoiceStatus.SENT,
+          sentAt: new Date(),
+        },
+      });
+
+      await this.journalEntriesService.createAutoJournal(
+        {
+          entryDate: new Date(),
+          description: `Auto Journal for Sales Invoice ${invoice.number}`,
+          sourceType: 'SALES_INVOICE',
+          sourceId: invoice.id,
+          lines: [
+            {
+              accountId: settings.arAccountId,
+              debit: Number(invoice.totalAmount),
+              credit: 0,
+              description: `Piutang Dagang - Invoice ${invoice.number}`,
+            },
+            {
+              accountId: settings.revenueAccountId,
+              debit: 0,
+              credit: Number(invoice.totalAmount),
+              description: `Pendapatan Penjualan - Invoice ${invoice.number}`,
+            },
+          ],
+        },
+        tx,
+      );
+    });
 
     return this.findOne(id);
   }
@@ -138,13 +175,22 @@ export class SalesInvoicesService {
       );
     }
 
+    const settings = await this.prisma.accountingSettings.findUnique({
+      where: { id: 'default' },
+    });
+    if (!settings) {
+      throw new BadRequestException('Accounting Settings default COA mapping is not configured.');
+    }
+
+    const paymentDate = dto.paymentDate ? new Date(dto.paymentDate) : new Date();
+
     await this.prisma.$transaction(async (tx) => {
       // Record payment transaction
-      await tx.salesInvoicePayment.create({
+      const payment = await tx.salesInvoicePayment.create({
         data: {
           salesInvoiceId: id,
           amount: dto.amount,
-          paymentDate: dto.paymentDate ? new Date(dto.paymentDate) : new Date(),
+          paymentDate,
           note: dto.note,
           recordedById: userId,
         },
@@ -170,6 +216,31 @@ export class SalesInvoicesService {
           data: { status: SalesOrderStatus.CLOSED },
         });
       }
+
+      // Post double-entry journal entry for AR Payment
+      await this.journalEntriesService.createAutoJournal(
+        {
+          entryDate: paymentDate,
+          description: `Auto Journal for AR Payment on Invoice ${invoice.number}`,
+          sourceType: 'AR_PAYMENT',
+          sourceId: payment.id,
+          lines: [
+            {
+              accountId: settings.cashAccountId,
+              debit: dto.amount,
+              credit: 0,
+              description: `Penerimaan Pembayaran - Invoice ${invoice.number}`,
+            },
+            {
+              accountId: settings.arAccountId,
+              debit: 0,
+              credit: dto.amount,
+              description: `Kredit Piutang - Invoice ${invoice.number}`,
+            },
+          ],
+        },
+        tx,
+      );
     });
 
     return this.findOne(id);
