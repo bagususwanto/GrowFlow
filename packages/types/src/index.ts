@@ -12,4 +12,5 @@ export * from './sales-order';
 export * from './delivery-note';
 export * from './sales-invoice';
 export * from './dashboard';
+export * from './accounting';
 

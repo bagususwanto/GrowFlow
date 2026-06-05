@@ -18,6 +18,7 @@ import { SalesOrdersModule } from './modules/sales-orders/sales-orders.module';
 import { DeliveryNotesModule } from './modules/delivery-notes/delivery-notes.module';
 import { SalesInvoicesModule } from './modules/sales-invoices/sales-invoices.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { AccountingModule } from './modules/accounting/accounting.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 
@@ -44,6 +45,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     DeliveryNotesModule,
     SalesInvoicesModule,
     DashboardModule,
+    AccountingModule,
   ],
   controllers: [AppController],
   providers: [
