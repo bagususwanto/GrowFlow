@@ -29,7 +29,7 @@ interface JournalLineInput {
 export function JournalEntryForm() {
   const router = useRouter();
   const createMutation = useCreateJournalEntry();
-  const { data: accounts = [], isLoading } = useAccounts();
+  const { data: accounts = [] } = useAccounts();
 
   // Sort accounts by code for the dropdown list
   const sortedAccounts = React.useMemo(() => {
@@ -128,8 +128,9 @@ export function JournalEntryForm() {
       await createMutation.mutateAsync(payload);
       toast.success('Journal entry created successfully as DRAFT');
       router.push('/accounting/journal-entries');
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to create journal entry');
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to create journal entry';
+      toast.error(errorMsg);
     }
   };
 

@@ -1,10 +1,9 @@
 'use client';
 
 import React from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useJournalEntry, usePostJournalEntry, useCancelJournalEntry } from '@web/hooks/use-accounting';
-import { JournalEntry } from '@growflow/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@web/components/ui/card';
 import { Button } from '@web/components/ui/button';
 import { Badge } from '@web/components/ui/badge';
@@ -41,7 +40,6 @@ function formatDate(dateStr: string, includeTime = false) {
 
 export function JournalEntryDetailContainer() {
   const params = useParams();
-  const router = useRouter();
   const id = params.id as string;
   const confirm = useConfirm();
 

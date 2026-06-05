@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useTrialBalance } from '@web/hooks/use-accounting';
-import { Card, CardContent, CardHeader, CardTitle } from '@web/components/ui/card';
+import { Card, CardContent } from '@web/components/ui/card';
 import { Button } from '@web/components/ui/button';
 import { Input } from '@web/components/ui/input';
 import { Label } from '@web/components/ui/label';

@@ -59,6 +59,9 @@ describe('GoodsReceiptsService', () => {
       goodsReceipt: { update: jest.fn() },
       stockMutation: { create: jest.fn() },
       stockBalance: { upsert: jest.fn() },
+      vendorInvoice: { findUnique: jest.fn().mockResolvedValue(null), create: jest.fn() },
+      partner: { findUnique: jest.fn().mockResolvedValue({ paymentTermsDays: 30 }) },
+      documentSequence: { upsert: jest.fn().mockResolvedValue({ lastSeq: 1 }) },
     };
 
     const module: TestingModule = await Test.createTestingModule({

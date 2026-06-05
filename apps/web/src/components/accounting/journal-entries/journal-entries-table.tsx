@@ -35,9 +35,8 @@ import {
   DropdownMenuTrigger,
 } from '@web/components/ui/dropdown-menu';
 import { toast } from 'sonner';
-import { ChevronLeftIcon, ChevronRightIcon, SearchIcon, RotateCcwIcon, ChevronsLeftIcon, ChevronsRightIcon, PlusIcon, EyeIcon, CheckSquareIcon, BanIcon, EllipsisVerticalIcon } from 'lucide-react';
+import { SearchIcon, RotateCcwIcon, ChevronsLeftIcon, ChevronsRightIcon, EyeIcon, CheckSquareIcon, BanIcon, EllipsisVerticalIcon } from 'lucide-react';
 import { useConfirm } from '@web/hooks/use-confirm';
-import { useAuthStore } from '@web/stores/auth.store';
 import Link from 'next/link';
 
 function formatDate(dateStr: string) {
@@ -58,7 +57,6 @@ export function JournalEntriesTable() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const confirm = useConfirm();
-  const user = useAuthStore((state) => state.user);
 
   const urlPage = searchParams.get('page');
   const urlLimit = searchParams.get('limit');
@@ -141,7 +139,14 @@ export function JournalEntriesTable() {
   );
 
   const query = React.useMemo(() => {
-    const q: any = {
+    const q: {
+      search?: string;
+      status?: string;
+      startDate?: string;
+      endDate?: string;
+      page?: number;
+      limit?: number;
+    } = {
       page,
       limit,
     };

@@ -36,7 +36,6 @@ interface ColumnActions {
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
   onSort?: (field: string) => void;
-  userRole?: string;
 }
 
 export const getColumns = ({
@@ -47,7 +46,6 @@ export const getColumns = ({
   sortBy,
   sortOrder,
   onSort,
-  userRole,
 }: ColumnActions): ColumnDef<VendorInvoice>[] => [
   {
     accessorKey: 'number',

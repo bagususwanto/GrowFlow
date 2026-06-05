@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { useVendorInvoice, useReceiveVendorInvoice, useRecordVendorInvoicePayment, useCancelVendorInvoice, VendorInvoice } from '@web/hooks/use-vendor-invoices';
+import { useVendorInvoice, useReceiveVendorInvoice, useRecordVendorInvoicePayment, useCancelVendorInvoice } from '@web/hooks/use-vendor-invoices';
 import { useGoodsReceipt } from '@web/hooks/use-goods-receipts';
 import { usePurchaseOrder } from '@web/hooks/use-purchase-orders';
 import { VendorInvoiceStatusBadge } from './status-badge';
@@ -53,7 +53,6 @@ function formatDate(dateStr: string, includeTime = false) {
 
 export function VendorInvoiceDetailContainer() {
   const params = useParams();
-  const router = useRouter();
   const id = params.id as string;
   const confirm = useConfirm();
 
@@ -133,8 +132,9 @@ export function VendorInvoiceDetailContainer() {
       });
       toast.success('Bill marked as received and journal entries posted');
       setIsReceiveOpen(false);
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to mark bill as received');
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to mark bill as received';
+      toast.error(errorMsg);
     }
   };
 
@@ -154,8 +154,9 @@ export function VendorInvoiceDetailContainer() {
       });
       toast.success('Payment recorded successfully');
       setIsPaymentOpen(false);
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to record payment');
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to record payment';
+      toast.error(errorMsg);
     }
   };
 

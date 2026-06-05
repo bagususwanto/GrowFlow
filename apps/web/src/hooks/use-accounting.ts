@@ -22,10 +22,10 @@ export const accountingKeys = {
   journal: (id: string) => [...accountingKeys.journals(), id] as const,
   settings: () => [...accountingKeys.all, 'settings'] as const,
   reports: () => [...accountingKeys.all, 'reports'] as const,
-  trialBalance: (filter: any) => [...accountingKeys.reports(), 'trial-balance', filter] as const,
-  profitLoss: (filter: any) => [...accountingKeys.reports(), 'profit-loss', filter] as const,
-  apAging: (filter: any) => [...accountingKeys.reports(), 'ap-aging', filter] as const,
-  arAging: (filter: any) => [...accountingKeys.reports(), 'ar-aging', filter] as const,
+  trialBalance: (filter: { startDate?: string; endDate?: string }) => [...accountingKeys.reports(), 'trial-balance', filter] as const,
+  profitLoss: (filter: { startDate?: string; endDate?: string }) => [...accountingKeys.reports(), 'profit-loss', filter] as const,
+  apAging: (filter: { asOf?: string }) => [...accountingKeys.reports(), 'ap-aging', filter] as const,
+  arAging: (filter: { asOf?: string }) => [...accountingKeys.reports(), 'ar-aging', filter] as const,
 };
 
 // --- Accounts Hooks ---
@@ -71,7 +71,7 @@ export function useUpdateAccount(id: string) {
     mutationFn: async (data) => {
       return apiClient.patch<Account>(`/accounting/accounts/${id}`, data);
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: accountingKeys.account(id) });
       queryClient.invalidateQueries({ queryKey: accountingKeys.accounts() });
     },

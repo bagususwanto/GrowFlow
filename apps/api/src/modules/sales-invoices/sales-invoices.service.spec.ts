@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SalesInvoicesService } from './sales-invoices.service';
 import { SalesInvoicesRepository } from './sales-invoices.repository';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
+import { JournalEntriesService } from '../accounting/journal-entries/journal-entries.service';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { SalesInvoiceStatus, SalesOrderStatus, SalesCreditNoteStatus } from '@prisma/client';
 
@@ -60,10 +61,26 @@ describe('SalesInvoicesService', () => {
 
     const mockPrisma: any = {
       $transaction: jest.fn((cb: any) => cb(mockPrisma)),
-      salesInvoicePayment: { create: jest.fn() },
+      salesInvoicePayment: { create: jest.fn().mockResolvedValue({ id: 'payment-id' }) },
       salesInvoice: { update: jest.fn() },
       salesOrder: { update: jest.fn() },
       salesCreditNote: { create: jest.fn() },
+      accountingSettings: {
+        findUnique: jest.fn().mockResolvedValue({
+          id: 'default',
+          apAccountId: 'ap-acc',
+          arAccountId: 'ar-acc',
+          cashAccountId: 'cash-acc',
+          inventoryAccountId: 'inv-acc',
+          cogsAccountId: 'cogs-acc',
+          revenueAccountId: 'rev-acc',
+          purchaseAccountId: 'pur-acc',
+        }),
+      },
+    };
+
+    const mockJournalEntriesService = {
+      createAutoJournal: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -71,6 +88,7 @@ describe('SalesInvoicesService', () => {
         SalesInvoicesService,
         { provide: SalesInvoicesRepository, useValue: mockRepo },
         { provide: PrismaService, useValue: mockPrisma },
+        { provide: JournalEntriesService, useValue: mockJournalEntriesService },
       ],
     }).compile();
 
@@ -92,8 +110,12 @@ describe('SalesInvoicesService', () => {
       const result = await service.send('inv-id-1');
 
       expect(result.status).toBe(SalesInvoiceStatus.SENT);
-      expect(repository.updateStatus).toHaveBeenCalledWith('inv-id-1', SalesInvoiceStatus.SENT, {
-        sentAt: expect.any(Date),
+      expect(prisma.salesInvoice.update).toHaveBeenCalledWith({
+        where: { id: 'inv-id-1' },
+        data: {
+          status: SalesInvoiceStatus.SENT,
+          sentAt: expect.any(Date),
+        },
       });
     });
 

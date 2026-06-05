@@ -39,14 +39,12 @@ import {
 import { toast } from 'sonner';
 import { ChevronLeftIcon, ChevronRightIcon, SearchIcon, RotateCcwIcon, ChevronsLeftIcon, ChevronsRightIcon } from 'lucide-react';
 import { useConfirm } from '@web/hooks/use-confirm';
-import { useAuthStore } from '@web/stores/auth.store';
 
 export function VendorInvoicesTable() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const confirm = useConfirm();
-  const user = useAuthStore((state) => state.user);
 
   const urlPage = searchParams.get('page');
   const urlLimit = searchParams.get('limit');
@@ -230,9 +228,8 @@ export function VendorInvoicesTable() {
         sortBy,
         sortOrder,
         onSort: handleSort,
-        userRole: user?.role,
       }),
-    [handleView, handleOpenReceive, handleOpenPayment, handleCancel, sortBy, sortOrder, handleSort, user?.role],
+    [handleView, handleOpenReceive, handleOpenPayment, handleCancel, sortBy, sortOrder, handleSort],
   );
 
   const tableData = React.useMemo(() => data?.data || [], [data]);
@@ -275,8 +272,9 @@ export function VendorInvoicesTable() {
       });
       toast.success(`Bill ${selectedInvoice.number} marked as received`);
       setIsReceiveOpen(false);
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to mark bill as received');
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to mark bill as received';
+      toast.error(errorMsg);
     }
   };
 
@@ -298,8 +296,9 @@ export function VendorInvoicesTable() {
       });
       toast.success(`Payment recorded for ${selectedInvoice.number}`);
       setIsPaymentOpen(false);
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to record payment');
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to record payment';
+      toast.error(errorMsg);
     }
   };
 

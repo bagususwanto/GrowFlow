@@ -7,7 +7,7 @@ import {
   useUpdateAccount,
   useDeleteAccount,
 } from '@web/hooks/use-accounting';
-import { Account } from '@growflow/types';
+import { Account, AccountType, AccountCategory } from '@growflow/types';
 import { Card, CardContent } from '@web/components/ui/card';
 import { Button } from '@web/components/ui/button';
 import { Skeleton } from '@web/components/ui/skeleton';
@@ -71,7 +71,6 @@ export function ChartOfAccountsTable() {
 
   // Mutations
   const createMutation = useCreateAccount();
-  const updateMutation = useUpdateAccount(React.useMemo(() => '', [])); // Dummy id, replaced dynamically in call
   const deleteMutation = useDeleteAccount();
 
   // Modal Dialog States
@@ -81,8 +80,8 @@ export function ChartOfAccountsTable() {
   // Form Fields
   const [code, setCode] = React.useState('');
   const [name, setName] = React.useState('');
-  const [type, setType] = React.useState('ASSET');
-  const [category, setCategory] = React.useState('CURRENT_ASSET');
+  const [type, setType] = React.useState<AccountType>('ASSET');
+  const [category, setCategory] = React.useState<AccountCategory>('CURRENT_ASSET');
   const [parentId, setParentId] = React.useState<string>('none');
 
   // Helper for hierarchy depth
@@ -152,6 +151,8 @@ export function ChartOfAccountsTable() {
     }
   };
 
+  const updateAccountMut = useUpdateAccount(selectedAccount?.id || '');
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!code || !name) {
@@ -162,53 +163,8 @@ export function ChartOfAccountsTable() {
     const payload = {
       code,
       name,
-      type: type as any,
-      category: category as any,
-      parentId: parentId === 'none' ? undefined : parentId,
-    };
-
-    try {
-      if (selectedAccount) {
-        // Use a dynamic mutation trigger (standard react-query mutation logic)
-        await updateMutation.mutateAsync(payload, {
-          // Pass the mutation config inline to use the correct ID since hook ID is static
-          // We can call api client directly if needed or run mutateAsync with custom patch logic.
-          // Wait! In use-accounting.ts: useUpdateAccount(id) takes id in the hook instantiation.
-          // Let's check how to invoke useUpdateAccount dynamically, or let's update that hook if needed, or simply invoke updateMutation.
-        });
-      } else {
-        await createMutation.mutateAsync(payload);
-        toast.success(`Account ${code} created successfully`);
-      }
-      setIsOpen(false);
-    } catch (err: any) {
-      toast.error(err?.message || 'Operation failed');
-    }
-  };
-
-  // Wait, let's fix the useUpdateAccount hook usage!
-  // In use-accounting.ts, useUpdateAccount(id) returns a mutation that takes UpdateAccountRequest.
-  // Since we want to update a dynamic ID, we can either instantiate the hook inside the row (which is not compliant with Hook rules),
-  // OR we can make useUpdateAccount take an object containing both the ID and the data.
-  // Wait! Let's check the useUpdateAccount signature in use-accounting.ts again:
-  // export function useUpdateAccount(id: string) { ... }
-  // To keep it simple and clean, let's define an inline update mutation or rewrite/patch the useUpdateAccount hook.
-  // Let's check if we can write a custom mutation using useMutation inside the component. This is very clean, fast, and does not require modifying hooks!
-  const queryClient = import('@tanstack/react-query').then(m => m.useQueryClient());
-  const updateAccountMut = useUpdateAccount(selectedAccount?.id || '');
-
-  const triggerSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!code || !name) {
-      toast.error('Code and Name are required');
-      return;
-    }
-
-    const payload = {
-      code,
-      name,
-      type: type as any,
-      category: category as any,
+      type,
+      category,
       parentId: parentId === 'none' ? null : parentId,
     };
 
@@ -221,8 +177,9 @@ export function ChartOfAccountsTable() {
         toast.success(`Account ${code} created successfully`);
       }
       setIsOpen(false);
-    } catch (err: any) {
-      toast.error(err?.message || 'Operation failed');
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Operation failed';
+      toast.error(errorMsg);
     }
   };
 
@@ -396,7 +353,7 @@ export function ChartOfAccountsTable() {
                 : 'Add a new ledger account to your Chart of Accounts.'}
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={triggerSubmit} className="space-y-4 py-2">
+          <form onSubmit={handleSubmit} className="space-y-4 py-2">
             <div className="grid grid-cols-3 gap-2">
               <div className="space-y-1.5 col-span-1">
                 <Label htmlFor="code">Code</Label>

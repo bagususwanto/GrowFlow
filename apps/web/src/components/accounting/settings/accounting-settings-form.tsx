@@ -57,6 +57,18 @@ export function AccountingSettingsForm() {
     return [...accounts].sort((a, b) => a.code.localeCompare(b.code));
   }, [accounts]);
 
+  const renderSelectValue = (valueId: string) => {
+    const acc = accounts.find((a) => a.id === valueId);
+    if (!acc) return undefined;
+    return (
+      <span className="flex items-center gap-1.5">
+        <span className="font-mono font-semibold">{acc.code}</span>
+        <span className="text-muted-foreground/50">|</span>
+        <span>{acc.name}</span>
+      </span>
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isSuperadmin) {
@@ -77,8 +89,9 @@ export function AccountingSettingsForm() {
     try {
       await updateMutation.mutateAsync(payload);
       toast.success('Default account mappings updated successfully');
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to update accounting settings');
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to update accounting settings';
+      toast.error(errorMsg);
     }
   };
 
@@ -103,7 +116,7 @@ export function AccountingSettingsForm() {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 w-full">
       <div className="space-y-0.5">
         <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
           Accounting Settings
@@ -131,8 +144,10 @@ export function AccountingSettingsForm() {
               <div className="space-y-2">
                 <Label htmlFor="apAccountId" className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">Accounts Payable (Hutang Dagang)</Label>
                 <Select value={apAccountId} onValueChange={(val) => setApAccountId(val || '')}>
-                  <SelectTrigger id="apAccountId" className="h-9">
-                    <SelectValue placeholder="Select account..." />
+                  <SelectTrigger id="apAccountId" className="w-full h-9">
+                    <SelectValue placeholder="Select account...">
+                      {renderSelectValue(apAccountId)}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {sortedAccounts
@@ -151,8 +166,10 @@ export function AccountingSettingsForm() {
               <div className="space-y-2">
                 <Label htmlFor="arAccountId" className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">Accounts Receivable (Piutang Dagang)</Label>
                 <Select value={arAccountId} onValueChange={(val) => setArAccountId(val || '')}>
-                  <SelectTrigger id="arAccountId" className="h-9">
-                    <SelectValue placeholder="Select account..." />
+                  <SelectTrigger id="arAccountId" className="w-full h-9">
+                    <SelectValue placeholder="Select account...">
+                      {renderSelectValue(arAccountId)}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {sortedAccounts
@@ -171,8 +188,10 @@ export function AccountingSettingsForm() {
               <div className="space-y-2">
                 <Label htmlFor="cashAccountId" className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">Cash / Bank Account (Kas default)</Label>
                 <Select value={cashAccountId} onValueChange={(val) => setCashAccountId(val || '')}>
-                  <SelectTrigger id="cashAccountId" className="h-9">
-                    <SelectValue placeholder="Select account..." />
+                  <SelectTrigger id="cashAccountId" className="w-full h-9">
+                    <SelectValue placeholder="Select account...">
+                      {renderSelectValue(cashAccountId)}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {sortedAccounts
@@ -191,8 +210,10 @@ export function AccountingSettingsForm() {
               <div className="space-y-2">
                 <Label htmlFor="inventoryAccountId" className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">Inventory Account (Persediaan)</Label>
                 <Select value={inventoryAccountId} onValueChange={(val) => setInventoryAccountId(val || '')}>
-                  <SelectTrigger id="inventoryAccountId" className="h-9">
-                    <SelectValue placeholder="Select account..." />
+                  <SelectTrigger id="inventoryAccountId" className="w-full h-9">
+                    <SelectValue placeholder="Select account...">
+                      {renderSelectValue(inventoryAccountId)}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {sortedAccounts
@@ -211,8 +232,10 @@ export function AccountingSettingsForm() {
               <div className="space-y-2">
                 <Label htmlFor="cogsAccountId" className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">COGS Account (Harga Pokok Penjualan)</Label>
                 <Select value={cogsAccountId} onValueChange={(val) => setCogsAccountId(val || '')}>
-                  <SelectTrigger id="cogsAccountId" className="h-9">
-                    <SelectValue placeholder="Select account..." />
+                  <SelectTrigger id="cogsAccountId" className="w-full h-9">
+                    <SelectValue placeholder="Select account...">
+                      {renderSelectValue(cogsAccountId)}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {sortedAccounts
@@ -231,8 +254,10 @@ export function AccountingSettingsForm() {
               <div className="space-y-2">
                 <Label htmlFor="revenueAccountId" className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">Sales Revenue Account (Pendapatan)</Label>
                 <Select value={revenueAccountId} onValueChange={(val) => setRevenueAccountId(val || '')}>
-                  <SelectTrigger id="revenueAccountId" className="h-9">
-                    <SelectValue placeholder="Select account..." />
+                  <SelectTrigger id="revenueAccountId" className="w-full h-9">
+                    <SelectValue placeholder="Select account...">
+                      {renderSelectValue(revenueAccountId)}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {sortedAccounts
@@ -251,8 +276,10 @@ export function AccountingSettingsForm() {
               <div className="space-y-2">
                 <Label htmlFor="purchaseAccountId" className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">Purchase / Expense Account (Beban)</Label>
                 <Select value={purchaseAccountId} onValueChange={(val) => setPurchaseAccountId(val || '')}>
-                  <SelectTrigger id="purchaseAccountId" className="h-9">
-                    <SelectValue placeholder="Select account..." />
+                  <SelectTrigger id="purchaseAccountId" className="w-full h-9">
+                    <SelectValue placeholder="Select account...">
+                      {renderSelectValue(purchaseAccountId)}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {sortedAccounts
