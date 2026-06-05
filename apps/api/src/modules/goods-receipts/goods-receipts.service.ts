@@ -5,7 +5,7 @@ import { CreateGoodsReceiptDto } from './dto/create-goods-receipt.dto';
 import { ListGoodsReceiptsQueryDto } from './dto/list-goods-receipts-query.dto';
 import { PaginatedResponse } from '@growflow/types';
 import { GoodsReceiptResponseEntity } from './entities/goods-receipt-response.entity';
-import { GoodsReceiptStatus, PurchaseOrderStatus, MutationType } from '@prisma/client';
+import { GoodsReceiptStatus, PurchaseOrderStatus, MutationType, Prisma } from '@prisma/client';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 
 @Injectable()
@@ -216,6 +216,73 @@ export class GoodsReceiptsService {
         where: { id: gr.purchaseOrderId },
         data: { status: poStatus },
       });
+
+      // Auto-generate Vendor Invoice (BILL-YYYYMM-XXXX)
+      const existingInvoice = await tx.vendorInvoice.findUnique({
+        where: { goodsReceiptId: gr.id },
+      });
+
+      if (!existingInvoice) {
+        const supplier = await tx.partner.findUnique({
+          where: { id: po.supplierId, deletedAt: null },
+        });
+        const paymentTermsDays = supplier?.paymentTermsDays ?? 30;
+
+        const date = new Date();
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+
+        const docSeq = await tx.documentSequence.upsert({
+          where: {
+            type_year_month: {
+              type: 'BILL',
+              year,
+              month,
+            },
+          },
+          update: {
+            lastSeq: {
+              increment: 1,
+            },
+          },
+          create: {
+            type: 'BILL',
+            year,
+            month,
+            lastSeq: 1,
+          },
+        });
+
+        const paddedSeq = String(docSeq.lastSeq).padStart(4, '0');
+        const paddedMonth = String(month).padStart(2, '0');
+        const billNumber = `BILL-${year}${paddedMonth}-${paddedSeq}`;
+
+        const invoiceDate = new Date();
+        const dueDate = new Date();
+        dueDate.setDate(invoiceDate.getDate() + paymentTermsDays);
+
+        const totalAmount = gr.lineItems.reduce((sum: number, item: any) => {
+          const poLine = po.lineItems.find((l) => l.id === item.poLineItemId);
+          return sum + (item.qty * Number(poLine?.unitPrice || 0));
+        }, 0);
+
+        await tx.vendorInvoice.create({
+          data: {
+            number: billNumber,
+            goodsReceiptId: gr.id,
+            purchaseOrderId: gr.purchaseOrderId,
+            supplierId: po.supplierId,
+            status: 'DRAFT',
+            invoiceDate,
+            dueDate,
+            paymentTermsDays,
+            totalAmount: new Prisma.Decimal(totalAmount),
+            paidAmount: new Prisma.Decimal(0),
+            note: gr.note || `Auto-generated from GRN ${gr.number}`,
+            createdById: userId,
+          },
+        });
+      }
     });
 
     return this.findOne(id);
