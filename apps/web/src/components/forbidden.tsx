@@ -18,9 +18,11 @@ export function Forbidden() {
         Hubungi administrator jika Anda merasa ini adalah sebuah kesalahan.
       </p>
       <div className="mt-8 flex gap-4 justify-center">
-        <Button asChild variant="outline">
-          <Link href="/dashboard">Kembali ke Dashboard</Link>
-        </Button>
+        <Button
+          variant="outline"
+          nativeButton={false}
+          render={<Link href="/dashboard">Kembali ke Dashboard</Link>}
+        />
       </div>
     </div>
   )

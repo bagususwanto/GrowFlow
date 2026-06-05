@@ -15,7 +15,7 @@ import {
   SidebarMenuItem,
 } from "@web/components/ui/sidebar"
 import { useAuthStore } from "@web/stores/auth.store"
-import { LayoutDashboard, Package, ShoppingCart, Sprout, Users, Shield, Warehouse, Boxes, Handshake, FileText as FileTextIcon } from "lucide-react"
+import { LayoutDashboard, Package, ShoppingCart, Sprout, Users, Shield, Warehouse, Boxes, Handshake, FileText as FileTextIcon, Landmark, FileSpreadsheet, BarChart, Settings } from "lucide-react"
 
 import { hasPermission } from "@web/lib/permissions"
 
@@ -89,6 +89,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           permission: "read:goods-receipts",
         },
         {
+          title: "Vendor Invoices",
+          url: "/purchasing/vendor-invoices",
+          icon: <FileTextIcon />,
+          permission: "read:invoices",
+        },
+        {
           title: "Suppliers",
           url: "/purchasing/suppliers",
           icon: <Handshake />,
@@ -134,6 +140,53 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: "/sales/products",
           icon: <Package />,
           permission: "read:items",
+        },
+      ],
+    },
+    {
+      label: "Accounting",
+      items: [
+        {
+          title: "Chart of Accounts",
+          url: "/accounting/chart-of-accounts",
+          icon: <Landmark />,
+          permission: "read:invoices",
+        },
+        {
+          title: "Journal Entries",
+          url: "/accounting/journal-entries",
+          icon: <FileSpreadsheet />,
+          permission: "read:invoices",
+        },
+        {
+          title: "Trial Balance",
+          url: "/accounting/reports/trial-balance",
+          icon: <BarChart />,
+          permission: "read:invoices",
+        },
+        {
+          title: "Profit & Loss",
+          url: "/accounting/reports/profit-loss",
+          icon: <BarChart />,
+          permission: "read:invoices",
+        },
+        {
+          title: "AP Aging Report",
+          url: "/accounting/reports/ap-aging",
+          icon: <BarChart />,
+          permission: "read:invoices",
+        },
+        {
+          title: "AR Aging Report",
+          url: "/accounting/reports/ar-aging",
+          icon: <BarChart />,
+          permission: "read:invoices",
+        },
+        {
+          title: "Settings",
+          url: "/accounting/settings",
+          icon: <Settings />,
+          permission: "read:invoices",
         },
       ],
     },
