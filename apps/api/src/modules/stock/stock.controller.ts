@@ -4,7 +4,7 @@ import { StockService } from './stock.service';
 import { StockAdjustmentDto } from './dto/stock-adjustment.dto';
 import { ListStockMutationsQueryDto } from './dto/list-stock-mutations-query.dto';
 import { ListStockBalancesQueryDto } from './dto/list-stock-balances-query.dto';
-import { Roles } from '../../common/decorators/roles.decorator';
+import { Permissions } from '../../common/decorators/permissions.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { AuthUser } from '@growflow/types';
 import { StockBalanceResponseEntity } from './entities/stock-balance-response.entity';
@@ -16,7 +16,7 @@ export class StockController {
   constructor(private readonly stockService: StockService) {}
 
   @Get('balance/:warehouseId/:itemId')
-  @Roles('superadmin', 'manager', 'staff', 'warehouse')
+  @Permissions('read:stock')
   @ApiOperation({ summary: 'Get stock balance for a specific item in a warehouse' })
   @ApiResponse({ status: 200, type: StockBalanceResponseEntity })
   getBalance(
@@ -27,7 +27,7 @@ export class StockController {
   }
 
   @Post('adjust')
-  @Roles('superadmin', 'manager', 'warehouse')
+  @Permissions('write:stock')
   @ApiOperation({ summary: 'Adjust stock balance manually' })
   @ApiResponse({ status: 201, description: 'Stock adjusted' })
   adjustStock(
@@ -38,7 +38,7 @@ export class StockController {
   }
 
   @Get('mutations')
-  @Roles('superadmin', 'manager', 'staff', 'warehouse')
+  @Permissions('read:stock')
   @ApiOperation({ summary: 'List stock mutations with filters' })
   @ApiResponse({ status: 200, description: 'Paginated stock mutations' })
   listMutations(@Query() query: ListStockMutationsQueryDto) {
@@ -46,7 +46,7 @@ export class StockController {
   }
 
   @Get('balance')
-  @Roles('superadmin', 'manager', 'staff', 'warehouse')
+  @Permissions('read:stock')
   @ApiOperation({ summary: 'List stock balances with filters' })
   @ApiResponse({ status: 200, description: 'Paginated stock balances' })
   listBalances(@Query() query: ListStockBalancesQueryDto) {

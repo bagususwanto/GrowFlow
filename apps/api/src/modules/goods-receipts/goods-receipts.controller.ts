@@ -3,7 +3,7 @@ import { GoodsReceiptsService } from './goods-receipts.service';
 import { CreateGoodsReceiptDto } from './dto/create-goods-receipt.dto';
 import { ListGoodsReceiptsQueryDto } from './dto/list-goods-receipts-query.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { Roles } from '../../common/decorators/roles.decorator';
+import { Permissions } from '../../common/decorators/permissions.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { AuthUser } from '@growflow/types';
 import { GoodsReceiptResponseEntity } from './entities/goods-receipt-response.entity';
@@ -15,7 +15,7 @@ export class GoodsReceiptsController {
   constructor(private readonly service: GoodsReceiptsService) {}
 
   @Post()
-  @Roles('superadmin', 'manager', 'warehouse')
+  @Permissions('create:goods-receipts')
   @ApiOperation({ summary: 'Create a new Goods Receipt in DRAFT status' })
   @ApiResponse({ status: 201, type: GoodsReceiptResponseEntity })
   create(
@@ -26,7 +26,7 @@ export class GoodsReceiptsController {
   }
 
   @Get()
-  @Roles('superadmin', 'manager', 'staff', 'warehouse', 'finance')
+  @Permissions('read:goods-receipts')
   @ApiOperation({ summary: 'Get all Goods Receipts' })
   @ApiResponse({ status: 200 })
   findAll(@Query() query: ListGoodsReceiptsQueryDto) {
@@ -34,7 +34,7 @@ export class GoodsReceiptsController {
   }
 
   @Get(':id')
-  @Roles('superadmin', 'manager', 'staff', 'warehouse', 'finance')
+  @Permissions('read:goods-receipts')
   @ApiOperation({ summary: 'Get Goods Receipt by ID' })
   @ApiResponse({ status: 200, type: GoodsReceiptResponseEntity })
   findOne(@Param('id') id: string) {
@@ -42,7 +42,7 @@ export class GoodsReceiptsController {
   }
 
   @Post(':id/confirm')
-  @Roles('superadmin', 'manager', 'warehouse')
+  @Permissions('confirm:goods-receipts')
   @ApiOperation({ summary: 'Confirm a Goods Receipt (adds to stock & updates PO status)' })
   @ApiResponse({ status: 200, type: GoodsReceiptResponseEntity })
   confirm(
@@ -53,7 +53,7 @@ export class GoodsReceiptsController {
   }
 
   @Delete(':id')
-  @Roles('superadmin', 'manager')
+  @Permissions('delete:goods-receipts')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Soft delete a Goods Receipt (DRAFT only)' })
   @ApiResponse({ status: 204 })

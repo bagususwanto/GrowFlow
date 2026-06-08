@@ -4,7 +4,7 @@ import { CreatePurchaseOrderDto } from './dto/create-purchase-order.dto';
 import { UpdatePurchaseOrderDto } from './dto/update-purchase-order.dto';
 import { ListPurchaseOrdersQueryDto } from './dto/list-purchase-orders-query.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { Roles } from '../../common/decorators/roles.decorator';
+import { Permissions } from '../../common/decorators/permissions.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { AuthUser } from '@growflow/types';
 import { PurchaseOrderResponseEntity } from './entities/purchase-order-response.entity';
@@ -16,7 +16,7 @@ export class PurchaseOrdersController {
   constructor(private readonly service: PurchaseOrdersService) {}
 
   @Post()
-  @Roles('superadmin', 'manager', 'staff')
+  @Permissions('create:purchase-orders')
   @ApiOperation({ summary: 'Create a new Purchase Order in DRAFT status' })
   @ApiResponse({ status: 201, type: PurchaseOrderResponseEntity })
   create(
@@ -27,7 +27,7 @@ export class PurchaseOrdersController {
   }
 
   @Get()
-  @Roles('superadmin', 'manager', 'staff', 'warehouse', 'finance')
+  @Permissions('read:purchase-orders')
   @ApiOperation({ summary: 'Get all Purchase Orders' })
   @ApiResponse({ status: 200 })
   findAll(@Query() query: ListPurchaseOrdersQueryDto) {
@@ -35,7 +35,7 @@ export class PurchaseOrdersController {
   }
 
   @Get(':id')
-  @Roles('superadmin', 'manager', 'staff', 'warehouse', 'finance')
+  @Permissions('read:purchase-orders')
   @ApiOperation({ summary: 'Get Purchase Order by ID' })
   @ApiResponse({ status: 200, type: PurchaseOrderResponseEntity })
   findOne(@Param('id') id: string) {
@@ -43,7 +43,7 @@ export class PurchaseOrdersController {
   }
 
   @Patch(':id')
-  @Roles('superadmin', 'manager', 'staff')
+  @Permissions('update:purchase-orders')
   @ApiOperation({ summary: 'Update a Purchase Order (DRAFT only)' })
   @ApiResponse({ status: 200, type: PurchaseOrderResponseEntity })
   update(
@@ -54,7 +54,7 @@ export class PurchaseOrdersController {
   }
 
   @Post(':id/submit')
-  @Roles('superadmin', 'manager', 'staff')
+  @Permissions('submit:purchase-orders')
   @ApiOperation({ summary: 'Submit a Purchase Order (DRAFT -> SUBMITTED)' })
   @ApiResponse({ status: 200, type: PurchaseOrderResponseEntity })
   submit(@Param('id') id: string) {
@@ -62,7 +62,7 @@ export class PurchaseOrdersController {
   }
 
   @Post(':id/approve')
-  @Roles('superadmin', 'manager')
+  @Permissions('approve:purchase-orders')
   @ApiOperation({ summary: 'Approve a Purchase Order (SUBMITTED -> APPROVED)' })
   @ApiResponse({ status: 200, type: PurchaseOrderResponseEntity })
   approve(
@@ -73,7 +73,7 @@ export class PurchaseOrdersController {
   }
 
   @Post(':id/cancel')
-  @Roles('superadmin', 'manager')
+  @Permissions('cancel:purchase-orders')
   @ApiOperation({ summary: 'Cancel a Purchase Order' })
   @ApiResponse({ status: 200, type: PurchaseOrderResponseEntity })
   cancel(@Param('id') id: string) {
@@ -81,7 +81,7 @@ export class PurchaseOrdersController {
   }
 
   @Delete(':id')
-  @Roles('superadmin', 'manager')
+  @Permissions('delete:purchase-orders')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Soft delete a Purchase Order (DRAFT only)' })
   @ApiResponse({ status: 204 })

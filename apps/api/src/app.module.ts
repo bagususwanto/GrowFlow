@@ -21,7 +21,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { AccountingModule } from './modules/accounting/accounting.module';
 import { VendorInvoicesModule } from './modules/vendor-invoices/vendor-invoices.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
-import { RolesGuard } from './common/guards/roles.guard';
+import { PermissionsGuard } from './common/guards/permissions.guard';
 
 @Module({
   imports: [
@@ -62,7 +62,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     },
     {
       provide: APP_GUARD,
-      useClass: RolesGuard,
+      useClass: PermissionsGuard,
     },
   ],
 })

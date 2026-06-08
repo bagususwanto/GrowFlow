@@ -33,6 +33,7 @@ async function main() {
       // Sales Orders: read all, read one, update (draft), confirm, cancel, delete
       // Delivery Notes: create, read all, read one, update (draft), confirm
       permissions: [
+        'read:dashboard',
         'read:users',
         'read:roles',
         'create:warehouses', 'read:warehouses', 'update:warehouses',
@@ -58,6 +59,7 @@ async function main() {
       // Purchase Orders: create, read all, read one, update (draft), submit
       // Sales Orders: create, read all, read one, update (draft), confirm
       permissions: [
+        'read:dashboard',
         'read:warehouses',
         'read:category-items',
         'read:items',
@@ -79,6 +81,7 @@ async function main() {
       // Sales Orders: read only
       // Delivery Notes: read only
       permissions: [
+        'read:dashboard',
         'read:items',
         'read:partners',
         'read:stock',
@@ -102,6 +105,7 @@ async function main() {
       // Sales Orders: read only
       // Delivery Notes: create, read all, read one, update (draft), confirm
       permissions: [
+        'read:dashboard',
         'read:warehouses',
         'read:category-items',
         'read:items',

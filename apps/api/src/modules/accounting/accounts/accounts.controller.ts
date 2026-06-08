@@ -4,7 +4,7 @@ import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { ListAccountsQueryDto } from './dto/list-accounts-query.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { Roles } from '../../../common/decorators/roles.decorator';
+import { Permissions } from '../../../common/decorators/permissions.decorator';
 
 @ApiTags('accounting-accounts')
 @ApiBearerAuth()
@@ -13,7 +13,7 @@ export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}
 
   @Post()
-  @Roles('superadmin', 'finance')
+  @Permissions('create:accounting')
   @ApiOperation({ summary: 'Create a new account' })
   @ApiResponse({ status: 201, description: 'Account created successfully' })
   create(@Body() createAccountDto: CreateAccountDto) {
@@ -21,7 +21,7 @@ export class AccountsController {
   }
 
   @Get()
-  @Roles('superadmin', 'finance', 'manager')
+  @Permissions('read:accounting')
   @ApiOperation({ summary: 'Get all accounts' })
   @ApiResponse({ status: 200, description: 'Return all accounts' })
   findAll(@Query() query: ListAccountsQueryDto) {
@@ -29,7 +29,7 @@ export class AccountsController {
   }
 
   @Get(':id')
-  @Roles('superadmin', 'finance', 'manager')
+  @Permissions('read:accounting')
   @ApiOperation({ summary: 'Get an account by id' })
   @ApiResponse({ status: 200, description: 'Return account details' })
   findOne(@Param('id') id: string) {
@@ -37,7 +37,7 @@ export class AccountsController {
   }
 
   @Patch(':id')
-  @Roles('superadmin', 'finance')
+  @Permissions('update:accounting')
   @ApiOperation({ summary: 'Update an account' })
   @ApiResponse({ status: 200, description: 'Account updated successfully' })
   update(@Param('id') id: string, @Body() updateAccountDto: UpdateAccountDto) {
@@ -45,7 +45,7 @@ export class AccountsController {
   }
 
   @Delete(':id')
-  @Roles('superadmin', 'finance')
+  @Permissions('delete:accounting')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Soft delete an account' })
   @ApiResponse({ status: 204, description: 'Account deleted successfully' })

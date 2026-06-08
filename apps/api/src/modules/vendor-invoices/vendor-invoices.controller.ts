@@ -4,7 +4,7 @@ import { ListVendorInvoicesQueryDto } from './dto/list-vendor-invoices-query.dto
 import { ReceiveVendorInvoiceDto } from './dto/receive-vendor-invoice.dto';
 import { CreateVendorPaymentDto } from './dto/create-vendor-payment.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { Roles } from '../../common/decorators/roles.decorator';
+import { Permissions } from '../../common/decorators/permissions.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { AuthUser } from '@growflow/types';
 
@@ -15,7 +15,7 @@ export class VendorInvoicesController {
   constructor(private readonly vendorInvoicesService: VendorInvoicesService) {}
 
   @Get()
-  @Roles('superadmin', 'finance', 'manager')
+  @Permissions('read:invoices')
   @ApiOperation({ summary: 'Get all vendor invoices (bills)' })
   @ApiResponse({ status: 200, description: 'Return paginated vendor invoices' })
   findAll(@Query() query: ListVendorInvoicesQueryDto) {
@@ -23,7 +23,7 @@ export class VendorInvoicesController {
   }
 
   @Get(':id')
-  @Roles('superadmin', 'finance', 'manager')
+  @Permissions('read:invoices')
   @ApiOperation({ summary: 'Get vendor invoice details by ID' })
   @ApiResponse({ status: 200, description: 'Return vendor invoice details' })
   findOne(@Param('id') id: string) {
@@ -31,7 +31,7 @@ export class VendorInvoicesController {
   }
 
   @Patch(':id/receive')
-  @Roles('superadmin', 'finance')
+  @Permissions('update:invoices')
   @ApiOperation({ summary: 'Mark draft vendor invoice as RECEIVED (posts ledger journal)' })
   @ApiResponse({ status: 200, description: 'Invoice status updated to RECEIVED' })
   receive(
@@ -43,7 +43,7 @@ export class VendorInvoicesController {
   }
 
   @Post(':id/payments')
-  @Roles('superadmin', 'finance')
+  @Permissions('create:invoices')
   @ApiOperation({ summary: 'Record AP payment on vendor invoice' })
   @ApiResponse({ status: 201, description: 'Payment recorded and ledger journal posted' })
   recordPayment(
@@ -55,7 +55,7 @@ export class VendorInvoicesController {
   }
 
   @Patch(':id/cancel')
-  @Roles('superadmin', 'finance')
+  @Permissions('update:invoices')
   @ApiOperation({ summary: 'Cancel a draft vendor invoice' })
   @ApiResponse({ status: 200, description: 'Invoice cancelled' })
   cancel(@Param('id') id: string) {

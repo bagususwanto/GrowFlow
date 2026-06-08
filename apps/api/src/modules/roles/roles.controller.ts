@@ -3,7 +3,7 @@ import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { Roles } from '../../common/decorators/roles.decorator';
+import { Permissions } from '../../common/decorators/permissions.decorator';
 import { RoleResponseEntity } from './entities/role-response.entity';
 import { ListRolesQueryDto } from './dto/list-roles-query.dto';
 
@@ -14,7 +14,7 @@ export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
   @Post()
-  @Roles('superadmin')
+  @Permissions('write:roles')
   @ApiOperation({ summary: 'Create a new role' })
   @ApiResponse({ status: 201, description: 'Role created successfully', type: RoleResponseEntity })
   create(@Body() createRoleDto: CreateRoleDto) {
@@ -22,7 +22,7 @@ export class RolesController {
   }
 
   @Get()
-  @Roles('superadmin', 'manager')
+  @Permissions('read:roles')
   @ApiOperation({ summary: 'Get all roles' })
   @ApiResponse({ status: 200, description: 'Return paginated roles' })
   findAll(@Query() query: ListRolesQueryDto) {
@@ -30,7 +30,7 @@ export class RolesController {
   }
 
   @Get(':id')
-  @Roles('superadmin', 'manager')
+  @Permissions('read:roles')
   @ApiOperation({ summary: 'Get a role by id' })
   @ApiResponse({ status: 200, description: 'Return role details', type: RoleResponseEntity })
   findOne(@Param('id') id: string) {
@@ -38,7 +38,7 @@ export class RolesController {
   }
 
   @Patch(':id')
-  @Roles('superadmin')
+  @Permissions('write:roles')
   @ApiOperation({ summary: 'Update a role' })
   @ApiResponse({ status: 200, description: 'Role updated successfully', type: RoleResponseEntity })
   update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
@@ -46,7 +46,7 @@ export class RolesController {
   }
 
   @Delete(':id')
-  @Roles('superadmin')
+  @Permissions('write:roles')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a role' })
   @ApiResponse({ status: 204, description: 'Role deleted successfully' })

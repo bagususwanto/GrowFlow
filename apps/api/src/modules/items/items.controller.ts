@@ -5,7 +5,7 @@ import { UpdateItemDto } from './dto/update-item.dto';
 import { ListItemsQueryDto } from './dto/list-items-query.dto';
 import { GetItemLastPriceQueryDto } from './dto/get-item-last-price-query.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { Roles } from '../../common/decorators/roles.decorator';
+import { Permissions } from '../../common/decorators/permissions.decorator';
 import { ItemResponseEntity } from './entities/item-response.entity';
 
 @ApiTags('items')
@@ -15,7 +15,7 @@ export class ItemsController {
   constructor(private readonly itemsService: ItemsService) {}
 
   @Post()
-  @Roles('superadmin', 'manager')
+  @Permissions('create:items')
   @ApiOperation({ summary: 'Create a new item' })
   @ApiResponse({ status: 201, description: 'Item created successfully', type: ItemResponseEntity })
   create(@Body() createItemDto: CreateItemDto) {
@@ -23,7 +23,7 @@ export class ItemsController {
   }
 
   @Get()
-  @Roles('superadmin', 'manager', 'staff', 'warehouse')
+  @Permissions('read:items')
   @ApiOperation({ summary: 'Get all items' })
   @ApiResponse({ status: 200, description: 'Return paginated items' })
   findAll(@Query() query: ListItemsQueryDto) {
@@ -31,7 +31,7 @@ export class ItemsController {
   }
 
   @Get(':id')
-  @Roles('superadmin', 'manager', 'staff', 'warehouse')
+  @Permissions('read:items')
   @ApiOperation({ summary: 'Get an item by id' })
   @ApiResponse({ status: 200, description: 'Return item details', type: ItemResponseEntity })
   findOne(@Param('id') id: string) {
@@ -39,7 +39,7 @@ export class ItemsController {
   }
 
   @Get(':id/last-price')
-  @Roles('superadmin', 'manager', 'staff', 'warehouse', 'finance')
+  @Permissions('read:items')
   @ApiOperation({ summary: 'Get last purchase or sales price of an item' })
   @ApiResponse({ status: 200, description: 'Return last price of the item' })
   getLastPrice(
@@ -50,7 +50,7 @@ export class ItemsController {
   }
 
   @Patch(':id')
-  @Roles('superadmin', 'manager')
+  @Permissions('update:items')
   @ApiOperation({ summary: 'Update an item' })
   @ApiResponse({ status: 200, description: 'Item updated successfully', type: ItemResponseEntity })
   update(@Param('id') id: string, @Body() updateItemDto: UpdateItemDto) {
@@ -58,7 +58,7 @@ export class ItemsController {
   }
 
   @Delete(':id')
-  @Roles('superadmin', 'manager')
+  @Permissions('delete:items')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Soft delete an item' })
   @ApiResponse({ status: 204, description: 'Item deleted successfully' })

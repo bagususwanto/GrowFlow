@@ -4,7 +4,7 @@ import { CreateSalesOrderDto } from './dto/create-sales-order.dto';
 import { UpdateSalesOrderDto } from './dto/update-sales-order.dto';
 import { ListSalesOrdersQueryDto } from './dto/list-sales-orders-query.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { Roles } from '../../common/decorators/roles.decorator';
+import { Permissions } from '../../common/decorators/permissions.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { AuthUser } from '@growflow/types';
 import { SalesOrderResponseEntity } from './entities/sales-order-response.entity';
@@ -16,7 +16,7 @@ export class SalesOrdersController {
   constructor(private readonly service: SalesOrdersService) {}
 
   @Post()
-  @Roles('superadmin', 'manager', 'staff')
+  @Permissions('create:sales-orders')
   @ApiOperation({ summary: 'Create a new Sales Order in DRAFT status' })
   @ApiResponse({ status: 201, type: SalesOrderResponseEntity })
   create(
@@ -27,7 +27,7 @@ export class SalesOrdersController {
   }
 
   @Get()
-  @Roles('superadmin', 'manager', 'staff', 'warehouse', 'finance')
+  @Permissions('read:sales-orders')
   @ApiOperation({ summary: 'Get all Sales Orders' })
   @ApiResponse({ status: 200 })
   findAll(@Query() query: ListSalesOrdersQueryDto) {
@@ -35,7 +35,7 @@ export class SalesOrdersController {
   }
 
   @Get(':id')
-  @Roles('superadmin', 'manager', 'staff', 'warehouse', 'finance')
+  @Permissions('read:sales-orders')
   @ApiOperation({ summary: 'Get Sales Order by ID' })
   @ApiResponse({ status: 200, type: SalesOrderResponseEntity })
   findOne(@Param('id') id: string) {
@@ -43,7 +43,7 @@ export class SalesOrdersController {
   }
 
   @Patch(':id')
-  @Roles('superadmin', 'manager', 'staff')
+  @Permissions('update:sales-orders')
   @ApiOperation({ summary: 'Update a Sales Order (DRAFT only)' })
   @ApiResponse({ status: 200, type: SalesOrderResponseEntity })
   update(
@@ -54,7 +54,7 @@ export class SalesOrdersController {
   }
 
   @Post(':id/confirm')
-  @Roles('superadmin', 'manager', 'staff')
+  @Permissions('confirm:sales-orders')
   @ApiOperation({ summary: 'Confirm a Sales Order (DRAFT -> CONFIRMED, validates stock)' })
   @ApiResponse({ status: 200, type: SalesOrderResponseEntity })
   confirm(
@@ -65,7 +65,7 @@ export class SalesOrdersController {
   }
 
   @Post(':id/cancel')
-  @Roles('superadmin', 'manager')
+  @Permissions('cancel:sales-orders')
   @ApiOperation({ summary: 'Cancel a Sales Order' })
   @ApiResponse({ status: 200, type: SalesOrderResponseEntity })
   cancel(@Param('id') id: string) {
@@ -73,7 +73,7 @@ export class SalesOrdersController {
   }
 
   @Delete(':id')
-  @Roles('superadmin', 'manager')
+  @Permissions('delete:sales-orders')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Soft delete a Sales Order (DRAFT only)' })
   @ApiResponse({ status: 204 })

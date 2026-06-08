@@ -4,7 +4,7 @@ import { ListSalesInvoicesQueryDto } from './dto/list-sales-invoices-query.dto';
 import { RecordPaymentDto } from './dto/record-payment.dto';
 import { CreateCreditNoteDto } from './dto/create-credit-note.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { Roles } from '../../common/decorators/roles.decorator';
+import { Permissions } from '../../common/decorators/permissions.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { AuthUser } from '@growflow/types';
 import { Response } from 'express';
@@ -16,7 +16,7 @@ export class SalesInvoicesController {
   constructor(private readonly service: SalesInvoicesService) {}
 
   @Get()
-  @Roles('superadmin', 'manager', 'staff', 'finance')
+  @Permissions('read:invoices')
   @ApiOperation({ summary: 'Get all Sales Invoices' })
   @ApiResponse({ status: 200 })
   findAll(@Query() query: ListSalesInvoicesQueryDto) {
@@ -24,7 +24,7 @@ export class SalesInvoicesController {
   }
 
   @Get(':id')
-  @Roles('superadmin', 'manager', 'staff', 'finance')
+  @Permissions('read:invoices')
   @ApiOperation({ summary: 'Get Sales Invoice by ID' })
   @ApiResponse({ status: 200 })
   findOne(@Param('id') id: string) {
@@ -32,7 +32,7 @@ export class SalesInvoicesController {
   }
 
   @Post(':id/send')
-  @Roles('superadmin', 'manager', 'finance')
+  @Permissions('update:invoices')
   @ApiOperation({ summary: 'Send Sales Invoice (DRAFT -> SENT)' })
   @ApiResponse({ status: 200 })
   send(@Param('id') id: string) {
@@ -40,7 +40,7 @@ export class SalesInvoicesController {
   }
 
   @Post(':id/payment')
-  @Roles('superadmin', 'manager', 'finance')
+  @Permissions('create:invoices')
   @ApiOperation({ summary: 'Record payment on Sales Invoice' })
   @ApiResponse({ status: 200 })
   recordPayment(
@@ -52,7 +52,7 @@ export class SalesInvoicesController {
   }
 
   @Post(':id/credit-note')
-  @Roles('superadmin', 'manager', 'finance')
+  @Permissions('create:invoices')
   @ApiOperation({ summary: 'Create and apply Credit Note on Sales Invoice' })
   @ApiResponse({ status: 200 })
   createCreditNote(
@@ -64,7 +64,7 @@ export class SalesInvoicesController {
   }
 
   @Post(':id/cancel')
-  @Roles('superadmin', 'manager', 'finance')
+  @Permissions('update:invoices')
   @ApiOperation({ summary: 'Cancel Sales Invoice' })
   @ApiResponse({ status: 200 })
   cancel(@Param('id') id: string) {
@@ -72,7 +72,7 @@ export class SalesInvoicesController {
   }
 
   @Get(':id/pdf')
-  @Roles('superadmin', 'manager', 'staff', 'finance')
+  @Permissions('read:invoices')
   @ApiOperation({ summary: 'Generate and stream Sales Invoice PDF' })
   async generatePdf(
     @Param('id') id: string,
