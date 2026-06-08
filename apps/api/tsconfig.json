@@ -1,6 +1,7 @@
 {
   "extends": "@growflow/tsconfig/nestjs.json",
   "compilerOptions": {
+    "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
       "@api/*": ["src/*"]
