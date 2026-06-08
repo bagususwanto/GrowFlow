@@ -12,8 +12,24 @@ interface MetricsWidgetProps {
 }
 
 export function MetricsWidget({ data }: MetricsWidgetProps) {
+  const activeCount = [
+    data.totalItems !== undefined,
+    data.totalPurchaseOrders !== undefined,
+    data.pendingPurchaseOrders !== undefined,
+    data.totalSalesOrders !== undefined,
+    data.pendingSalesOrders !== undefined,
+  ].filter(Boolean).length;
+
+  const gridColsClass = {
+    1: "grid-cols-1",
+    2: "grid-cols-1 sm:grid-cols-2",
+    3: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+    4: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4",
+    5: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5",
+  }[activeCount as 1 | 2 | 3 | 4 | 5] || "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5";
+
   return (
-    <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
+    <div className={`grid gap-4 px-4 lg:px-6 ${gridColsClass}`}>
       {/* Card 1: Total Items */}
       {data.totalItems !== undefined && (
         <Card className="@container/card group relative overflow-hidden border border-teal-500/10 bg-teal-500/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-teal-500/20 hover:shadow-lg hover:shadow-teal-500/5">

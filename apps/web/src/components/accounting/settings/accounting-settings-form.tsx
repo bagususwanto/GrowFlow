@@ -10,13 +10,7 @@ import { useAuthStore } from '@web/stores/auth.store';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@web/components/ui/card';
 import { Button } from '@web/components/ui/button';
 import { Label } from '@web/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@web/components/ui/select';
+import { Combobox } from '@web/components/ui/combobox';
 import { Skeleton } from '@web/components/ui/skeleton';
 import { toast } from 'sonner';
 import { SettingsIcon, ShieldAlertIcon, SaveIcon } from 'lucide-react';
@@ -57,17 +51,46 @@ export function AccountingSettingsForm() {
     return [...accounts].sort((a, b) => a.code.localeCompare(b.code));
   }, [accounts]);
 
-  const renderSelectValue = (valueId: string) => {
-    const acc = accounts.find((a) => a.id === valueId);
-    if (!acc) return undefined;
-    return (
-      <span className="flex items-center gap-1.5">
-        <span className="font-mono font-semibold">{acc.code}</span>
-        <span className="text-muted-foreground/50">|</span>
-        <span>{acc.name}</span>
-      </span>
-    );
-  };
+  // Memoize combobox options by account types
+  const liabilityAccountOptions = React.useMemo(() => {
+    return sortedAccounts
+      .filter((a) => a.type === 'LIABILITY')
+      .map((a) => ({
+        value: a.id,
+        label: `${a.code} | ${a.name}`,
+        searchKeywords: `${a.code} ${a.name}`,
+      }));
+  }, [sortedAccounts]);
+
+  const assetAccountOptions = React.useMemo(() => {
+    return sortedAccounts
+      .filter((a) => a.type === 'ASSET')
+      .map((a) => ({
+        value: a.id,
+        label: `${a.code} | ${a.name}`,
+        searchKeywords: `${a.code} ${a.name}`,
+      }));
+  }, [sortedAccounts]);
+
+  const expenseAccountOptions = React.useMemo(() => {
+    return sortedAccounts
+      .filter((a) => a.type === 'EXPENSE')
+      .map((a) => ({
+        value: a.id,
+        label: `${a.code} | ${a.name}`,
+        searchKeywords: `${a.code} ${a.name}`,
+      }));
+  }, [sortedAccounts]);
+
+  const revenueAccountOptions = React.useMemo(() => {
+    return sortedAccounts
+      .filter((a) => a.type === 'REVENUE')
+      .map((a) => ({
+        value: a.id,
+        label: `${a.code} | ${a.name}`,
+        searchKeywords: `${a.code} ${a.name}`,
+      }));
+  }, [sortedAccounts]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,154 +166,98 @@ export function AccountingSettingsForm() {
               {/* AP Account */}
               <div className="space-y-2">
                 <Label htmlFor="apAccountId" className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">Accounts Payable (Hutang Dagang)</Label>
-                <Select value={apAccountId} onValueChange={(val) => setApAccountId(val || '')}>
-                  <SelectTrigger id="apAccountId" className="w-full h-9">
-                    <SelectValue placeholder="Select account...">
-                      {renderSelectValue(apAccountId)}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sortedAccounts
-                      .filter((a) => a.type === 'LIABILITY')
-                      .map((a) => (
-                        <SelectItem key={a.id} value={a.id}>
-                          <span className="font-mono font-semibold mr-1.5">{a.code}</span> {a.name}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
+                <Combobox
+                  value={apAccountId}
+                  onChange={(val) => setApAccountId(val || '')}
+                  options={liabilityAccountOptions}
+                  placeholder="Select AP account..."
+                  searchPlaceholder="Search account..."
+                  emptyMessage="No accounts found."
+                />
                 <p className="text-[10px] text-muted-foreground">Credited automatically when a vendor bill is RECEIVED.</p>
               </div>
 
               {/* AR Account */}
               <div className="space-y-2">
                 <Label htmlFor="arAccountId" className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">Accounts Receivable (Piutang Dagang)</Label>
-                <Select value={arAccountId} onValueChange={(val) => setArAccountId(val || '')}>
-                  <SelectTrigger id="arAccountId" className="w-full h-9">
-                    <SelectValue placeholder="Select account...">
-                      {renderSelectValue(arAccountId)}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sortedAccounts
-                      .filter((a) => a.type === 'ASSET')
-                      .map((a) => (
-                        <SelectItem key={a.id} value={a.id}>
-                          <span className="font-mono font-semibold mr-1.5">{a.code}</span> {a.name}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
+                <Combobox
+                  value={arAccountId}
+                  onChange={(val) => setArAccountId(val || '')}
+                  options={assetAccountOptions}
+                  placeholder="Select AR account..."
+                  searchPlaceholder="Search account..."
+                  emptyMessage="No accounts found."
+                />
                 <p className="text-[10px] text-muted-foreground">Debited automatically when a sales invoice is SENT.</p>
               </div>
 
               {/* Cash Account */}
               <div className="space-y-2">
                 <Label htmlFor="cashAccountId" className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">Cash / Bank Account (Kas default)</Label>
-                <Select value={cashAccountId} onValueChange={(val) => setCashAccountId(val || '')}>
-                  <SelectTrigger id="cashAccountId" className="w-full h-9">
-                    <SelectValue placeholder="Select account...">
-                      {renderSelectValue(cashAccountId)}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sortedAccounts
-                      .filter((a) => a.type === 'ASSET')
-                      .map((a) => (
-                        <SelectItem key={a.id} value={a.id}>
-                          <span className="font-mono font-semibold mr-1.5">{a.code}</span> {a.name}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
+                <Combobox
+                  value={cashAccountId}
+                  onChange={(val) => setCashAccountId(val || '')}
+                  options={assetAccountOptions}
+                  placeholder="Select cash account..."
+                  searchPlaceholder="Search account..."
+                  emptyMessage="No accounts found."
+                />
                 <p className="text-[10px] text-muted-foreground">Impacted when recording AP/AR cash payments.</p>
               </div>
 
               {/* Inventory Account */}
               <div className="space-y-2">
                 <Label htmlFor="inventoryAccountId" className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">Inventory Account (Persediaan)</Label>
-                <Select value={inventoryAccountId} onValueChange={(val) => setInventoryAccountId(val || '')}>
-                  <SelectTrigger id="inventoryAccountId" className="w-full h-9">
-                    <SelectValue placeholder="Select account...">
-                      {renderSelectValue(inventoryAccountId)}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sortedAccounts
-                      .filter((a) => a.type === 'ASSET')
-                      .map((a) => (
-                        <SelectItem key={a.id} value={a.id}>
-                          <span className="font-mono font-semibold mr-1.5">{a.code}</span> {a.name}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
+                <Combobox
+                  value={inventoryAccountId}
+                  onChange={(val) => setInventoryAccountId(val || '')}
+                  options={assetAccountOptions}
+                  placeholder="Select inventory account..."
+                  searchPlaceholder="Search account..."
+                  emptyMessage="No accounts found."
+                />
                 <p className="text-[10px] text-muted-foreground">Debited during inventory valuation receipt mutations.</p>
               </div>
 
               {/* COGS Account */}
               <div className="space-y-2">
                 <Label htmlFor="cogsAccountId" className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">COGS Account (Harga Pokok Penjualan)</Label>
-                <Select value={cogsAccountId} onValueChange={(val) => setCogsAccountId(val || '')}>
-                  <SelectTrigger id="cogsAccountId" className="w-full h-9">
-                    <SelectValue placeholder="Select account...">
-                      {renderSelectValue(cogsAccountId)}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sortedAccounts
-                      .filter((a) => a.type === 'EXPENSE')
-                      .map((a) => (
-                        <SelectItem key={a.id} value={a.id}>
-                          <span className="font-mono font-semibold mr-1.5">{a.code}</span> {a.name}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
+                <Combobox
+                  value={cogsAccountId}
+                  onChange={(val) => setCogsAccountId(val || '')}
+                  options={expenseAccountOptions}
+                  placeholder="Select COGS account..."
+                  searchPlaceholder="Search account..."
+                  emptyMessage="No accounts found."
+                />
                 <p className="text-[10px] text-muted-foreground">Debited when items are delivered to customers.</p>
               </div>
 
               {/* Revenue Account */}
               <div className="space-y-2">
                 <Label htmlFor="revenueAccountId" className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">Sales Revenue Account (Pendapatan)</Label>
-                <Select value={revenueAccountId} onValueChange={(val) => setRevenueAccountId(val || '')}>
-                  <SelectTrigger id="revenueAccountId" className="w-full h-9">
-                    <SelectValue placeholder="Select account...">
-                      {renderSelectValue(revenueAccountId)}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sortedAccounts
-                      .filter((a) => a.type === 'REVENUE')
-                      .map((a) => (
-                        <SelectItem key={a.id} value={a.id}>
-                          <span className="font-mono font-semibold mr-1.5">{a.code}</span> {a.name}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
+                <Combobox
+                  value={revenueAccountId}
+                  onChange={(val) => setRevenueAccountId(val || '')}
+                  options={revenueAccountOptions}
+                  placeholder="Select revenue account..."
+                  searchPlaceholder="Search account..."
+                  emptyMessage="No accounts found."
+                />
                 <p className="text-[10px] text-muted-foreground">Credited automatically when customer invoices are sent.</p>
               </div>
 
               {/* Purchase Account */}
               <div className="space-y-2">
                 <Label htmlFor="purchaseAccountId" className="font-semibold text-xs uppercase tracking-wider text-muted-foreground">Purchase / Expense Account (Beban)</Label>
-                <Select value={purchaseAccountId} onValueChange={(val) => setPurchaseAccountId(val || '')}>
-                  <SelectTrigger id="purchaseAccountId" className="w-full h-9">
-                    <SelectValue placeholder="Select account...">
-                      {renderSelectValue(purchaseAccountId)}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sortedAccounts
-                      .filter((a) => a.type === 'EXPENSE')
-                      .map((a) => (
-                        <SelectItem key={a.id} value={a.id}>
-                          <span className="font-mono font-semibold mr-1.5">{a.code}</span> {a.name}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
+                <Combobox
+                  value={purchaseAccountId}
+                  onChange={(val) => setPurchaseAccountId(val || '')}
+                  options={expenseAccountOptions}
+                  placeholder="Select purchase account..."
+                  searchPlaceholder="Search account..."
+                  emptyMessage="No accounts found."
+                />
                 <p className="text-[10px] text-muted-foreground">Debited automatically when vendor bills are RECEIVED.</p>
               </div>
 
@@ -308,3 +275,4 @@ export function AccountingSettingsForm() {
     </div>
   );
 }
+

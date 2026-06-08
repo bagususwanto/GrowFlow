@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@web/components/ui/car
 import { Button } from '@web/components/ui/button';
 import { DatePicker } from '@web/components/ui/date-picker';
 import { format } from 'date-fns';
-import { Label } from '@web/components/ui/label';
 import { Skeleton } from '@web/components/ui/skeleton';
 import { Separator } from '@web/components/ui/separator';
 import { RotateCcwIcon, TrendingUpIcon, TrendingDownIcon, FileSpreadsheetIcon, CalendarIcon } from 'lucide-react';

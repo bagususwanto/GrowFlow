@@ -6,7 +6,6 @@ import { Card, CardContent } from '@web/components/ui/card';
 import { Button } from '@web/components/ui/button';
 import { DatePicker } from '@web/components/ui/date-picker';
 import { format } from 'date-fns';
-import { Label } from '@web/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@web/components/ui/table';
 import { Skeleton } from '@web/components/ui/skeleton';
 import { RotateCcwIcon, CalendarIcon } from 'lucide-react';

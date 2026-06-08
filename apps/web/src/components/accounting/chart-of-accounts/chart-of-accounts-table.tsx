@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@web/components/ui/select';
+import { Combobox } from '@web/components/ui/combobox';
 import {
   Dialog,
   DialogContent,
@@ -99,6 +100,21 @@ export function ChartOfAccountsTable() {
     },
     [accounts]
   );
+
+  // Memoize parent account options for Combobox
+  const parentAccountOptions = React.useMemo(() => {
+    const headers = accounts
+      .filter((a) => (a.code.endsWith('-0000') || a.code.endsWith('-000')) && a.id !== selectedAccount?.id)
+      .map((a) => ({
+        value: a.id,
+        label: `${a.code} — ${a.name}`,
+        searchKeywords: `${a.code} ${a.name}`,
+      }));
+    return [
+      { value: 'none', label: 'None (Root Account)' },
+      ...headers,
+    ];
+  }, [accounts, selectedAccount]);
 
   const handleNewAccount = () => {
     setSelectedAccount(null);
@@ -311,19 +327,19 @@ export function ChartOfAccountsTable() {
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           <Button
-                            variant="ghost"
-                            size="icon"
-                            className="w-8 h-8 text-muted-foreground"
-                            onClick={() => handleEditAccount(acc)}
+                              variant="ghost"
+                              size="icon"
+                              className="w-8 h-8 text-muted-foreground"
+                              onClick={() => handleEditAccount(acc)}
                           >
                             <EditIcon className="w-3.5 h-3.5" />
                           </Button>
                           <Button
-                            variant="ghost"
-                            size="icon"
-                            disabled={acc.isSystemAccount}
-                            className={`w-8 h-8 ${acc.isSystemAccount ? 'text-muted-foreground/30' : 'text-destructive hover:bg-destructive/10'}`}
-                            onClick={() => handleDeleteAccount(acc)}
+                              variant="ghost"
+                              size="icon"
+                              disabled={acc.isSystemAccount}
+                              className={`w-8 h-8 ${acc.isSystemAccount ? 'text-muted-foreground/30' : 'text-destructive hover:bg-destructive/10'}`}
+                              onClick={() => handleDeleteAccount(acc)}
                           >
                             <Trash2Icon className="w-3.5 h-3.5" />
                           </Button>
@@ -423,29 +439,15 @@ export function ChartOfAccountsTable() {
 
             <div className="space-y-1.5">
               <Label htmlFor="parentId">Parent Header Account</Label>
-              <Select value={parentId} onValueChange={(val) => setParentId(val || 'none')} disabled={selectedAccount?.isSystemAccount}>
-                <SelectTrigger id="parentId" className="w-full">
-                  <SelectValue>
-                    {parentId === 'none'
-                      ? 'None (Root Account)'
-                      : (() => {
-                          const parentAcc = accounts.find((a) => a.id === parentId);
-                          return parentAcc ? `${parentAcc.code} — ${parentAcc.name}` : parentId;
-                        })()}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None (Root Account)</SelectItem>
-                  {accounts
-                    // Filter headers to prevent nested parent cycles
-                    .filter((a) => (a.code.endsWith('-0000') || a.code.endsWith('-000')) && a.id !== selectedAccount?.id)
-                    .map((a) => (
-                      <SelectItem key={a.id} value={a.id}>
-                        {a.code} — {a.name}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
+              <Combobox
+                value={parentId}
+                onChange={(val) => setParentId(val || 'none')}
+                options={parentAccountOptions}
+                placeholder="Select parent account..."
+                searchPlaceholder="Search account..."
+                emptyMessage="No accounts found."
+                disabled={selectedAccount?.isSystemAccount}
+              />
             </div>
 
             <DialogFooter className="pt-2">

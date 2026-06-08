@@ -45,6 +45,7 @@ async function main() {
         'read:sales-orders', 'update:sales-orders', 'confirm:sales-orders', 'cancel:sales-orders', 'delete:sales-orders',
         'create:delivery-notes', 'read:delivery-notes', 'update:delivery-notes', 'confirm:delivery-notes',
         'read:invoices',
+        'read:accounting',
       ],
     },
     {
@@ -87,6 +88,7 @@ async function main() {
         'read:sales-orders',
         'read:delivery-notes',
         'read:invoices',
+        'read:accounting',
       ],
     },
     {
@@ -132,6 +134,8 @@ async function main() {
   const superadminRole = roles.find((r) => r.name === 'superadmin')!;
   const managerRole = roles.find((r) => r.name === 'manager')!;
   const warehouseRole = roles.find((r) => r.name === 'warehouse')!;
+  const financeRole = roles.find((r) => r.name === 'finance')!;
+  const staffRole = roles.find((r) => r.name === 'staff')!;
 
   if (!superadminRole) {
     throw new Error('Superadmin role was not created successfully.');
@@ -177,6 +181,32 @@ async function main() {
     },
   });
   console.info(`  ✔ User: ${warehouseStaff.email} (warehouse)`);
+
+  const financeStaff = await prisma.user.upsert({
+    where: { email: 'finance@growflow.com' },
+    update: {},
+    create: {
+      name: 'Finance User',
+      email: 'finance@growflow.com',
+      passwordHash,
+      roleId: financeRole.id,
+      isActive: true,
+    },
+  });
+  console.info(`  ✔ User: ${financeStaff.email} (finance)`);
+
+  const generalStaff = await prisma.user.upsert({
+    where: { email: 'staff@growflow.com' },
+    update: {},
+    create: {
+      name: 'General Staff',
+      email: 'staff@growflow.com',
+      passwordHash,
+      roleId: staffRole.id,
+      isActive: true,
+    },
+  });
+  console.info(`  ✔ User: ${generalStaff.email} (staff)`);
 
   // ─────────────────────────────────────────────
   // 3. Warehouses

@@ -10,13 +10,7 @@ import { DatePicker } from '@web/components/ui/date-picker';
 import { format } from 'date-fns';
 import { Label } from '@web/components/ui/label';
 import { Textarea } from '@web/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@web/components/ui/select';
+import { Combobox } from '@web/components/ui/combobox';
 import { toast } from 'sonner';
 import { PlusIcon, Trash2Icon, ChevronLeftIcon, AlertCircleIcon, CheckSquareIcon } from 'lucide-react';
 import Link from 'next/link';
@@ -37,6 +31,15 @@ export function JournalEntryForm() {
   const sortedAccounts = React.useMemo(() => {
     return [...accounts].sort((a, b) => a.code.localeCompare(b.code));
   }, [accounts]);
+
+  // Memoize account options for Combobox
+  const accountOptions = React.useMemo(() => {
+    return sortedAccounts.map((acc) => ({
+      value: acc.id,
+      label: `${acc.code} — ${acc.name}`,
+      searchKeywords: `${acc.code} ${acc.name}`,
+    }));
+  }, [sortedAccounts]);
 
   // Form states
   const [entryDate, setEntryDate] = React.useState(new Date().toISOString().split('T')[0]);
@@ -192,27 +195,15 @@ export function JournalEntryForm() {
                   {lines.map((line, index) => (
                     <tr key={index}>
                       <td className="p-2">
-                        <Select
+                        <Combobox
                           value={line.accountId}
-                          onValueChange={(val) => updateLine(index, 'accountId', val || '')}
-                        >
-                          <SelectTrigger className="w-full h-8 text-xs font-medium">
-                            <SelectValue placeholder="Select account...">
-                              {line.accountId && (() => {
-                                const acc = sortedAccounts.find((a) => a.id === line.accountId);
-                                return acc ? `${acc.code} — ${acc.name}` : undefined;
-                              })()}
-                            </SelectValue>
-                          </SelectTrigger>
-                          <SelectContent className="max-h-[300px]">
-                            {sortedAccounts.map((acc) => (
-                              <SelectItem key={acc.id} value={acc.id} className="text-xs">
-                                <span className="font-mono font-semibold mr-1.5">{acc.code}</span>
-                                {acc.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          onChange={(val) => updateLine(index, 'accountId', val || '')}
+                          options={accountOptions}
+                          placeholder="Select account..."
+                          searchPlaceholder="Search account..."
+                          emptyMessage="No accounts found."
+                          triggerClassName="h-8 text-xs font-medium"
+                        />
                       </td>
                       <td className="p-2">
                         <Input

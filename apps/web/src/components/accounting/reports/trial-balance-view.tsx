@@ -6,7 +6,6 @@ import { Card, CardContent } from '@web/components/ui/card';
 import { Button } from '@web/components/ui/button';
 import { DatePicker } from '@web/components/ui/date-picker';
 import { format } from 'date-fns';
-import { Label } from '@web/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@web/components/ui/table';
 import { Badge } from '@web/components/ui/badge';
 import { Skeleton } from '@web/components/ui/skeleton';

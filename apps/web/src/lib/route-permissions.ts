@@ -21,11 +21,11 @@ export const ROUTE_PERMISSIONS: Record<string, string> = {
   '/partners': 'read:partners',
   // Phase 5 Accounting & Purchase Invoices
   '/purchasing/vendor-invoices': 'read:invoices',
-  '/accounting/chart-of-accounts': 'read:invoices',
-  '/accounting/journal-entries': 'read:invoices',
-  '/accounting/reports/trial-balance': 'read:invoices',
-  '/accounting/reports/profit-loss': 'read:invoices',
-  '/accounting/reports/ap-aging': 'read:invoices',
-  '/accounting/reports/ar-aging': 'read:invoices',
-  '/accounting/settings': 'read:invoices',
+  '/accounting/chart-of-accounts': 'read:accounting',
+  '/accounting/journal-entries': 'read:accounting',
+  '/accounting/reports/trial-balance': 'read:accounting',
+  '/accounting/reports/profit-loss': 'read:accounting',
+  '/accounting/reports/ap-aging': 'read:accounting',
+  '/accounting/reports/ar-aging': 'read:accounting',
+  '/accounting/settings': 'admin:accounting',
 };
