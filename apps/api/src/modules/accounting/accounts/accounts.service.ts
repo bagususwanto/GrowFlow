@@ -3,7 +3,7 @@ import { AccountsRepository } from './accounts.repository';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { ListAccountsQueryDto } from './dto/list-accounts-query.dto';
-import { Account as SharedAccount } from '@growflow/types';
+import { Account as SharedAccount, AccountType, AccountCategory } from '@growflow/types';
 import { Account } from '@prisma/client';
 
 @Injectable()
@@ -15,8 +15,8 @@ export class AccountsService {
       id: acc.id,
       code: acc.code,
       name: acc.name,
-      type: acc.type as any,
-      category: acc.category as any,
+      type: acc.type as AccountType,
+      category: acc.category as AccountCategory,
       parentId: acc.parentId,
       isSystemAccount: acc.isSystemAccount,
       isActive: acc.isActive,

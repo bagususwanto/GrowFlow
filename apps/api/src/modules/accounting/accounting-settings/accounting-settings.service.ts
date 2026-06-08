@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../../infrastructure/prisma/prisma.service';
 import { UpdateAccountingSettingsDto } from './dto/update-accounting-settings.dto';
-import { AccountingSettings as SharedAccountingSettings } from '@growflow/types';
+import { AccountingSettings as SharedAccountingSettings, AccountType, AccountCategory } from '@growflow/types';
 import { AccountingSettings } from '@prisma/client';
 
 @Injectable()
@@ -16,8 +16,8 @@ export class AccountingSettingsService {
         id: acc.id,
         code: acc.code,
         name: acc.name,
-        type: acc.type as any,
-        category: acc.category as any,
+        type: acc.type as AccountType,
+        category: acc.category as AccountCategory,
         parentId: acc.parentId,
         isSystemAccount: acc.isSystemAccount,
         isActive: acc.isActive,

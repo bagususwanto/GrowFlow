@@ -11,7 +11,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse as SwaggerResponse } from '@nestjs/swagger';
-import { Request, Response } from 'express';
+import { Request, Response, CookieOptions } from 'express';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -28,7 +28,7 @@ import { AuthUser, LoginResponse } from '@growflow/types';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  private getCookieOptions(): any {
+  private getCookieOptions(): CookieOptions {
     return {
       httpOnly: true,
       secure: env.NODE_ENV === 'production',

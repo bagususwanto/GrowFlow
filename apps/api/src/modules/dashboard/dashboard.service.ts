@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
-import { DashboardSummaryResponse } from '@growflow/types';
-import { RoleName } from '@growflow/types';
+import { DashboardSummaryResponse, RoleName, LowStockItem, PurchaseOrderStatus, SalesOrderStatus } from '@growflow/types';
 
 @Injectable()
 export class DashboardService {
@@ -73,7 +72,7 @@ export class DashboardService {
       }),
     ]);
 
-    const lowStockItems: any[] = [];
+    const lowStockItems: LowStockItem[] = [];
     for (const item of activeItems) {
       if (item.minStock <= 0) continue;
 
@@ -125,7 +124,7 @@ export class DashboardService {
       id: po.id,
       number: po.number,
       supplierId: po.supplierId,
-      status: po.status as any,
+      status: po.status as PurchaseOrderStatus,
       note: po.note,
       totalAmount: po.totalAmount.toNumber(),
       orderDate: po.orderDate.toISOString(),
@@ -154,7 +153,7 @@ export class DashboardService {
       number: so.number,
       customerId: so.customerId,
       warehouseId: so.warehouseId,
-      status: so.status as any,
+      status: so.status as SalesOrderStatus,
       note: so.note,
       totalAmount: so.totalAmount.toNumber(),
       orderDate: so.orderDate.toISOString(),

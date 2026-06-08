@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, BadRequestException, UnprocessableEntity
 import { JournalEntriesRepository } from './journal-entries.repository';
 import { CreateJournalEntryDto } from './dto/create-journal-entry.dto';
 import { ListJournalEntriesQueryDto } from './dto/list-journal-entries-query.dto';
-import { JournalEntry as SharedJournalEntry, PaginatedResponse } from '@growflow/types';
+import { JournalEntry as SharedJournalEntry, PaginatedResponse, JournalEntryStatus, AccountType } from '@growflow/types';
 import { JournalEntry, JournalLine, Prisma } from '@prisma/client';
 
 @Injectable()
@@ -25,7 +25,7 @@ export class JournalEntriesService {
       description: je.description,
       sourceType: je.sourceType,
       sourceId: je.sourceId,
-      status: je.status as any,
+      status: je.status as JournalEntryStatus,
       postedAt: je.postedAt ? je.postedAt.toISOString() : null,
       postedById: je.postedById,
       createdById: je.createdById,
@@ -58,7 +58,7 @@ export class JournalEntriesService {
                   id: l.account.id,
                   code: l.account.code,
                   name: l.account.name,
-                  type: l.account.type as any,
+                  type: l.account.type as AccountType,
                 }
               : undefined,
           }))

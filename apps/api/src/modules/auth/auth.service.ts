@@ -154,7 +154,7 @@ export class AuthService {
         refreshToken: newRefreshToken,
         user: authUser,
       };
-    } catch (e: any) {
+    } catch (e: unknown) {
       if (
         e instanceof UnauthorizedException ||
         e instanceof BadRequestException
@@ -162,7 +162,8 @@ export class AuthService {
         throw e;
       }
       // Re-verify specific error handling to prevent swallowing unexpected server errors
-      if (e && (e.name === 'JsonWebTokenError' || e.name === 'TokenExpiredError')) {
+      const err = e as Error;
+      if (err && (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError')) {
         throw new UnauthorizedException('Invalid refresh token');
       }
       throw e;

@@ -1,7 +1,58 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
-import { VendorInvoice, VendorInvoicePayment, Prisma } from '@prisma/client';
+import { VendorInvoice, Prisma } from '@prisma/client';
 import { ListVendorInvoicesQueryDto } from './dto/list-vendor-invoices-query.dto';
+
+export type VendorInvoiceWithDetails = Prisma.VendorInvoiceGetPayload<{
+  include: {
+    supplier: {
+      select: {
+        id: true;
+        code: true;
+        name: true;
+      };
+    };
+    goodsReceipt: {
+      select: {
+        id: true;
+        number: true;
+      };
+    };
+    purchaseOrder: {
+      select: {
+        id: true;
+        number: true;
+      };
+    };
+  };
+}>;
+
+export type VendorInvoiceDetails = Prisma.VendorInvoiceGetPayload<{
+  include: {
+    supplier: {
+      select: {
+        id: true;
+        code: true;
+        name: true;
+      };
+    };
+    goodsReceipt: {
+      select: {
+        id: true;
+        number: true;
+      };
+    };
+    purchaseOrder: {
+      select: {
+        id: true;
+        number: true;
+      };
+    };
+    payments: {
+      orderBy: { paymentDate: 'desc' };
+    };
+  };
+}>;
 
 @Injectable()
 export class VendorInvoicesRepository {
@@ -42,7 +93,7 @@ export class VendorInvoicesRepository {
     query: ListVendorInvoicesQueryDto,
     skip?: number,
     take?: number,
-  ): Promise<[any[], number]> {
+  ): Promise<[VendorInvoiceWithDetails[], number]> {
     const where = this.buildWhereClause(query);
     const [data, total] = await Promise.all([
       this.prisma.vendorInvoice.findMany({
@@ -77,7 +128,7 @@ export class VendorInvoicesRepository {
     return [data, total];
   }
 
-  async findById(id: string): Promise<any | null> {
+  async findById(id: string): Promise<VendorInvoiceDetails | null> {
     return this.prisma.vendorInvoice.findFirst({
       where: { id, deletedAt: null },
       include: {

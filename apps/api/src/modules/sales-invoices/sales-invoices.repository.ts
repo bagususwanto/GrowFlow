@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
-import { SalesInvoice, Prisma, SalesInvoiceStatus, SalesCreditNoteStatus } from '@prisma/client';
+import { SalesInvoice, Prisma, SalesInvoiceStatus } from '@prisma/client';
 import { ListSalesInvoicesQueryDto } from './dto/list-sales-invoices-query.dto';
 
 @Injectable()

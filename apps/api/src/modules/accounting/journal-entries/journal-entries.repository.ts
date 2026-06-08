@@ -1,7 +1,53 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../infrastructure/prisma/prisma.service';
-import { JournalEntry, JournalLine, Prisma, JournalEntryStatus } from '@prisma/client';
+import { JournalEntry, Prisma, JournalEntryStatus } from '@prisma/client';
 import { ListJournalEntriesQueryDto } from './dto/list-journal-entries-query.dto';
+
+export type JournalEntryWithUsers = Prisma.JournalEntryGetPayload<{
+  include: {
+    createdBy: {
+      select: {
+        id: true;
+        name: true;
+      };
+    };
+    postedBy: {
+      select: {
+        id: true;
+        name: true;
+      };
+    };
+  };
+}>;
+
+export type JournalEntryDetails = Prisma.JournalEntryGetPayload<{
+  include: {
+    createdBy: {
+      select: {
+        id: true;
+        name: true;
+      };
+    };
+    postedBy: {
+      select: {
+        id: true;
+        name: true;
+      };
+    };
+    lines: {
+      include: {
+        account: {
+          select: {
+            id: true;
+            code: true;
+            name: true;
+            type: true;
+          };
+        };
+      };
+    };
+  };
+}>;
 
 @Injectable()
 export class JournalEntriesRepository {
@@ -38,7 +84,7 @@ export class JournalEntriesRepository {
     query: ListJournalEntriesQueryDto,
     skip?: number,
     take?: number,
-  ): Promise<[any[], number]> {
+  ): Promise<[JournalEntryWithUsers[], number]> {
     const where = this.buildWhereClause(query);
     const [data, total] = await Promise.all([
       this.prisma.journalEntry.findMany({
@@ -66,7 +112,7 @@ export class JournalEntriesRepository {
     return [data, total];
   }
 
-  async findById(id: string): Promise<any | null> {
+  async findById(id: string): Promise<JournalEntryDetails | null> {
     return this.prisma.journalEntry.findUnique({
       where: { id },
       include: {

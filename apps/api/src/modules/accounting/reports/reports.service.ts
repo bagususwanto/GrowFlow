@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../infrastructure/prisma/prisma.service';
-import { TrialBalanceItem, ProfitLossReport, AgingReport, AgingBucketItem } from '@growflow/types';
+import { TrialBalanceItem, ProfitLossReport, AgingReport, AgingBucketItem, AccountType, AccountCategory } from '@growflow/types';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -61,8 +61,8 @@ export class ReportsService {
           id: acc.id,
           code: acc.code,
           name: acc.name,
-          type: acc.type as any,
-          category: acc.category as any,
+          type: acc.type as AccountType,
+          category: acc.category as AccountCategory,
         },
         totalDebit,
         totalCredit,

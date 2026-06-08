@@ -5,8 +5,52 @@ import { ReceiveVendorInvoiceDto } from './dto/receive-vendor-invoice.dto';
 import { CreateVendorPaymentDto } from './dto/create-vendor-payment.dto';
 import { JournalEntriesService } from '../accounting/journal-entries/journal-entries.service';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
-import { VendorInvoice, VendorInvoiceStatus, Prisma } from '@prisma/client';
+import { VendorInvoiceStatus, Prisma, VendorInvoicePayment } from '@prisma/client';
 import { PaginatedResponse } from '@growflow/types';
+import { VendorInvoiceDetails, VendorInvoiceWithDetails } from './vendor-invoices.repository';
+
+export interface VendorInvoiceResponse {
+  id: string;
+  number: string;
+  goodsReceiptId: string | null;
+  purchaseOrderId: string | null;
+  supplierId: string;
+  status: string;
+  invoiceDate: string;
+  dueDate: string;
+  paymentTermsDays: number;
+  totalAmount: number;
+  paidAmount: number;
+  note: string | null;
+  receivedAt: string | null;
+  receivedById: string | null;
+  deletedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  supplier: {
+    id: string;
+    code: string;
+    name: string;
+  };
+  goodsReceipt: {
+    id: string;
+    number: string;
+  } | null;
+  purchaseOrder: {
+    id: string;
+    number: string;
+  } | null;
+  payments: {
+    id: string;
+    vendorInvoiceId: string;
+    amount: number;
+    paymentDate: string;
+    note: string | null;
+    recordedById: string | null;
+    createdAt: string;
+    updatedAt: string;
+  }[];
+}
 
 @Injectable()
 export class VendorInvoicesService {
@@ -16,7 +60,7 @@ export class VendorInvoicesService {
     private readonly prisma: PrismaService,
   ) {}
 
-  private mapToResponse(vi: any) {
+  private mapToResponse(vi: VendorInvoiceDetails | VendorInvoiceWithDetails & { payments?: VendorInvoicePayment[] }): VendorInvoiceResponse {
     return {
       id: vi.id,
       number: vi.number,
@@ -38,7 +82,7 @@ export class VendorInvoicesService {
       supplier: vi.supplier,
       goodsReceipt: vi.goodsReceipt,
       purchaseOrder: vi.purchaseOrder,
-      payments: vi.payments ? vi.payments.map((p: any) => ({
+      payments: vi.payments ? vi.payments.map((p) => ({
         id: p.id,
         vendorInvoiceId: p.vendorInvoiceId,
         amount: Number(p.amount),
@@ -51,7 +95,7 @@ export class VendorInvoicesService {
     };
   }
 
-  async findAll(query: ListVendorInvoicesQueryDto): Promise<PaginatedResponse<any>> {
+  async findAll(query: ListVendorInvoicesQueryDto): Promise<PaginatedResponse<VendorInvoiceResponse>> {
     const page = query.page || 1;
     const limit = query.limit || 10;
     const skip = (page - 1) * limit;
@@ -66,7 +110,7 @@ export class VendorInvoicesService {
     };
   }
 
-  async findOne(id: string): Promise<any> {
+  async findOne(id: string): Promise<VendorInvoiceResponse> {
     const invoice = await this.repository.findById(id);
     if (!invoice) {
       throw new NotFoundException(`Vendor Invoice with ID ${id} not found`);
@@ -74,7 +118,7 @@ export class VendorInvoicesService {
     return this.mapToResponse(invoice);
   }
 
-  async receive(id: string, dto: ReceiveVendorInvoiceDto, userId: string): Promise<any> {
+  async receive(id: string, dto: ReceiveVendorInvoiceDto, userId: string): Promise<VendorInvoiceResponse> {
     const invoice = await this.repository.findById(id);
     if (!invoice) {
       throw new NotFoundException(`Vendor Invoice with ID ${id} not found`);
@@ -138,7 +182,7 @@ export class VendorInvoicesService {
     return this.findOne(id);
   }
 
-  async recordPayment(id: string, dto: CreateVendorPaymentDto, userId: string): Promise<any> {
+  async recordPayment(id: string, dto: CreateVendorPaymentDto, userId: string): Promise<VendorInvoiceResponse> {
     const invoice = await this.repository.findById(id);
     if (!invoice) {
       throw new NotFoundException(`Vendor Invoice with ID ${id} not found`);
@@ -215,7 +259,7 @@ export class VendorInvoicesService {
     return this.findOne(id);
   }
 
-  async cancel(id: string): Promise<any> {
+  async cancel(id: string): Promise<VendorInvoiceResponse> {
     const invoice = await this.repository.findById(id);
     if (!invoice) {
       throw new NotFoundException(`Vendor Invoice with ID ${id} not found`);
