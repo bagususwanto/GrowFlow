@@ -1,6 +1,5 @@
 import { PurchaseOrder } from './purchase-order';
 import { SalesOrder } from './sales-order';
-import { Item } from './item';
 
 export interface LowStockItem {
   id: string;
