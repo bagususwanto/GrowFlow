@@ -25,6 +25,10 @@ export function hasPermission(userPermissions: string[] | undefined, required: s
     if (action === '*' && resource === requiredResource) {
       return true;
     }
+    // Synonym mapping: 'write' permission satisfies create, update, delete, etc. for the resource (anything but 'read')
+    if (action === 'write' && resource === requiredResource && requiredAction !== 'read') {
+      return true;
+    }
     return false;
   });
 }

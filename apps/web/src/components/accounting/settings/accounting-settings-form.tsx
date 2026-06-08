@@ -15,9 +15,11 @@ import { Skeleton } from '@web/components/ui/skeleton';
 import { toast } from 'sonner';
 import { SettingsIcon, ShieldAlertIcon, SaveIcon } from 'lucide-react';
 
+import { hasPermission } from '@web/lib/permissions';
+
 export function AccountingSettingsForm() {
   const user = useAuthStore((state) => state.user);
-  const isSuperadmin = user?.role === 'superadmin';
+  const canManageSettings = hasPermission(user?.permissions, 'write:accounting');
 
   // Fetch data
   const { data: settings, isLoading: isSettingsLoading } = useAccountingSettings();
@@ -94,8 +96,8 @@ export function AccountingSettingsForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isSuperadmin) {
-      toast.error('Only superadmin roles are authorized to modify default COA settings.');
+    if (!canManageSettings) {
+      toast.error('You are not authorized to modify default COA settings.');
       return;
     }
 
@@ -122,7 +124,7 @@ export function AccountingSettingsForm() {
 
   if (isLoading) return <Skeleton className="w-full h-96" />;
 
-  if (!isSuperadmin) {
+  if (!canManageSettings) {
     return (
       <Card className="border-rose-500/30 bg-rose-50/15 max-w-2xl mx-auto shadow-sm">
         <CardContent className="p-6 flex flex-col items-center text-center gap-4">
@@ -130,7 +132,7 @@ export function AccountingSettingsForm() {
           <div className="space-y-1.5">
             <h3 className="text-lg font-bold text-rose-700 dark:text-rose-400">Access Denied</h3>
             <p className="text-sm text-muted-foreground max-w-md leading-relaxed">
-              You do not have the required permissions to access this page. Accounting configurations are restricted to system administrators (`superadmin`) to protect ledger integrity.
+              You do not have the required permissions to access this page. Accounting configurations are restricted to authorized accounts to protect ledger integrity.
             </p>
           </div>
         </CardContent>

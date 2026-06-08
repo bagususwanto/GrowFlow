@@ -18,6 +18,7 @@ import { Skeleton } from '@web/components/ui/skeleton';
 import { toast } from 'sonner';
 import { useConfirm } from '@web/hooks/use-confirm';
 import { useAuthStore } from '@web/stores/auth.store';
+import { hasPermission } from '@web/lib/permissions';
 import { RecordPaymentModal } from '@web/components/sales/sales-orders/record-payment-modal';
 import { CreateCreditNoteModal } from '@web/components/sales/sales-orders/create-credit-note-modal';
 import {
@@ -174,10 +175,9 @@ export function SalesInvoiceDetailContainer() {
 
   const currentOutstanding = outstanding - appliedCreditNotesSum;
 
-  const isFinanceOrAdmin =
-    currentUser?.role === 'superadmin' ||
-    currentUser?.role === 'manager' ||
-    currentUser?.role === 'finance';
+  const canModifyInvoices =
+    hasPermission(currentUser?.permissions, 'create:invoices') ||
+    hasPermission(currentUser?.permissions, 'update:invoices');
 
   return (
     <div className="space-y-6">
@@ -213,14 +213,14 @@ export function SalesInvoiceDetailContainer() {
             </Button>
           )}
 
-          {isDraft && isFinanceOrAdmin && (
+          {isDraft && canModifyInvoices && (
             <Button size="sm" onClick={handleSend} disabled={sendMutation.isPending}>
               <SendIcon className="w-4 h-4 mr-2" />
               Send Invoice
             </Button>
           )}
 
-          {(isSent || isPartial) && isFinanceOrAdmin && (
+          {(isSent || isPartial) && canModifyInvoices && (
             <>
               <Button
                 size="sm"
@@ -237,7 +237,7 @@ export function SalesInvoiceDetailContainer() {
             </>
           )}
 
-          {!isPaid && !isCancelled && Number(invoice.paidAmount) === 0 && isFinanceOrAdmin && (
+          {!isPaid && !isCancelled && Number(invoice.paidAmount) === 0 && canModifyInvoices && (
             <Button
               variant="destructive"
               size="sm"

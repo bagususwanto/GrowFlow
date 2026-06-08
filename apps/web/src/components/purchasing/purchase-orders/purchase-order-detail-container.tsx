@@ -12,6 +12,7 @@ import { Separator } from '@web/components/ui/separator';
 import { toast } from 'sonner';
 import { useConfirm } from '@web/hooks/use-confirm';
 import { useAuthStore } from '@web/stores/auth.store';
+import { hasPermission } from '@web/lib/permissions';
 import { FileTextIcon, SendIcon, CheckSquareIcon, XCircleIcon, ShoppingBagIcon, EditIcon, ChevronLeftIcon } from 'lucide-react';
 import { useBreadcrumbLabel } from '@web/hooks/use-breadcrumb-label';
 
@@ -115,8 +116,11 @@ export function PurchaseOrderDetailContainer() {
   const isApproved = po.status === 'APPROVED';
   const isPartial = po.status === 'PARTIAL';
   
-  const isManagerOrAdmin = user?.role === 'superadmin' || user?.role === 'manager';
-  const isWarehouseOrAdmin = user?.role === 'superadmin' || user?.role === 'manager' || user?.role === 'warehouse';
+  const canEdit = hasPermission(user?.permissions, 'update:purchase-orders');
+  const canSubmit = hasPermission(user?.permissions, 'submit:purchase-orders');
+  const canApprove = hasPermission(user?.permissions, 'approve:purchase-orders');
+  const canCancel = hasPermission(user?.permissions, 'cancel:purchase-orders');
+  const canReceive = hasPermission(user?.permissions, 'create:goods-receipts');
 
   return (
     <div className="space-y-6">
@@ -147,24 +151,28 @@ export function PurchaseOrderDetailContainer() {
         <div className="flex flex-wrap items-center gap-2 sm:self-center">
           {isDraft && (
             <>
-              <Button variant="outline" size="sm" nativeButton={false} render={<Link href={`/purchasing/purchase-orders/${id}/edit`}><EditIcon className="w-4 h-4 mr-2" />Edit Draft</Link>} />
-              <Button size="sm" onClick={handleSubmit} disabled={submitMutation.isPending}>
-                <SendIcon className="w-4 h-4 mr-2" />Submit PO
-              </Button>
+              {canEdit && (
+                <Button variant="outline" size="sm" nativeButton={false} render={<Link href={`/purchasing/purchase-orders/${id}/edit`}><EditIcon className="w-4 h-4 mr-2" />Edit Draft</Link>} />
+              )}
+              {canSubmit && (
+                <Button size="sm" onClick={handleSubmit} disabled={submitMutation.isPending}>
+                  <SendIcon className="w-4 h-4 mr-2" />Submit PO
+                </Button>
+              )}
             </>
           )}
 
-          {isSubmitted && isManagerOrAdmin && (
+          {isSubmitted && canApprove && (
             <Button size="sm" onClick={handleApprove} disabled={approveMutation.isPending} className="bg-primary hover:bg-primary/90">
               <CheckSquareIcon className="w-4 h-4 mr-2" />Approve PO
             </Button>
           )}
 
-          {(isApproved || isPartial) && isWarehouseOrAdmin && (
+          {(isApproved || isPartial) && canReceive && (
             <Button size="sm" nativeButton={false} render={<Link href={`/purchasing/goods-receipts/new?poId=${id}`}><ShoppingBagIcon className="w-4 h-4 mr-2" />Receive Items (GRN)</Link>} />
           )}
 
-          {!['CANCELLED', 'DONE', 'PARTIAL'].includes(po.status) && isManagerOrAdmin && (
+          {!['CANCELLED', 'DONE', 'PARTIAL'].includes(po.status) && canCancel && (
             <Button variant="destructive" size="sm" onClick={handleCancel} disabled={cancelMutation.isPending}>
               <XCircleIcon className="w-4 h-4 mr-2" />Cancel PO
             </Button>

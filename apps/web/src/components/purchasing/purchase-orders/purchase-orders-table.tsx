@@ -235,9 +235,9 @@ export function PurchaseOrdersTable() {
         sortBy,
         sortOrder,
         onSort: handleSort,
-        userRole: user?.role,
+        userPermissions: user?.permissions,
       }),
-    [handleView, handleEdit, handleSubmit, handleApprove, handleDelete, sortBy, sortOrder, handleSort, user?.role],
+    [handleView, handleEdit, handleSubmit, handleApprove, handleDelete, sortBy, sortOrder, handleSort, user?.permissions],
   );
 
   const tableData = React.useMemo(() => data?.data || [], [data]);

@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from '@web/components/ui/dropdown-menu';
 import { EllipsisVerticalIcon, ArrowUpDownIcon, ArrowUpIcon, ArrowDownIcon, EyeIcon, Trash2Icon, CheckCircleIcon } from 'lucide-react';
+import { hasPermission } from '@web/lib/permissions';
 
 function formatDate(dateStr: string) {
   try {
@@ -36,7 +37,7 @@ interface ColumnActions {
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
   onSort?: (field: string) => void;
-  userRole?: string;
+  userPermissions?: string[];
 }
 
 export const getColumns = ({
@@ -46,7 +47,7 @@ export const getColumns = ({
   sortBy,
   sortOrder,
   onSort,
-  userRole,
+  userPermissions,
 }: ColumnActions): ColumnDef<GoodsReceipt>[] => [
   {
     accessorKey: 'number',
@@ -118,7 +119,8 @@ export const getColumns = ({
     cell: ({ row }) => {
       const gr = row.original;
       const isDraft = gr.status === 'DRAFT';
-      const isWarehouseOrAdmin = userRole === 'superadmin' || userRole === 'manager' || userRole === 'warehouse';
+      const canConfirm = hasPermission(userPermissions, 'confirm:goods-receipts');
+      const canDelete = hasPermission(userPermissions, 'delete:goods-receipts');
 
       return (
         <DropdownMenu>
@@ -143,14 +145,14 @@ export const getColumns = ({
                 View Details
               </DropdownMenuItem>
 
-              {isDraft && isWarehouseOrAdmin && (
+              {isDraft && canConfirm && (
                 <DropdownMenuItem onClick={() => onConfirm(gr)}>
                   <CheckCircleIcon className="mr-2 w-4 h-4" />
                   Confirm Receipt
                 </DropdownMenuItem>
               )}
 
-              {isDraft && (
+              {isDraft && canDelete && (
                 <DropdownMenuItem variant="destructive" onClick={() => onDelete(gr)}>
                   <Trash2Icon className="mr-2 w-4 h-4" />
                   Delete GRN

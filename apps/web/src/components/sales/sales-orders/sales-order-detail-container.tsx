@@ -12,6 +12,7 @@ import { Separator } from '@web/components/ui/separator';
 import { toast } from 'sonner';
 import { useConfirm } from '@web/hooks/use-confirm';
 import { useAuthStore } from '@web/stores/auth.store';
+import { hasPermission } from '@web/lib/permissions';
 import { ChevronLeftIcon, FileTextIcon, CheckSquareIcon, XCircleIcon, TruckIcon, EditIcon } from 'lucide-react';
 import { Badge } from '@web/components/ui/badge';
 import { useBreadcrumbLabel } from '@web/hooks/use-breadcrumb-label';
@@ -95,8 +96,10 @@ export function SalesOrderDetailContainer() {
   const isConfirmed = so.status === 'CONFIRMED';
   const isPartial = so.status === 'PARTIAL';
 
-  const isSalesStaffOrAdmin = user?.role === 'superadmin' || user?.role === 'manager' || user?.role === 'staff';
-  const isWarehouseOrAdmin = user?.role === 'superadmin' || user?.role === 'manager' || user?.role === 'warehouse';
+  const canEdit = hasPermission(user?.permissions, 'update:sales-orders');
+  const canConfirm = hasPermission(user?.permissions, 'confirm:sales-orders');
+  const canCancel = hasPermission(user?.permissions, 'cancel:sales-orders');
+  const canShip = hasPermission(user?.permissions, 'create:delivery-notes');
 
   return (
     <div className="space-y-6">
@@ -125,20 +128,24 @@ export function SalesOrderDetailContainer() {
         
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-2 sm:self-center">
-          {isDraft && isSalesStaffOrAdmin && (
+          {isDraft && (
             <>
-              <Button variant="outline" size="sm" nativeButton={false} render={<Link href={`/sales/sales-orders/${id}/edit`}><EditIcon className="w-4 h-4 mr-2" />Edit Draft</Link>} />
-              <Button size="sm" onClick={handleConfirm} disabled={confirmMutation.isPending}>
-                <CheckSquareIcon className="w-4 h-4 mr-2" />Confirm SO
-              </Button>
+              {canEdit && (
+                <Button variant="outline" size="sm" nativeButton={false} render={<Link href={`/sales/sales-orders/${id}/edit`}><EditIcon className="w-4 h-4 mr-2" />Edit Draft</Link>} />
+              )}
+              {canConfirm && (
+                <Button size="sm" onClick={handleConfirm} disabled={confirmMutation.isPending}>
+                  <CheckSquareIcon className="w-4 h-4 mr-2" />Confirm SO
+                </Button>
+              )}
             </>
           )}
 
-          {(isConfirmed || isPartial) && isWarehouseOrAdmin && (
+          {(isConfirmed || isPartial) && canShip && (
             <Button size="sm" nativeButton={false} render={<Link href={`/sales/delivery-notes/new?soId=${id}`}><TruckIcon className="w-4 h-4 mr-2" />Ship Goods (DN)</Link>} />
           )}
 
-          {!['CANCELLED', 'DONE', 'PARTIAL'].includes(so.status) && isSalesStaffOrAdmin && (
+          {!['CANCELLED', 'DONE', 'PARTIAL'].includes(so.status) && canCancel && (
             <Button variant="destructive" size="sm" onClick={handleCancel} disabled={cancelMutation.isPending}>
               <XCircleIcon className="w-4 h-4 mr-2" />Cancel SO
             </Button>

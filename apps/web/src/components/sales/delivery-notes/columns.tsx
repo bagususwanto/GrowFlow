@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from '@web/components/ui/dropdown-menu';
 import { EllipsisVerticalIcon, ArrowUpDownIcon, ArrowUpIcon, ArrowDownIcon, EyeIcon, Trash2Icon, CheckSquareIcon } from 'lucide-react';
+import { hasPermission } from '@web/lib/permissions';
 
 function formatDate(dateStr: string) {
   try {
@@ -36,7 +37,7 @@ interface ColumnActions {
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
   onSort?: (field: string) => void;
-  userRole?: string;
+  userPermissions?: string[];
 }
 
 export const getColumns = ({
@@ -46,7 +47,7 @@ export const getColumns = ({
   sortBy,
   sortOrder,
   onSort,
-  userRole,
+  userPermissions,
 }: ColumnActions): ColumnDef<DeliveryNote>[] => [
   {
     accessorKey: 'number',
@@ -129,7 +130,8 @@ export const getColumns = ({
     cell: ({ row }) => {
       const dn = row.original;
       const isDraft = dn.status === 'DRAFT';
-      const isWarehouseOrAdmin = userRole === 'superadmin' || userRole === 'manager' || userRole === 'warehouse';
+      const canConfirm = hasPermission(userPermissions, 'confirm:delivery-notes');
+      const canDelete = hasPermission(userPermissions, 'delete:delivery-notes');
 
       return (
         <DropdownMenu>
@@ -154,16 +156,20 @@ export const getColumns = ({
                 View Details
               </DropdownMenuItem>
 
-              {isDraft && isWarehouseOrAdmin && (
+              {isDraft && (
                 <>
-                  <DropdownMenuItem onClick={() => onConfirm(dn)}>
-                    <CheckSquareIcon className="mr-2 w-4 h-4" />
-                    Confirm Delivery
-                  </DropdownMenuItem>
-                  <DropdownMenuItem variant="destructive" onClick={() => onDelete(dn)}>
-                    <Trash2Icon className="mr-2 w-4 h-4" />
-                    Delete Draft
-                  </DropdownMenuItem>
+                  {canConfirm && (
+                    <DropdownMenuItem onClick={() => onConfirm(dn)}>
+                      <CheckSquareIcon className="mr-2 w-4 h-4" />
+                      Confirm Delivery
+                    </DropdownMenuItem>
+                  )}
+                  {canDelete && (
+                    <DropdownMenuItem variant="destructive" onClick={() => onDelete(dn)}>
+                      <Trash2Icon className="mr-2 w-4 h-4" />
+                      Delete Draft
+                    </DropdownMenuItem>
+                  )}
                 </>
               )}
             </DropdownMenuGroup>

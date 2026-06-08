@@ -203,9 +203,9 @@ export function GoodsReceiptsTable() {
         sortBy,
         sortOrder,
         onSort: handleSort,
-        userRole: user?.role,
+        userPermissions: user?.permissions,
       }),
-    [handleView, handleConfirm, handleDelete, sortBy, sortOrder, handleSort, user?.role],
+    [handleView, handleConfirm, handleDelete, sortBy, sortOrder, handleSort, user?.permissions],
   );
 
   const tableData = React.useMemo(() => data?.data || [], [data]);

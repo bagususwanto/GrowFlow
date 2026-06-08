@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@web/components/ui/dropdown-menu';
 import { EditIcon, EllipsisVerticalIcon, ArrowUpDownIcon, ArrowUpIcon, ArrowDownIcon, EyeIcon, Trash2Icon, SendIcon, CheckSquareIcon } from 'lucide-react';
+import { hasPermission } from '@web/lib/permissions';
 
 function formatDate(dateStr: string) {
   try {
@@ -37,7 +38,7 @@ interface ColumnActions {
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
   onSort?: (field: string) => void;
-  userRole?: string;
+  userPermissions?: string[];
 }
 
 export const getColumns = ({
@@ -49,7 +50,7 @@ export const getColumns = ({
   sortBy,
   sortOrder,
   onSort,
-  userRole,
+  userPermissions,
 }: ColumnActions): ColumnDef<PurchaseOrder>[] => [
   {
     accessorKey: 'number',
@@ -114,7 +115,10 @@ export const getColumns = ({
       const po = row.original;
       const isDraft = po.status === 'DRAFT';
       const isSubmitted = po.status === 'SUBMITTED';
-      const isManagerOrAdmin = userRole === 'superadmin' || userRole === 'manager';
+      const canEdit = hasPermission(userPermissions, 'update:purchase-orders');
+      const canSubmit = hasPermission(userPermissions, 'submit:purchase-orders');
+      const canApprove = hasPermission(userPermissions, 'approve:purchase-orders');
+      const canDelete = hasPermission(userPermissions, 'delete:purchase-orders');
 
       return (
         <DropdownMenu>
@@ -141,25 +145,29 @@ export const getColumns = ({
 
               {isDraft && (
                 <>
-                  <DropdownMenuItem onClick={() => onEdit(po)}>
-                    <EditIcon className="mr-2 w-4 h-4" />
-                    Edit Draft
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onSubmit(po)}>
-                    <SendIcon className="mr-2 w-4 h-4" />
-                    Submit PO
-                  </DropdownMenuItem>
+                  {canEdit && (
+                    <DropdownMenuItem onClick={() => onEdit(po)}>
+                      <EditIcon className="mr-2 w-4 h-4" />
+                      Edit Draft
+                    </DropdownMenuItem>
+                  )}
+                  {canSubmit && (
+                    <DropdownMenuItem onClick={() => onSubmit(po)}>
+                      <SendIcon className="mr-2 w-4 h-4" />
+                      Submit PO
+                    </DropdownMenuItem>
+                  )}
                 </>
               )}
 
-              {isSubmitted && isManagerOrAdmin && (
+              {isSubmitted && canApprove && (
                 <DropdownMenuItem onClick={() => onApprove(po)}>
                   <CheckSquareIcon className="mr-2 w-4 h-4" />
                   Approve PO
                 </DropdownMenuItem>
               )}
 
-              {isDraft && (
+              {isDraft && canDelete && (
                 <DropdownMenuItem variant="destructive" onClick={() => onDelete(po)}>
                   <Trash2Icon className="mr-2 w-4 h-4" />
                   Delete PO
