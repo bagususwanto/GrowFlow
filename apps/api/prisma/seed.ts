@@ -118,7 +118,9 @@ async function main() {
   for (const role of rolesData) {
     const upsertedRole = await prisma.role.upsert({
       where: { name: role.name },
-      update: {},
+      update: {
+        permissions: JSON.stringify(role.permissions),
+      },
       create: {
         name: role.name,
         permissions: JSON.stringify(role.permissions),
