@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { env } from '../../../config/env.schema';
@@ -9,6 +9,7 @@ interface JwtPayload {
   name: string;
   email: string;
   role: string;
+  permissions: string[];
   isActive?: boolean;
 }
 
@@ -31,12 +32,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   validate(payload: JwtPayload): AuthUser {
+    if (payload.isActive === false) {
+      throw new UnauthorizedException('User account is inactive');
+    }
     return {
       id: payload.sub,
       name: payload.name,
       email: payload.email,
       role: payload.role as AuthUser['role'],
       isActive: payload.isActive ?? true,
+      permissions: payload.permissions,
     };
   }
 }

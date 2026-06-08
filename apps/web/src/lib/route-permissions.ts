@@ -27,5 +27,5 @@ export const ROUTE_PERMISSIONS: Record<string, string> = {
   '/accounting/reports/profit-loss': 'read:accounting',
   '/accounting/reports/ap-aging': 'read:accounting',
   '/accounting/reports/ar-aging': 'read:accounting',
-  '/accounting/settings': 'admin:accounting',
+  '/accounting/settings': 'read:accounting',
 };

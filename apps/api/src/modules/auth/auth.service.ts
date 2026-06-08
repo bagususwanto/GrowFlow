@@ -58,6 +58,8 @@ export class AuthService {
         name: user.name,
         email: user.email,
         role: user.role.name,
+        permissions: authUser.permissions,
+        isActive: user.isActive,
       },
       {
         secret: env.JWT_ACCESS_SECRET,
@@ -120,6 +122,8 @@ export class AuthService {
           name: user.name,
           email: user.email,
           role: user.role.name,
+          permissions: authUser.permissions,
+          isActive: user.isActive,
         },
         {
           secret: env.JWT_ACCESS_SECRET,

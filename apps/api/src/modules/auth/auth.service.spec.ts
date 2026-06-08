@@ -87,6 +87,17 @@ describe('AuthService', () => {
       expect(result).toHaveProperty('refreshToken');
       expect(result.user.email).toBe('admin@growflow.com');
       expect(repository.findUserByEmail).toHaveBeenCalledWith('admin@growflow.com');
+      expect(jwtService.signAsync).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sub: mockUser.id,
+          name: mockUser.name,
+          email: mockUser.email,
+          role: mockUser.role.name,
+          permissions: ['*'],
+          isActive: mockUser.isActive,
+        }),
+        expect.any(Object),
+      );
     });
 
     it('should throw UnauthorizedException when password is invalid', async () => {
@@ -129,6 +140,17 @@ describe('AuthService', () => {
       const result = await service.refresh('mock-refresh-token');
 
       expect(repository.revokeRefreshToken).toHaveBeenCalledWith('token-id', expect.any(Object));
+      expect(jwtService.signAsync).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sub: mockUser.id,
+          name: mockUser.name,
+          email: mockUser.email,
+          role: mockUser.role.name,
+          permissions: ['*'],
+          isActive: mockUser.isActive,
+        }),
+        expect.any(Object),
+      );
     });
   });
 });
