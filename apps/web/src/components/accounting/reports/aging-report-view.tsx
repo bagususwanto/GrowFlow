@@ -64,14 +64,12 @@ export function AgingReportView({ type }: AgingReportViewProps) {
       <Card className="shadow-xs border-border/40 bg-muted/10">
         <CardContent className="p-4">
           <form onSubmit={handleRunReport} className="flex flex-wrap items-end gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="asOf" className="text-xs font-semibold text-muted-foreground">As Of Date</Label>
-              <DatePicker
-                value={asOf}
-                onChange={(date) => setAsOf(date ? format(date, 'yyyy-MM-dd') : '')}
-                className="h-9 w-40"
-              />
-            </div>
+            <DatePicker
+              value={asOf}
+              onChange={(date) => setAsOf(date ? format(date, 'yyyy-MM-dd') : '')}
+              placeholder="As Of Date"
+              className="h-9 w-40"
+            />
             <div className="flex items-center gap-2">
               <Button type="submit" size="sm" className="h-9">
                 <CalendarIcon className="w-4 h-4 mr-1.5" />
