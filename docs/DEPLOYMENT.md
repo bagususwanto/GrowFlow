@@ -81,9 +81,9 @@ Kita menggunakan Render Web Service untuk menjalankan backend NestJS.
    - **Runtime:** `Node`
    - **Build Command:** 
      ```bash
-     pnpm install && pnpm build --filter=@growflow/api
+     pnpm install && pnpm --filter @growflow/api prisma:generate && pnpm build --filter=@growflow/api
      ```
-     *(Render mendeteksi pnpm karena adanya file `pnpm-lock.yaml` di root proyek)*.
+     *(Catatan: Langkah `prisma:generate` wajib dijalankan sebelum build agar TypeScript dapat mengenali tipe data dari database).*.
    - **Start Command:** 
      ```bash
      pnpm --filter @growflow/api start:prod
