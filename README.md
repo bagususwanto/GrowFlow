@@ -1,10 +1,24 @@
-# PROJECT.md — Mini ERP
+# GrowFlow — Mini ERP
 
 ## Gambaran Umum
 
-Aplikasi ERP berbasis web untuk mengelola operasional bisnis skala menengah. Dibangun di atas monorepo **NestJS + Next.js** dengan antarmuka modern menggunakan shadcn/ui.
+**GrowFlow** adalah aplikasi ERP berbasis web untuk mengelola operasional bisnis skala menengah. Dibangun di atas arsitektur monorepo **NestJS + Next.js** dengan antarmuka modern menggunakan shadcn/ui.
 
 **Target pengguna:** Staff operasional, manajer, dan admin perusahaan.
+
+---
+
+## Status Proyek Saat Ini
+
+Proyek ini telah menyelesaikan lingkup utama MVP (Fase 1-5) dan saat ini sedang dalam proses deployment.
+- ✅ **Fase 1:** Foundation (Infrastruktur & Auth) — Selesai
+- ✅ **Fase 2:** Inventory & Master Data — Selesai
+- ✅ **Fase 3:** Purchasing (PO & GRN) — Selesai
+- ✅ **Fase 4:** Sales & Invoice — Selesai
+- ✅ **Fase 5:** Accounting & Purchase Invoice — Selesai
+- ⏳ **Fase 6:** HR & Payroll — Post-MVP
+- ⏳ **Fase 7:** Production / MRP — Post-MVP
+- 🚀 **Fase 8:** Polish & Production Deployment — Sedang dikerjakan (Deploy MVP)
 
 ---
 
@@ -25,7 +39,7 @@ Aplikasi ERP berbasis web untuk mengelola operasional bisnis skala menengah. Dib
 
 ## Struktur Monorepo
 
-```
+```text
 /
 ├── apps/
 │   ├── api/          # NestJS — business logic & REST API
@@ -37,20 +51,6 @@ Aplikasi ERP berbasis web untuk mengelola operasional bisnis skala menengah. Dib
 │   └── eslint-config/# Shared ESLint rules
 └── docs/             # Dokumentasi project
 ```
-
----
-
-## Modul
-
-| Modul               | Deskripsi singkat                                          |
-| ------------------- | ---------------------------------------------------------- |
-| **Auth**            | Login, logout, refresh token, role & permission management |
-| **Inventory**       | Master barang, stok, mutasi stok, lokasi gudang            |
-| **Purchasing (PO)** | Purchase request, purchase order, penerimaan barang (GRN)  |
-| **Sales (SO)**      | Quotation, sales order, pengiriman, retur penjualan        |
-| **Accounting**      | Chart of accounts, jurnal, AP/AR, laporan keuangan dasar   |
-| **HR & Payroll**    | Master karyawan, kehadiran, penggajian bulanan             |
-| **Production/MRP**  | Bill of materials (BOM), work order, perencanaan produksi  |
 
 ---
 
@@ -139,9 +139,10 @@ NEXT_PUBLIC_API_URL=http://localhost:3001/api
 
 ## Dokumentasi Lanjutan
 
-- [`ARCHITECTURE.md`](./ARCHITECTURE.md) — alur request, diagram sistem
-- [`DATABASE.md`](./DATABASE.md) — schema lengkap & relasi antar tabel
-- [`API.md`](./API.md) — endpoint per modul & contoh payload
-- [`WORKFLOWS.md`](./WORKFLOWS.md) — alur bisnis & state machine dokumen
-- [`DECISIONS.md`](./DECISIONS.md) — catatan keputusan teknis
-- [`MVP_PLAN.md`](./MVP_PLAN.md) — rencana implementasi MVP
+- [`ARCHITECTURE.md`](./docs/ARCHITECTURE.md) — alur request, diagram sistem
+- [`DATABASE.md`](./docs/DATABASE.md) — schema lengkap & relasi antar tabel
+- [`API.md`](./docs/API.md) — endpoint per modul & contoh payload
+- [`WORKFLOWS.md`](./docs/WORKFLOWS.md) — alur bisnis & state machine dokumen
+- [`DECISIONS.md`](./docs/DECISIONS.md) — catatan keputusan teknis
+- [`MVP_PLAN.md`](./docs/MVP_PLAN.md) — rencana implementasi MVP
+- [`DEPLOYMENT.md`](./docs/DEPLOYMENT.md) — panduan deployment MVP ke production

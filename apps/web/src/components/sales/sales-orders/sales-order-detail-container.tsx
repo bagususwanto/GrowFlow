@@ -3,7 +3,11 @@
 import React from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { useSalesOrder, useConfirmSalesOrder, useCancelSalesOrder } from '@web/hooks/use-sales-orders';
+import {
+  useSalesOrder,
+  useConfirmSalesOrder,
+  useCancelSalesOrder,
+} from '@web/hooks/use-sales-orders';
 import { SalesOrderStatusBadge } from './status-badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@web/components/ui/card';
 import { Button } from '@web/components/ui/button';
@@ -13,7 +17,14 @@ import { toast } from 'sonner';
 import { useConfirm } from '@web/hooks/use-confirm';
 import { useAuthStore } from '@web/stores/auth.store';
 import { hasPermission } from '@web/lib/permissions';
-import { ChevronLeftIcon, FileTextIcon, CheckSquareIcon, XCircleIcon, TruckIcon, EditIcon } from 'lucide-react';
+import {
+  ChevronLeftIcon,
+  FileTextIcon,
+  CheckSquareIcon,
+  XCircleIcon,
+  TruckIcon,
+  EditIcon,
+} from 'lucide-react';
 import { Badge } from '@web/components/ui/badge';
 import { useBreadcrumbLabel } from '@web/hooks/use-breadcrumb-label';
 
@@ -49,7 +60,9 @@ export function SalesOrderDetailContainer() {
       title: 'Confirm Sales Order',
       description: (
         <>
-          Confirm <span className="font-bold">{so?.number}</span>? This will validate the available stock in warehouse <span className="font-bold">{so?.warehouse?.name}</span> and reserve that stock.
+          Confirm <span className="font-bold">{so?.number}</span>? This will validate the available
+          stock in warehouse <span className="font-bold">{so?.warehouse?.name}</span> and reserve
+          that stock.
         </>
       ),
       confirmText: 'Confirm SO',
@@ -68,7 +81,8 @@ export function SalesOrderDetailContainer() {
       title: 'Cancel Sales Order',
       description: (
         <>
-          Are you sure you want to cancel <span className="font-bold">{so?.number}</span>? This action cannot be reversed.
+          Are you sure you want to cancel <span className="font-bold">{so?.number}</span>? This
+          action cannot be reversed.
         </>
       ),
       confirmText: 'Cancel SO',
@@ -125,34 +139,59 @@ export function SalesOrderDetailContainer() {
             </p>
           </div>
         </div>
-        
+
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-2 sm:self-center">
           {isDraft && (
             <>
               {canEdit && (
-                <Button variant="outline" size="sm" nativeButton={false} render={<Link href={`/sales/sales-orders/${id}/edit`}><EditIcon className="w-4 h-4 mr-2" />Edit Draft</Link>} />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  nativeButton={false}
+                  render={
+                    <Link href={`/sales/sales-orders/${id}/edit`}>
+                      <EditIcon className="w-4 h-4 mr-2" />
+                      Edit Draft
+                    </Link>
+                  }
+                />
               )}
               {canConfirm && (
                 <Button size="sm" onClick={handleConfirm} disabled={confirmMutation.isPending}>
-                  <CheckSquareIcon className="w-4 h-4 mr-2" />Confirm SO
+                  <CheckSquareIcon className="w-4 h-4 mr-2" />
+                  Confirm SO
                 </Button>
               )}
             </>
           )}
 
           {(isConfirmed || isPartial) && canShip && (
-            <Button size="sm" nativeButton={false} render={<Link href={`/sales/delivery-notes/new?soId=${id}`}><TruckIcon className="w-4 h-4 mr-2" />Ship Goods (DN)</Link>} />
+            <Button
+              size="sm"
+              nativeButton={false}
+              render={
+                <Link href={`/sales/delivery-notes/new?soId=${id}`}>
+                  <TruckIcon className="w-4 h-4 mr-2" />
+                  Ship Goods (DN)
+                </Link>
+              }
+            />
           )}
 
           {!['CANCELLED', 'DONE', 'PARTIAL'].includes(so.status) && canCancel && (
-            <Button variant="destructive" size="sm" onClick={handleCancel} disabled={cancelMutation.isPending}>
-              <XCircleIcon className="w-4 h-4 mr-2" />Cancel SO
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleCancel}
+              disabled={cancelMutation.isPending}
+            >
+              <XCircleIcon className="w-4 h-4 mr-2" />
+              Cancel SO
             </Button>
           )}
         </div>
       </div>
-
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Main Details */}
@@ -164,7 +203,9 @@ export function SalesOrderDetailContainer() {
                   <FileTextIcon className="w-5 h-5 text-muted-foreground" />
                   {so.number}
                 </CardTitle>
-                <p className="text-xs text-muted-foreground mt-1">Created on {formatDate(so.createdAt, true)}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Created on {formatDate(so.createdAt, true)}
+                </p>
               </div>
               <SalesOrderStatusBadge status={so.status} className="text-xs py-1 px-3" />
             </CardHeader>
@@ -185,15 +226,29 @@ export function SalesOrderDetailContainer() {
                       <tr key={li.id}>
                         <td className="p-3">
                           <div className="font-semibold">{li.item?.name || 'Unknown Item'}</div>
-                          <div className="text-xs text-muted-foreground font-mono">{li.item?.code}</div>
+                          <div className="text-xs text-muted-foreground font-mono">
+                            {li.item?.code}
+                          </div>
                         </td>
-                        <td className="p-3 text-right font-medium">{li.qty} {li.item?.unit}</td>
-                        <td className="p-3 text-right font-medium text-primary">{li.qtyDelivered} {li.item?.unit}</td>
+                        <td className="p-3 text-right font-medium">
+                          {li.qty} {li.item?.unit}
+                        </td>
+                        <td className="p-3 text-right font-medium text-primary">
+                          {li.qtyDelivered} {li.item?.unit}
+                        </td>
                         <td className="p-3 text-right">
-                          {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(li.unitPrice)}
+                          {new Intl.NumberFormat('id-ID', {
+                            style: 'currency',
+                            currency: 'IDR',
+                            maximumFractionDigits: 0,
+                          }).format(li.unitPrice)}
                         </td>
                         <td className="p-3 text-right font-semibold">
-                          {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(li.totalPrice)}
+                          {new Intl.NumberFormat('id-ID', {
+                            style: 'currency',
+                            currency: 'IDR',
+                            maximumFractionDigits: 0,
+                          }).format(li.totalPrice)}
                         </td>
                       </tr>
                     ))}
@@ -203,9 +258,15 @@ export function SalesOrderDetailContainer() {
 
               <div className="flex flex-col items-end gap-2 mt-6 pr-4">
                 <div className="flex items-center gap-12">
-                  <span className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">Grand Total</span>
+                  <span className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">
+                    Grand Total
+                  </span>
                   <span className="text-lg text-foreground font-bold">
-                    {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(so.totalAmount)}
+                    {new Intl.NumberFormat('id-ID', {
+                      style: 'currency',
+                      currency: 'IDR',
+                      maximumFractionDigits: 0,
+                    }).format(so.totalAmount)}
                   </span>
                 </div>
               </div>
@@ -223,21 +284,39 @@ export function SalesOrderDetailContainer() {
             <CardContent className="pt-4">
               {so.deliveryNotes && so.deliveryNotes.length > 0 ? (
                 <div className="border rounded-lg divide-y text-sm">
-                  {so.deliveryNotes.map((dn: { id: string; number: string; deliveryDate: string; createdBy?: { name: string }; status: string }) => (
-                    <div key={dn.id} className="flex justify-between items-center p-3 hover:bg-muted/30">
-                      <div>
-                        <Link href={`/sales/delivery-notes/${dn.id}`} className="font-mono text-primary hover:underline font-semibold">
-                          {dn.number}
-                        </Link>
-                        <div className="text-xs text-muted-foreground mt-0.5">
-                          Ship Date: {formatDate(dn.deliveryDate)} | By: {dn.createdBy?.name || '-'}
+                  {so.deliveryNotes.map(
+                    (dn: {
+                      id: string;
+                      number: string;
+                      deliveryDate: string;
+                      createdBy?: { name: string };
+                      status: string;
+                    }) => (
+                      <div
+                        key={dn.id}
+                        className="flex justify-between items-center p-3 hover:bg-muted/30"
+                      >
+                        <div>
+                          <Link
+                            href={`/sales/delivery-notes/${dn.id}`}
+                            className="font-mono text-primary hover:underline font-semibold"
+                          >
+                            {dn.number}
+                          </Link>
+                          <div className="text-xs text-muted-foreground mt-0.5">
+                            Ship Date: {formatDate(dn.deliveryDate)} | By:{' '}
+                            {dn.createdBy?.name || '-'}
+                          </div>
                         </div>
+                        <Badge
+                          variant={dn.status === 'CONFIRMED' ? 'default' : 'secondary'}
+                          className="capitalize"
+                        >
+                          {dn.status.toLowerCase()}
+                        </Badge>
                       </div>
-                      <Badge variant={dn.status === 'CONFIRMED' ? 'default' : 'secondary'} className="capitalize">
-                        {dn.status.toLowerCase()}
-                      </Badge>
-                    </div>
-                  ))}
+                    ),
+                  )}
                 </div>
               ) : (
                 <div className="text-center py-6 text-sm text-muted-foreground">
@@ -259,11 +338,25 @@ export function SalesOrderDetailContainer() {
               <CardContent className="pt-4">
                 <div className="flex justify-between items-center text-sm p-3 border rounded-lg hover:bg-muted/30">
                   <div>
-                    <Link href={`/sales/invoices/${so.salesInvoice.id}`} className="font-mono text-primary hover:underline font-semibold">
+                    <Link
+                      href={`/sales/invoices/${so.salesInvoice.id}`}
+                      className="font-mono text-primary hover:underline font-semibold"
+                    >
                       {so.salesInvoice.number}
                     </Link>
                     <div className="text-xs text-muted-foreground mt-0.5">
-                      Total: {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(so.salesInvoice.totalAmount)} | Paid: {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(so.salesInvoice.paidAmount)}
+                      Total:{' '}
+                      {new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                        maximumFractionDigits: 0,
+                      }).format(so.salesInvoice.totalAmount)}{' '}
+                      | Paid:{' '}
+                      {new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                        maximumFractionDigits: 0,
+                      }).format(so.salesInvoice.paidAmount)}
                     </div>
                   </div>
                   <Badge variant="outline" className="capitalize font-semibold">
@@ -278,11 +371,15 @@ export function SalesOrderDetailContainer() {
         {/* Metadata Sidebar */}
         <Card className="h-fit">
           <CardHeader className="pb-2 border-b">
-            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Document Info</CardTitle>
+            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              Document Info
+            </CardTitle>
           </CardHeader>
           <CardContent className="pt-4 space-y-4 text-sm">
             <div>
-              <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Customer</div>
+              <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+                Customer
+              </div>
               <div className="font-bold text-foreground mt-1">{so.customer?.name}</div>
               <div className="text-xs text-muted-foreground font-mono">{so.customer?.code}</div>
             </div>
@@ -290,31 +387,43 @@ export function SalesOrderDetailContainer() {
             <Separator />
 
             <div>
-              <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Source Warehouse</div>
+              <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+                Source Warehouse
+              </div>
               <div className="font-semibold text-foreground mt-1">{so.warehouse?.name}</div>
             </div>
 
             <Separator />
 
             <div>
-              <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Order Date</div>
+              <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+                Order Date
+              </div>
               <div className="font-semibold text-foreground mt-1">{formatDate(so.orderDate)}</div>
             </div>
 
             <Separator />
 
             <div>
-              <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Created By</div>
-              <div className="font-semibold text-foreground mt-1">{so.createdBy?.name || so.createdById || '-'}</div>
+              <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+                Created By
+              </div>
+              <div className="font-semibold text-foreground mt-1">
+                {so.createdBy?.name || so.createdById || '-'}
+              </div>
             </div>
 
             {so.confirmedBy && (
               <>
                 <Separator />
                 <div>
-                  <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Confirmed By</div>
+                  <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+                    Confirmed By
+                  </div>
                   <div className="font-semibold text-foreground mt-1">{so.confirmedBy.name}</div>
-                  <div className="text-xs text-muted-foreground">on {so.confirmedAt ? formatDate(so.confirmedAt, true) : '-'}</div>
+                  <div className="text-xs text-muted-foreground">
+                    on {so.confirmedAt ? formatDate(so.confirmedAt, true) : '-'}
+                  </div>
                 </div>
               </>
             )}
@@ -323,8 +432,12 @@ export function SalesOrderDetailContainer() {
               <>
                 <Separator />
                 <div>
-                  <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider text-destructive">Cancelled Date</div>
-                  <div className="font-semibold text-destructive mt-1">{formatDate(so.cancelledAt, true)}</div>
+                  <div className="text-xs font-semibold uppercase tracking-wider text-destructive">
+                    Cancelled Date
+                  </div>
+                  <div className="font-semibold text-destructive mt-1">
+                    {formatDate(so.cancelledAt, true)}
+                  </div>
                 </div>
               </>
             )}
@@ -333,8 +446,12 @@ export function SalesOrderDetailContainer() {
               <>
                 <Separator />
                 <div>
-                  <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Notes</div>
-                  <div className="mt-1 p-2 bg-muted rounded text-xs leading-relaxed text-muted-foreground">{so.note}</div>
+                  <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+                    Notes
+                  </div>
+                  <div className="mt-1 p-2 bg-muted rounded text-xs leading-relaxed text-muted-foreground">
+                    {so.note}
+                  </div>
                 </div>
               </>
             )}
