@@ -264,7 +264,12 @@ export function JournalEntriesTable() {
 
           <Select value={status} onValueChange={(val) => setStatus(val || 'all')}>
             <SelectTrigger className="w-full sm:w-36 h-9">
-              <SelectValue placeholder="Filter by Status" />
+              <SelectValue placeholder="Filter by Status">
+                {status === 'all' && 'All Status'}
+                {status === 'DRAFT' && 'Draft'}
+                {status === 'POSTED' && 'Posted'}
+                {status === 'CANCELLED' && 'Cancelled'}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>

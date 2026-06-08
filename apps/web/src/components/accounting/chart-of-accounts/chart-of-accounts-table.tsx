@@ -388,7 +388,9 @@ export function ChartOfAccountsTable() {
                 <Label htmlFor="type">Account Type</Label>
                 <Select value={type} onValueChange={(val) => setType(val || 'ASSET')} disabled={selectedAccount?.isSystemAccount}>
                   <SelectTrigger id="type" className="w-full">
-                    <SelectValue />
+                    <SelectValue>
+                      {ACCOUNT_TYPES.find((t) => t.value === type)?.label || type}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {ACCOUNT_TYPES.map((t) => (
@@ -404,7 +406,9 @@ export function ChartOfAccountsTable() {
                 <Label htmlFor="category">Category</Label>
                 <Select value={category} onValueChange={(val) => setCategory(val || 'CURRENT_ASSET')} disabled={selectedAccount?.isSystemAccount}>
                   <SelectTrigger id="category" className="w-full">
-                    <SelectValue />
+                    <SelectValue>
+                      {ACCOUNT_CATEGORIES.find((c) => c.value === category)?.label || category}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {ACCOUNT_CATEGORIES.map((c) => (
@@ -421,7 +425,14 @@ export function ChartOfAccountsTable() {
               <Label htmlFor="parentId">Parent Header Account</Label>
               <Select value={parentId} onValueChange={(val) => setParentId(val || 'none')} disabled={selectedAccount?.isSystemAccount}>
                 <SelectTrigger id="parentId" className="w-full">
-                  <SelectValue />
+                  <SelectValue>
+                    {parentId === 'none'
+                      ? 'None (Root Account)'
+                      : (() => {
+                          const parentAcc = accounts.find((a) => a.id === parentId);
+                          return parentAcc ? `${parentAcc.code} — ${parentAcc.name}` : parentId;
+                        })()}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">None (Root Account)</SelectItem>

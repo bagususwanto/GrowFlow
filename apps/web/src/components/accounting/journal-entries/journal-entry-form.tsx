@@ -197,7 +197,12 @@ export function JournalEntryForm() {
                           onValueChange={(val) => updateLine(index, 'accountId', val || '')}
                         >
                           <SelectTrigger className="w-full h-8 text-xs font-medium">
-                            <SelectValue placeholder="Select account..." />
+                            <SelectValue placeholder="Select account...">
+                              {line.accountId && (() => {
+                                const acc = sortedAccounts.find((a) => a.id === line.accountId);
+                                return acc ? `${acc.code} — ${acc.name}` : undefined;
+                              })()}
+                            </SelectValue>
                           </SelectTrigger>
                           <SelectContent className="max-h-[300px]">
                             {sortedAccounts.map((acc) => (
