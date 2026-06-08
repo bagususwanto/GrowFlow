@@ -12,7 +12,7 @@ import cookieParser from 'cookie-parser';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication<App>;
-  let mockPrismaService: Record<string, Record<string, jest.Mock>>;
+  let mockPrismaService: any;
   let hashedPassword = '';
 
   const mockRole = {
@@ -43,7 +43,6 @@ describe('AuthController (e2e)', () => {
     hashedPassword = await bcrypt.hash('Admin123!', 10);
     mockUser.passwordHash = hashedPassword;
   });
-
   beforeEach(async () => {
     mockPrismaService = {
       user: {
@@ -64,6 +63,7 @@ describe('AuthController (e2e)', () => {
           revokedAt: new Date(),
         }),
       },
+      $transaction: jest.fn().mockImplementation((cb) => cb(mockPrismaService)),
     };
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
