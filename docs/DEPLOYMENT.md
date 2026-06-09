@@ -44,25 +44,47 @@ Karena Render Free Tier membatasi masa aktif database gratis hanya selama 90 har
 ---
 
 ## Langkah 2: Menjalankan Migrasi & Seed Database
-Sebelum backend dinyalakan, database online harus diisi dengan tabel-tabel dan data awal (Role Admin, Akun Keuangan/COA, dll).
+Sebelum backend dinyalakan, database online harus diisi dengan tabel-tabel (migrasi) dan data awal bawaan seperti Role Admin, Akun Keuangan/COA, dll (seeding).
 
+### A. Menjalankan Migrasi (Membuat Tabel)
 1. Di komputer lokal Anda, buka file konfigurasi lingkungan API di `apps/api/.env`.
-2. Ganti nilai `DATABASE_URL` dengan URI database online yang baru saja Anda salin pada **Langkah 1**:
+2. Ganti nilai `DATABASE_URL` dengan URI database online yang baru saja Anda salin pada **Langkah 1** (disarankan menggunakan URL Session Pooler dengan port `6543`):
    ```env
-   DATABASE_URL="postgresql://postgres.xxxx:[PASSWORD]@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres"
+   DATABASE_URL="postgresql://postgres.xxxx:[PASSWORD]@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres"
    ```
-3. Buka terminal Anda di root proyek `GrowFlow` dan jalankan perintah berikut secara berurutan:
+3. Buka terminal Anda di root proyek `GrowFlow` dan jalankan perintah migrasi berikut:
    ```bash
    # Generate Prisma client terbaru
    pnpm --filter @growflow/api prisma:generate
 
    # Kirim schema lokal ke database online (Migrasi)
    pnpm db:migrate
+   ```
 
-   # Masukkan data bawaan penting (Seeding admin, roles, dll)
+### B. Menjalankan Seeding (Mengisi Data Awal)
+Ada dua metode yang bisa Anda pilih untuk melakukan proses seeding ke tingkat Supabase:
+
+#### Metode 1: Lewat Script Prisma dari Komputer Lokal (Sangat Direkomendasikan)
+Metode ini adalah cara paling mudah karena script Prisma (`seed.ts`) akan otomatis menangani enkripsi password (*bcrypt*) untuk user Admin dan relasi data secara otomatis.
+
+1. Pastikan `DATABASE_URL` di `apps/api/.env` komputer lokal Anda masih mengarah ke database Supabase online.
+2. Jalankan perintah dari terminal lokal Anda:
+   ```bash
    pnpm db:seed
    ```
-4. Setelah proses sukses, Anda bisa mengembalikan `DATABASE_URL` di `.env` lokal Anda ke database lokal (`localhost`) agar pengerjaan lokal tidak terganggu.
+3. Setelah selesai, kembalikan nilai `DATABASE_URL` di `apps/api/.env` lokal Anda ke database lokal (`localhost`) agar pengerjaan lokal tidak terganggu.
+
+#### Metode 2: Lewat SQL Editor di Dashboard Supabase (Raw SQL)
+Jika Anda ingin proses *seeding* murni dieksekusi di dalam sistem Supabase tanpa bergantung pada script runtime local:
+
+1. Ekspor data seed yang sudah ada di database lokal Anda menjadi berkode SQL (`INSERT` statements saja, tanpa skema struktur tabel):
+   ```bash
+   pg_dump -h localhost -U [username_postgres_lokal] -d [nama_db_lokal] -a --inserts > seed_data.sql
+   ```
+2. Buka dashboard **Supabase** > pilih project Anda.
+3. Buka menu **SQL Editor** (ikon terminal `>_` di menu kiri) > klik **New Query**.
+4. Buka file `seed_data.sql` hasil ekspor tadi, salin seluruh kueri SQL di dalamnya, lalu tempel (*paste*) ke dalam SQL Editor Supabase.
+5. Klik **Run** di pojok kanan bawah editor untuk mengeksekusi kueri tersebut.
 
 ---
 
