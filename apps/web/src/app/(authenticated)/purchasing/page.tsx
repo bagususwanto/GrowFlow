@@ -4,9 +4,15 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@web/components/ui/card';
 import { Button } from '@web/components/ui/button';
-import { ShoppingCart, Boxes, ArrowRight, Users, Package } from 'lucide-react';
+import { ShoppingCart, Boxes, ArrowRight, Users, Package, FileText as FileTextIcon } from 'lucide-react';
+import { useAuthStore } from '@web/stores/auth.store';
+import { hasPermission } from '@web/lib/permissions';
 
 export default function PurchasingOverviewPage() {
+  const user = useAuthStore((state) => state.user);
+  const userRole = user?.role;
+  const userPermissions = user?.permissions || [];
+
   const menus = [
     {
       title: 'Purchase Orders',
@@ -17,6 +23,20 @@ export default function PurchasingOverviewPage() {
       actionText: 'Purchase Orders',
       quickActionHref: '/purchasing/purchase-orders/new',
       quickActionText: 'Create PO',
+      permission: 'read:purchase-orders',
+      roles: ['superadmin', 'manager', 'purchasing'],
+    },
+    {
+      title: 'Vendor Invoices',
+      description: 'Review invoice statements, monitor status, and record vendor payments.',
+      href: '/purchasing/vendor-invoices',
+      icon: <FileTextIcon className="h-6 w-6 text-blue-500" />,
+      gradient: 'from-blue-500/10 to-indigo-500/10 dark:from-blue-500/20 dark:to-indigo-500/20',
+      actionText: 'Vendor Invoices',
+      quickActionHref: null,
+      quickActionText: null,
+      permission: 'read:invoices',
+      roles: ['superadmin', 'manager', 'purchasing', 'finance'],
     },
     {
       title: 'Goods Receipts',
@@ -27,6 +47,8 @@ export default function PurchasingOverviewPage() {
       actionText: 'Goods Receipts',
       quickActionHref: '/purchasing/goods-receipts/new',
       quickActionText: 'Receive Goods',
+      permission: 'read:goods-receipts',
+      roles: ['superadmin', 'manager', 'warehouse', 'purchasing'],
     },
     {
       title: 'Suppliers',
@@ -37,18 +59,16 @@ export default function PurchasingOverviewPage() {
       actionText: 'Suppliers',
       quickActionHref: `/partners/new?from=${encodeURIComponent('/purchasing/suppliers')}`,
       quickActionText: 'Add Supplier',
-    },
-    {
-      title: 'Products Reference',
-      description: 'View products master list, purchasable items, and catalog details.',
-      href: '/purchasing/products',
-      icon: <Package className="h-6 w-6 text-indigo-500" />,
-      gradient: 'from-indigo-500/10 to-violet-500/10 dark:from-indigo-500/20 dark:to-violet-500/20',
-      actionText: 'Catalog',
-      quickActionHref: `/inventory/items/new?from=${encodeURIComponent('/purchasing/products')}`,
-      quickActionText: 'Add Item',
+      permission: 'read:partners',
+      roles: ['superadmin', 'manager', 'purchasing'],
     },
   ];
+
+  const filteredMenus = menus.filter(
+    (menu) =>
+      (!menu.roles || (userRole && menu.roles.includes(userRole))) &&
+      (!menu.permission || hasPermission(userPermissions, menu.permission))
+  );
 
   return (
     <div className="space-y-8 px-4 lg:px-6 max-w-6xl mx-auto py-4">
@@ -73,7 +93,7 @@ export default function PurchasingOverviewPage() {
 
       {/* Grid Menu Cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {menus.map((menu, idx) => (
+        {filteredMenus.map((menu, idx) => (
           <Card 
             key={idx} 
             className="group/item relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 bg-card/45 backdrop-blur-xs border-foreground/10 hover:border-blue-500/30 flex flex-col h-full"

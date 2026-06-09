@@ -24,11 +24,13 @@ interface NavItem {
   url: string
   icon?: React.ReactNode
   permission?: string
+  roles?: string[]
 }
 
 interface NavGroup {
   label?: string
   items: NavItem[]
+  roles?: string[]
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -52,6 +54,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
     {
       label: "Inventory",
+      roles: ["superadmin", "manager", "warehouse", "purchasing", "sales"],
       items: [
         {
           title: "Items",
@@ -75,6 +78,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
     {
       label: "Logistics",
+      roles: ["superadmin", "manager", "warehouse", "purchasing"],
       items: [
         {
           title: "Goods Receipts",
@@ -92,12 +96,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
     {
       label: "Purchasing",
+      roles: ["superadmin", "manager", "purchasing", "finance"],
       items: [
         {
           title: "Purchase Orders",
           url: "/purchasing/purchase-orders",
           icon: <ShoppingCart />,
           permission: "read:purchase-orders",
+          roles: ["superadmin", "manager", "purchasing"],
         },
         {
           title: "Vendor Invoices",
@@ -110,23 +116,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: "/purchasing/suppliers",
           icon: <Handshake />,
           permission: "read:partners",
-        },
-        {
-          title: "Products",
-          url: "/purchasing/products",
-          icon: <Package />,
-          permission: "read:items",
+          roles: ["superadmin", "manager", "purchasing"],
         },
       ],
     },
     {
       label: "Sales",
+      roles: ["superadmin", "manager", "sales", "finance"],
       items: [
         {
           title: "Sales Orders",
           url: "/sales/sales-orders",
           icon: <ShoppingCart />,
           permission: "read:sales-orders",
+          roles: ["superadmin", "manager", "sales"],
         },
         {
           title: "Sales Invoices",
@@ -139,17 +142,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: "/sales/customers",
           icon: <Handshake />,
           permission: "read:partners",
-        },
-        {
-          title: "Products",
-          url: "/sales/products",
-          icon: <Package />,
-          permission: "read:items",
+          roles: ["superadmin", "manager", "sales"],
         },
       ],
     },
     {
       label: "Accounting",
+      roles: ["superadmin", "manager", "finance"],
       items: [
         {
           title: "Chart of Accounts",
@@ -197,6 +196,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
     {
       label: "Administration",
+      roles: ["superadmin", "manager"],
       items: [
         {
           title: "Users",
@@ -214,12 +214,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
   ]
 
+  const userRole = user?.role
   const userPermissions = user?.permissions || []
   const filteredNavGroups = navGroups
+    .filter((group) => !group.roles || (userRole && group.roles.includes(userRole)))
     .map((group) => ({
       ...group,
       items: group.items.filter(
-        (item) => !item.permission || hasPermission(userPermissions, item.permission)
+        (item) =>
+          (!item.roles || (userRole && item.roles.includes(userRole))) &&
+          (!item.permission || hasPermission(userPermissions, item.permission))
       ),
     }))
     .filter((group) => group.items.length > 0)

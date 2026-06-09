@@ -5,8 +5,14 @@ import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@web/components/ui/card';
 import { Button } from '@web/components/ui/button';
 import { ShoppingCart, Boxes, ArrowRight, Users, Package } from 'lucide-react';
+import { useAuthStore } from '@web/stores/auth.store';
+import { hasPermission } from '@web/lib/permissions';
 
 export default function SalesOverviewPage() {
+  const user = useAuthStore((state) => state.user);
+  const userRole = user?.role;
+  const userPermissions = user?.permissions || [];
+
   const menus = [
     {
       title: 'Sales Orders',
@@ -17,6 +23,8 @@ export default function SalesOverviewPage() {
       actionText: 'Sales Orders',
       quickActionHref: '/sales/sales-orders/new',
       quickActionText: 'Create SO',
+      permission: 'read:sales-orders',
+      roles: ['superadmin', 'manager', 'sales'],
     },
     {
       title: 'Delivery Notes',
@@ -27,6 +35,8 @@ export default function SalesOverviewPage() {
       actionText: 'Delivery Notes',
       quickActionHref: '/sales/delivery-notes/new',
       quickActionText: 'Ship Order',
+      permission: 'read:delivery-notes',
+      roles: ['superadmin', 'manager', 'warehouse'],
     },
     {
       title: 'Sales Invoices',
@@ -37,6 +47,8 @@ export default function SalesOverviewPage() {
       actionText: 'Invoices',
       quickActionHref: null,
       quickActionText: null,
+      permission: 'read:invoices',
+      roles: ['superadmin', 'manager', 'sales', 'finance'],
     },
     {
       title: 'Customers',
@@ -47,18 +59,16 @@ export default function SalesOverviewPage() {
       actionText: 'Customers',
       quickActionHref: `/partners/new?from=${encodeURIComponent('/sales/customers')}`,
       quickActionText: 'Add Customer',
-    },
-    {
-      title: 'Products Reference',
-      description: 'View products master list, sellable items, and catalog details.',
-      href: '/sales/products',
-      icon: <Package className="h-6 w-6 text-orange-500" />,
-      gradient: 'from-orange-500/10 to-rose-500/10 dark:from-orange-500/20 dark:to-rose-500/20',
-      actionText: 'Catalog',
-      quickActionHref: `/inventory/items/new?from=${encodeURIComponent('/sales/products')}`,
-      quickActionText: 'Add Item',
+      permission: 'read:partners',
+      roles: ['superadmin', 'manager', 'sales'],
     },
   ];
+
+  const filteredMenus = menus.filter(
+    (menu) =>
+      (!menu.roles || (userRole && menu.roles.includes(userRole))) &&
+      (!menu.permission || hasPermission(userPermissions, menu.permission))
+  );
 
   return (
     <div className="space-y-8 px-4 lg:px-6 max-w-6xl mx-auto py-4">
@@ -83,7 +93,7 @@ export default function SalesOverviewPage() {
 
       {/* Grid Menu Cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {menus.map((menu, idx) => (
+        {filteredMenus.map((menu, idx) => (
           <Card 
             key={idx} 
             className="group/item relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 bg-card/45 backdrop-blur-xs border-foreground/10 hover:border-amber-500/30 flex flex-col h-full"
