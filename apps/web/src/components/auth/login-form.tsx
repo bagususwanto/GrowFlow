@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '../../stores/auth.store';
 import { Button } from '@web/components/ui/button';
 import { Input } from '@web/components/ui/input';
+import { PasswordInput } from '@web/components/ui/password-input';
 import { Label } from '@web/components/ui/label';
 import { Alert, AlertDescription } from '@web/components/ui/alert';
 import { ApiError } from '@growflow/types';
@@ -80,7 +81,7 @@ export default function LoginForm() {
           >
             Password
           </Label>
-          <Input id="password" type="password" placeholder="••••••••" {...register('password')} />
+          <PasswordInput id="password" placeholder="••••••••" {...register('password')} />
           {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
         </div>
       </div>

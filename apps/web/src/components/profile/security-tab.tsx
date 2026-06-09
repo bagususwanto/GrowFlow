@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { useUpdatePassword } from "./use-profile";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@web/components/ui/card";
 import { Button } from "@web/components/ui/button";
-import { Input } from "@web/components/ui/input";
+import { PasswordInput } from "@web/components/ui/password-input";
 import { Label } from "@web/components/ui/label";
 import { Loader2Icon, LockIcon } from "lucide-react";
 import { ApiError } from "@growflow/types";
@@ -74,9 +74,8 @@ export function SecurityTab() {
               </Label>
               <div className="relative">
                 <LockIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
+                <PasswordInput
                   id="currentPassword"
-                  type="password"
                   placeholder="••••••••"
                   className="pl-9 h-9"
                   {...register("currentPassword")}
@@ -91,9 +90,8 @@ export function SecurityTab() {
               </Label>
               <div className="relative">
                 <LockIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
+                <PasswordInput
                   id="newPassword"
-                  type="password"
                   placeholder="••••••••"
                   className="pl-9 h-9"
                   {...register("newPassword")}
@@ -108,9 +106,8 @@ export function SecurityTab() {
               </Label>
               <div className="relative">
                 <LockIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
+                <PasswordInput
                   id="confirmPassword"
-                  type="password"
                   placeholder="••••••••"
                   className="pl-9 h-9"
                   {...register("confirmPassword")}

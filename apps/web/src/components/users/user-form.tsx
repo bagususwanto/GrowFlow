@@ -8,6 +8,7 @@ import { UserResponse } from "@growflow/types";
 import { useRoles } from "./use-roles";
 import { Button } from "@web/components/ui/button";
 import { Input } from "@web/components/ui/input";
+import { PasswordInput } from "@web/components/ui/password-input";
 import { Label } from "@web/components/ui/label";
 import {
   Select,
@@ -113,7 +114,7 @@ export function UserForm({ initialData, onSubmit, isSubmitting }: UserFormProps)
             </Label>
             <div className="relative">
               <LockIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input id="password" type="password" placeholder="••••••••" className="pl-9 h-9" {...register("password")} />
+              <PasswordInput id="password" placeholder="••••••••" className="pl-9 h-9" {...register("password")} />
             </div>
             {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
           </div>
