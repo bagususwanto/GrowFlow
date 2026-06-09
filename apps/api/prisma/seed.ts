@@ -21,17 +21,6 @@ async function main() {
     },
     {
       name: 'manager',
-      // Users: read all, read one
-      // Roles: read all, read one
-      // Warehouses: create, read all, read one, update
-      // Category Items: create, read all, read one, update, delete
-      // Items: create, read all, read one, update (incl. pricing), delete
-      // Partners: create, read all, read one, update
-      // Stock: read balances, read mutations, read low-stock
-      // Purchase Orders: read all, read one, update (draft), submit, approve, cancel, delete
-      // Goods Receipts: create, read all, read one, update (draft), confirm
-      // Sales Orders: read all, read one, update (draft), confirm, cancel, delete
-      // Delivery Notes: create, read all, read one, update (draft), confirm
       permissions: [
         'read:dashboard',
         'read:users',
@@ -41,22 +30,16 @@ async function main() {
         'create:items', 'read:items', 'update:items', 'delete:items',
         'create:partners', 'read:partners', 'update:partners',
         'read:stock',
-        'read:purchase-orders', 'update:purchase-orders', 'submit:purchase-orders', 'approve:purchase-orders', 'cancel:purchase-orders', 'delete:purchase-orders',
-        'create:goods-receipts', 'read:goods-receipts', 'update:goods-receipts', 'confirm:goods-receipts',
-        'read:sales-orders', 'update:sales-orders', 'confirm:sales-orders', 'cancel:sales-orders', 'delete:sales-orders',
-        'create:delivery-notes', 'read:delivery-notes', 'update:delivery-notes', 'confirm:delivery-notes',
+        'read:purchase-orders', 'approve:purchase-orders', 'cancel:purchase-orders',
+        'read:goods-receipts',
+        'read:sales-orders', 'confirm:sales-orders', 'cancel:sales-orders', 'delete:sales-orders',
+        'read:delivery-notes',
         'read:invoices',
         'read:accounting',
       ],
     },
     {
       name: 'sales',
-      // Warehouses: read only
-      // Category Items: read only
-      // Items: read all, read one, read with pricing
-      // Partners: read only
-      // Stock: read balances, read low-stock, read mutations
-      // Sales Orders: create, read all, read one, update (draft), confirm
       permissions: [
         'read:dashboard',
         'read:warehouses',
@@ -64,18 +47,13 @@ async function main() {
         'read:items',
         'read:partners',
         'read:stock',
-        'create:sales-orders', 'read:sales-orders', 'update:sales-orders', 'confirm:sales-orders',
+        'create:sales-orders', 'read:sales-orders', 'update:sales-orders',
+        'read:delivery-notes',
         'read:invoices',
       ],
     },
     {
       name: 'purchasing',
-      // Warehouses: read only
-      // Category Items: read only
-      // Items: read all, read one, read with pricing
-      // Partners: read only
-      // Stock: read balances, read low-stock, read mutations
-      // Purchase Orders: create, read all, read one, update (draft), submit
       permissions: [
         'read:dashboard',
         'read:warehouses',
@@ -84,56 +62,39 @@ async function main() {
         'read:partners',
         'read:stock',
         'create:purchase-orders', 'read:purchase-orders', 'update:purchase-orders', 'submit:purchase-orders',
+        'read:goods-receipts',
         'read:invoices',
       ],
     },
     {
       name: 'finance',
-      // Read-only access to transactional documents for reporting
-      // Items: read all, read one, read with pricing
-      // Partners: read only
-      // Stock: read mutations only
-      // Purchase Orders: read only
-      // Goods Receipts: read only
-      // Sales Orders: read only
-      // Delivery Notes: read only
       permissions: [
         'read:dashboard',
-        'read:items',
         'read:partners',
+        'read:items',
         'read:stock',
-        'read:stock:mutations',
         'read:purchase-orders',
         'read:goods-receipts',
         'read:sales-orders',
         'read:delivery-notes',
-        'read:invoices',
-        'read:accounting',
+        'read:invoices', 'create:invoices', 'update:invoices',
+        'read:accounting', 'create:accounting', 'update:accounting', 'delete:accounting',
       ],
     },
     {
       name: 'warehouse',
-      // Warehouses: read only
-      // Category Items: read only
-      // Items: read all, read one
-      // Stock: read balances, read mutations, read low-stock
-      // Purchase Orders: read only
-      // Goods Receipts: create, read all, read one, update (draft)
-      // Sales Orders: read only
-      // Delivery Notes: create, read all, read one, update (draft), confirm
       permissions: [
         'read:dashboard',
         'read:warehouses',
         'read:category-items',
         'read:items',
-        'read:stock',
-        'read:purchase-orders',
-        'create:goods-receipts', 'read:goods-receipts', 'update:goods-receipts',
-        'read:sales-orders',
+        'read:stock', 'write:stock',
+        'create:goods-receipts', 'read:goods-receipts', 'update:goods-receipts', 'confirm:goods-receipts',
         'create:delivery-notes', 'read:delivery-notes', 'update:delivery-notes', 'confirm:delivery-notes',
       ],
     },
   ];
+
 
   const roles: { id: string; name: string }[] = [];
   for (const role of rolesData) {
