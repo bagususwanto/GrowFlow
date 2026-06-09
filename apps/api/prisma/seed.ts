@@ -25,14 +25,29 @@ async function main() {
         'read:dashboard',
         'read:users',
         'read:roles',
-        'create:warehouses', 'read:warehouses', 'update:warehouses',
-        'create:category-items', 'read:category-items', 'update:category-items', 'delete:category-items',
-        'create:items', 'read:items', 'update:items', 'delete:items',
-        'create:partners', 'read:partners', 'update:partners',
+        'create:warehouses',
+        'read:warehouses',
+        'update:warehouses',
+        'create:category-items',
+        'read:category-items',
+        'update:category-items',
+        'delete:category-items',
+        'create:items',
+        'read:items',
+        'update:items',
+        'delete:items',
+        'create:partners',
+        'read:partners',
+        'update:partners',
         'read:stock',
-        'read:purchase-orders', 'approve:purchase-orders', 'cancel:purchase-orders',
+        'read:purchase-orders',
+        'approve:purchase-orders',
+        'cancel:purchase-orders',
         'read:goods-receipts',
-        'read:sales-orders', 'confirm:sales-orders', 'cancel:sales-orders', 'delete:sales-orders',
+        'read:sales-orders',
+        'confirm:sales-orders',
+        'cancel:sales-orders',
+        'delete:sales-orders',
         'read:delivery-notes',
         'read:invoices',
         'read:accounting',
@@ -47,7 +62,9 @@ async function main() {
         'read:items',
         'read:partners',
         'read:stock',
-        'create:sales-orders', 'read:sales-orders', 'update:sales-orders',
+        'create:sales-orders',
+        'read:sales-orders',
+        'update:sales-orders',
         'read:invoices',
       ],
     },
@@ -60,7 +77,10 @@ async function main() {
         'read:items',
         'read:partners',
         'read:stock',
-        'create:purchase-orders', 'read:purchase-orders', 'update:purchase-orders', 'submit:purchase-orders',
+        'create:purchase-orders',
+        'read:purchase-orders',
+        'update:purchase-orders',
+        'submit:purchase-orders',
         'read:goods-receipts',
         'read:invoices',
       ],
@@ -76,8 +96,13 @@ async function main() {
         'read:goods-receipts',
         'read:sales-orders',
         'read:delivery-notes',
-        'read:invoices', 'create:invoices', 'update:invoices',
-        'read:accounting', 'create:accounting', 'update:accounting', 'delete:accounting',
+        'read:invoices',
+        'create:invoices',
+        'update:invoices',
+        'read:accounting',
+        'create:accounting',
+        'update:accounting',
+        'delete:accounting',
       ],
     },
     {
@@ -87,13 +112,19 @@ async function main() {
         'read:warehouses',
         'read:category-items',
         'read:items',
-        'read:stock', 'write:stock',
-        'create:goods-receipts', 'read:goods-receipts', 'update:goods-receipts', 'confirm:goods-receipts',
-        'create:delivery-notes', 'read:delivery-notes', 'update:delivery-notes', 'confirm:delivery-notes',
+        'read:stock',
+        'write:stock',
+        'create:goods-receipts',
+        'read:goods-receipts',
+        'update:goods-receipts',
+        'confirm:goods-receipts',
+        'create:delivery-notes',
+        'read:delivery-notes',
+        'update:delivery-notes',
+        'confirm:delivery-notes',
       ],
     },
   ];
-
 
   const roles: { id: string; name: string }[] = [];
   for (const role of rolesData) {
@@ -157,7 +188,7 @@ async function main() {
     where: { email: 'warehouse@growflow.com' },
     update: {},
     create: {
-      name: 'Siti Rahayu',
+      name: 'Warehouse Staff',
       email: 'warehouse@growflow.com',
       passwordHash,
       roleId: warehouseRole.id,
@@ -651,7 +682,7 @@ async function main() {
   // ─────────────────────────────────────────────
   console.info('🌱 Seeding Chart of Accounts (COA)...');
   const { coaData } = require('./coa-data');
-  
+
   // Seed parents first (without parentCode), then children (with parentCode)
   const parents = coaData.filter((c: any) => !c.parentCode);
   const children = coaData.filter((c: any) => c.parentCode);
@@ -681,7 +712,9 @@ async function main() {
   for (const acc of children) {
     const parentId = seededAccounts[acc.parentCode];
     if (!parentId) {
-      throw new Error(`Parent account not found for code ${acc.code} with parentCode ${acc.parentCode}`);
+      throw new Error(
+        `Parent account not found for code ${acc.code} with parentCode ${acc.parentCode}`,
+      );
     }
     const upserted = await prisma.account.upsert({
       where: { code: acc.code },
@@ -715,8 +748,18 @@ async function main() {
   const revenueAccount = await prisma.account.findUnique({ where: { code: '4-1100' } }); // Pendapatan Penjualan (System)
   const purchaseAccount = await prisma.account.findUnique({ where: { code: '5-2000' } }); // Beban Pembelian default (System)
 
-  if (!apAccount || !arAccount || !cashAccount || !inventoryAccount || !cogsAccount || !revenueAccount || !purchaseAccount) {
-    throw new Error('Required system accounts for default settings mapping are missing from the COA data.');
+  if (
+    !apAccount ||
+    !arAccount ||
+    !cashAccount ||
+    !inventoryAccount ||
+    !cogsAccount ||
+    !revenueAccount ||
+    !purchaseAccount
+  ) {
+    throw new Error(
+      'Required system accounts for default settings mapping are missing from the COA data.',
+    );
   }
 
   await prisma.accountingSettings.upsert({
