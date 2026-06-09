@@ -94,7 +94,7 @@ export function SiteHeader() {
         <SidebarTrigger className="-ml-1" />
         <Separator
           orientation="vertical"
-          className="mx-2 h-4 data-vertical:self-auto"
+          className="mx-2 h-4 data-[orientation=vertical]:self-auto"
         />
         <Breadcrumb>
           <BreadcrumbList>
