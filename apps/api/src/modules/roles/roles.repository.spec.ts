@@ -9,7 +9,7 @@ describe('RolesRepository', () => {
 
   const mockRole = {
     id: 'role-id',
-    name: 'staff',
+    name: 'sales',
     permissions: ['read:items'],
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -52,7 +52,7 @@ describe('RolesRepository', () => {
       (prisma.role.findMany as jest.Mock).mockResolvedValue([mockRole]);
       (prisma.role.count as jest.Mock).mockResolvedValue(1);
 
-      const query = { search: 'staff', sortBy: 'name', sortOrder: SortOrder.ASC };
+      const query = { search: 'sales', sortBy: 'name', sortOrder: SortOrder.ASC };
       const result = await repository.findAll(query, 0, 10);
       expect(prisma.role.findMany).toHaveBeenCalledWith({
         skip: 0,
@@ -60,7 +60,7 @@ describe('RolesRepository', () => {
         where: {
           deletedAt: null,
           name: {
-            contains: 'staff',
+            contains: 'sales',
             mode: 'insensitive',
           },
         },
@@ -70,7 +70,7 @@ describe('RolesRepository', () => {
         where: {
           deletedAt: null,
           name: {
-            contains: 'staff',
+            contains: 'sales',
             mode: 'insensitive',
           },
         },
@@ -91,8 +91,8 @@ describe('RolesRepository', () => {
   describe('findByName', () => {
     it('should find a role by name', async () => {
       (prisma.role.findFirst as jest.Mock).mockResolvedValue(mockRole);
-      const result = await repository.findByName('staff');
-      expect(prisma.role.findFirst).toHaveBeenCalledWith({ where: { name: 'staff', deletedAt: null } });
+      const result = await repository.findByName('sales');
+      expect(prisma.role.findFirst).toHaveBeenCalledWith({ where: { name: 'sales', deletedAt: null } });
       expect(result).toEqual(mockRole);
     });
   });
@@ -100,7 +100,7 @@ describe('RolesRepository', () => {
   describe('create', () => {
     it('should create a role', async () => {
       (prisma.role.create as jest.Mock).mockResolvedValue(mockRole);
-      const dto = { name: 'staff', permissions: ['read:items'] };
+      const dto = { name: 'sales', permissions: ['read:items'] };
       const result = await repository.create(dto);
       expect(prisma.role.create).toHaveBeenCalledWith({
         data: dto,
@@ -112,7 +112,7 @@ describe('RolesRepository', () => {
   describe('update', () => {
     it('should update a role', async () => {
       (prisma.role.update as jest.Mock).mockResolvedValue(mockRole);
-      const dto = { name: 'staff-updated' };
+      const dto = { name: 'sales-updated' };
       const result = await repository.update('role-id', dto);
       expect(prisma.role.update).toHaveBeenCalledWith({
         where: { id: 'role-id' },

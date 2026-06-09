@@ -23,7 +23,7 @@ export interface LoginResponse {
   user: AuthUser;
 }
 
-export type RoleName = 'superadmin' | 'manager' | 'staff' | 'finance' | 'warehouse';
+export type RoleName = 'superadmin' | 'manager' | 'sales' | 'purchasing' | 'finance' | 'warehouse';
 
 export interface UpdateProfileRequest {
   name: string;

@@ -16,7 +16,7 @@ describe('UsersRepository', () => {
     deletedAt: null,
     createdAt: new Date(),
     updatedAt: new Date(),
-    role: { id: 'role-id', name: 'staff' },
+    role: { id: 'role-id', name: 'sales' },
   };
 
   const mockPrismaService = {

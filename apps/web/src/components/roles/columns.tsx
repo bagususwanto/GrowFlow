@@ -171,7 +171,7 @@ export const getColumns = ({ onView, onEdit, onDelete, sortBy, sortOrder, onSort
     cell: ({ row }) => {
       const role = row.original;
       // Do not allow deleting system default critical roles if needed (e.g. superadmin)
-      const isSystemRole = ['superadmin', 'manager', 'staff', 'warehouse', 'finance'].includes(role.name.toLowerCase());
+      const isSystemRole = ['superadmin', 'manager', 'sales', 'purchasing', 'warehouse', 'finance'].includes(role.name.toLowerCase());
 
       return (
         <DropdownMenu>

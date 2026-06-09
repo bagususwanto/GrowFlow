@@ -23,7 +23,7 @@ describe('JwtStrategy', () => {
         sub: 'user-id',
         name: 'Test User',
         email: 'test@example.com',
-        role: 'staff',
+        role: 'sales',
         permissions: ['read:items'],
         isActive: true,
       };
@@ -34,7 +34,7 @@ describe('JwtStrategy', () => {
         id: 'user-id',
         name: 'Test User',
         email: 'test@example.com',
-        role: 'staff',
+        role: 'sales',
         isActive: true,
         permissions: ['read:items'],
       });
@@ -45,7 +45,7 @@ describe('JwtStrategy', () => {
         sub: 'user-id',
         name: 'Test User',
         email: 'test@example.com',
-        role: 'staff',
+        role: 'sales',
         permissions: ['read:items'],
         isActive: false,
       };
@@ -58,7 +58,7 @@ describe('JwtStrategy', () => {
         sub: 'user-id',
         name: 'Test User',
         email: 'test@example.com',
-        role: 'staff',
+        role: 'sales',
         permissions: ['read:items'],
       };
 

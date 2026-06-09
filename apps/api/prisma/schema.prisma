@@ -10,7 +10,7 @@ datasource db {
 
 model Role {
   id          String    @id @default(uuid())
-  name        String    @unique // superadmin | manager | staff | finance | warehouse
+  name        String    @unique // superadmin | manager | sales | purchasing | finance | warehouse
   permissions Json      @default("[]")
   isActive    Boolean   @default(true) @map("is_active")
   deletedAt   DateTime? @map("deleted_at")

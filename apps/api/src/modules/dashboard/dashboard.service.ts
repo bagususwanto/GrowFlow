@@ -178,7 +178,7 @@ export class DashboardService {
     }));
 
     // 2. Map data based on user role
-    if (role === 'superadmin' || role === 'manager' || role === 'staff') {
+    if (role === 'superadmin' || role === 'manager' || role === 'sales' || role === 'purchasing') {
       summary.totalItems = totalItems;
       summary.lowStockItems = lowStockItems;
       summary.totalPurchaseOrders = totalPurchaseOrders;

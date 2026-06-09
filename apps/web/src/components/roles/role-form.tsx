@@ -121,7 +121,7 @@ export function RoleForm({ initialData, onSubmit, isSubmitting }: RoleFormProps)
               <Input
                 id="name"
                 type="text"
-                placeholder="e.g. staff, manager"
+                placeholder="e.g. sales, manager"
                 className="pl-9 h-9"
                 {...register("name")}
               />

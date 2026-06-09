@@ -88,7 +88,7 @@ export const getColumns = ({ onView, onEdit, onDelete, sortBy, sortOrder, onSort
     accessorKey: 'role',
     header: 'Role',
     cell: ({ row }) => {
-      const roleName = row.original.role?.name || 'staff';
+      const roleName = row.original.role?.name || 'sales';
       const isSuperadmin = roleName === 'superadmin';
 
       return (

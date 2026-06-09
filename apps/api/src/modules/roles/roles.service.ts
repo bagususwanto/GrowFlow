@@ -63,7 +63,7 @@ export class RolesService {
       throw new NotFoundException(`Role with ID ${id} not found`);
     }
 
-    const BUILT_IN_ROLES = ['superadmin', 'manager', 'staff', 'finance', 'warehouse'];
+    const BUILT_IN_ROLES = ['superadmin', 'manager', 'sales', 'purchasing', 'finance', 'warehouse'];
     if (BUILT_IN_ROLES.includes(role.name)) {
       if (dto.name && dto.name !== role.name) {
         throw new BadRequestException('Cannot rename built-in system role');
@@ -90,7 +90,7 @@ export class RolesService {
       throw new NotFoundException(`Role with ID ${id} not found`);
     }
 
-    const BUILT_IN_ROLES = ['superadmin', 'manager', 'staff', 'finance', 'warehouse'];
+    const BUILT_IN_ROLES = ['superadmin', 'manager', 'sales', 'purchasing', 'finance', 'warehouse'];
     if (BUILT_IN_ROLES.includes(role.name)) {
       throw new BadRequestException('Cannot delete built-in system role');
     }

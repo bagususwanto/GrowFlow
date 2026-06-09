@@ -13,7 +13,7 @@ describe('UsersController', () => {
     name: 'Test User',
     email: 'test@test.com',
     roleId: 'role-id',
-    role: { id: 'role-id', name: 'staff' as any },
+    role: { id: 'role-id', name: 'sales' as any },
     isActive: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),

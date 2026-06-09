@@ -103,7 +103,7 @@ export function RoleDetailContainer({ id }: RoleDetailContainerProps) {
   }
 
   const permissions = normalizePermissions(role.permissions);
-  const isSystemRole = ['superadmin', 'manager', 'staff', 'warehouse', 'finance'].includes(
+  const isSystemRole = ['superadmin', 'manager', 'sales', 'purchasing', 'warehouse', 'finance'].includes(
     role.name.toLowerCase(),
   );
 

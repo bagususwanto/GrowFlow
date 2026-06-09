@@ -8,7 +8,7 @@ describe('RolesController', () => {
 
   const mockRoleResponse = {
     id: 'role-id',
-    name: 'staff',
+    name: 'sales',
     permissions: [],
     isActive: true,
     createdAt: new Date().toISOString(),
@@ -45,7 +45,7 @@ describe('RolesController', () => {
 
   describe('create', () => {
     it('should call service create', async () => {
-      const dto = { name: 'staff', permissions: [] };
+      const dto = { name: 'sales', permissions: [] };
       service.create.mockResolvedValue(mockRoleResponse);
       const result = await controller.create(dto);
       expect(service.create).toHaveBeenCalledWith(dto);

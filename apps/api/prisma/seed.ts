@@ -50,13 +50,12 @@ async function main() {
       ],
     },
     {
-      name: 'staff',
+      name: 'sales',
       // Warehouses: read only
       // Category Items: read only
       // Items: read all, read one, read with pricing
       // Partners: read only
       // Stock: read balances, read low-stock, read mutations
-      // Purchase Orders: create, read all, read one, update (draft), submit
       // Sales Orders: create, read all, read one, update (draft), confirm
       permissions: [
         'read:dashboard',
@@ -65,8 +64,26 @@ async function main() {
         'read:items',
         'read:partners',
         'read:stock',
-        'create:purchase-orders', 'read:purchase-orders', 'update:purchase-orders', 'submit:purchase-orders',
         'create:sales-orders', 'read:sales-orders', 'update:sales-orders', 'confirm:sales-orders',
+        'read:invoices',
+      ],
+    },
+    {
+      name: 'purchasing',
+      // Warehouses: read only
+      // Category Items: read only
+      // Items: read all, read one, read with pricing
+      // Partners: read only
+      // Stock: read balances, read low-stock, read mutations
+      // Purchase Orders: create, read all, read one, update (draft), submit
+      permissions: [
+        'read:dashboard',
+        'read:warehouses',
+        'read:category-items',
+        'read:items',
+        'read:partners',
+        'read:stock',
+        'create:purchase-orders', 'read:purchase-orders', 'update:purchase-orders', 'submit:purchase-orders',
         'read:invoices',
       ],
     },
@@ -141,7 +158,8 @@ async function main() {
   const managerRole = roles.find((r) => r.name === 'manager')!;
   const warehouseRole = roles.find((r) => r.name === 'warehouse')!;
   const financeRole = roles.find((r) => r.name === 'finance')!;
-  const staffRole = roles.find((r) => r.name === 'staff')!;
+  const salesRole = roles.find((r) => r.name === 'sales')!;
+  const purchasingRole = roles.find((r) => r.name === 'purchasing')!;
 
   if (!superadminRole) {
     throw new Error('Superadmin role was not created successfully.');
@@ -201,18 +219,31 @@ async function main() {
   });
   console.info(`  ✔ User: ${financeStaff.email} (finance)`);
 
-  const generalStaff = await prisma.user.upsert({
-    where: { email: 'staff@growflow.com' },
+  const salesStaff = await prisma.user.upsert({
+    where: { email: 'sales@growflow.com' },
     update: {},
     create: {
-      name: 'General Staff',
-      email: 'staff@growflow.com',
+      name: 'Sales Staff',
+      email: 'sales@growflow.com',
       passwordHash,
-      roleId: staffRole.id,
+      roleId: salesRole.id,
       isActive: true,
     },
   });
-  console.info(`  ✔ User: ${generalStaff.email} (staff)`);
+  console.info(`  ✔ User: ${salesStaff.email} (sales)`);
+
+  const purchasingStaff = await prisma.user.upsert({
+    where: { email: 'purchasing@growflow.com' },
+    update: {},
+    create: {
+      name: 'Purchasing Staff',
+      email: 'purchasing@growflow.com',
+      passwordHash,
+      roleId: purchasingRole.id,
+      isActive: true,
+    },
+  });
+  console.info(`  ✔ User: ${purchasingStaff.email} (purchasing)`);
 
   // ─────────────────────────────────────────────
   // 3. Warehouses

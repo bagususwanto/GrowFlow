@@ -22,7 +22,7 @@ describe('UsersService', () => {
     deletedAt: null,
     createdAt: mockDate,
     updatedAt: mockDate,
-    role: { id: 'role-id', name: 'staff' },
+    role: { id: 'role-id', name: 'sales' },
   };
 
   const mockUserResponse = {
@@ -30,7 +30,7 @@ describe('UsersService', () => {
     name: 'Test User',
     email: 'test@test.com',
     roleId: 'role-id',
-    role: { id: 'role-id', name: 'staff' },
+    role: { id: 'role-id', name: 'sales' },
     isActive: true,
     createdAt: mockDate.toISOString(),
     updatedAt: mockDate.toISOString(),
