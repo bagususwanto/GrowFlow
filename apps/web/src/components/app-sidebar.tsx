@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import * as React from "react"
+import Image from "next/image"
 
 import { NavMain } from "@web/components/nav-main"
 import { NavUser } from "@web/components/nav-user"
@@ -15,7 +16,7 @@ import {
   SidebarMenuItem,
 } from "@web/components/ui/sidebar"
 import { useAuthStore } from "@web/stores/auth.store"
-import { LayoutDashboard, Package, ShoppingCart, Sprout, Users, Shield, Warehouse, Boxes, Handshake, FileText as FileTextIcon, Landmark, FileSpreadsheet, BarChart, Settings } from "lucide-react"
+import { LayoutDashboard, Package, ShoppingCart, Users, Shield, Warehouse, Boxes, Handshake, FileText as FileTextIcon, Landmark, FileSpreadsheet, BarChart, Settings } from "lucide-react"
 
 import { hasPermission } from "@web/lib/permissions"
 
@@ -243,8 +244,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:p-1.5!"
               render={<Link href="/dashboard" />}
             >
-              <div className="flex aspect-square size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-                <Sprout className="size-4" />
+              <div className="flex aspect-square size-6 items-center justify-center rounded-md overflow-hidden bg-transparent">
+                <Image
+                  src="/assets/logo.png"
+                  alt="GrowFlow Logo"
+                  width={24}
+                  height={24}
+                  className="object-contain"
+                />
               </div>
               <span className="text-base font-semibold bg-linear-to-r from-foreground via-foreground/90 to-foreground/75 bg-clip-text text-transparent">GrowFlow</span>
             </SidebarMenuButton>
