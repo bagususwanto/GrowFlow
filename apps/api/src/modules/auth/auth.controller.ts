@@ -29,10 +29,11 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   private getCookieOptions(): CookieOptions {
+    const isProduction = env.NODE_ENV === 'production';
     return {
       httpOnly: true,
-      secure: env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
       path: '/api/auth',
       maxAge: COOKIE_MAX_AGE,
     };
