@@ -74,6 +74,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       ],
     },
     {
+      label: "Logistics",
+      items: [
+        {
+          title: "Goods Receipts",
+          url: "/purchasing/goods-receipts",
+          icon: <Boxes />,
+          permission: "read:goods-receipts",
+        },
+        {
+          title: "Delivery Notes",
+          url: "/sales/delivery-notes",
+          icon: <Boxes />,
+          permission: "read:delivery-notes",
+        },
+      ],
+    },
+    {
       label: "Purchasing",
       items: [
         {
@@ -81,12 +98,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: "/purchasing/purchase-orders",
           icon: <ShoppingCart />,
           permission: "read:purchase-orders",
-        },
-        {
-          title: "Goods Receipts",
-          url: "/purchasing/goods-receipts",
-          icon: <Boxes />,
-          permission: "read:goods-receipts",
         },
         {
           title: "Vendor Invoices",
@@ -116,12 +127,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: "/sales/sales-orders",
           icon: <ShoppingCart />,
           permission: "read:sales-orders",
-        },
-        {
-          title: "Delivery Notes",
-          url: "/sales/delivery-notes",
-          icon: <Boxes />,
-          permission: "read:delivery-notes",
         },
         {
           title: "Sales Invoices",

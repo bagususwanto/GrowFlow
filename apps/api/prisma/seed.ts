@@ -48,7 +48,6 @@ async function main() {
         'read:partners',
         'read:stock',
         'create:sales-orders', 'read:sales-orders', 'update:sales-orders',
-        'read:delivery-notes',
         'read:invoices',
       ],
     },
