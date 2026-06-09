@@ -4,7 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@web/components/ui/card';
 import { Button } from '@web/components/ui/button';
-import { ShoppingCart, Boxes, ArrowRight, Users, Package } from 'lucide-react';
+import { ShoppingCart, Boxes, ArrowRight, Users } from 'lucide-react';
 import { useAuthStore } from '@web/stores/auth.store';
 import { hasPermission } from '@web/lib/permissions';
 
