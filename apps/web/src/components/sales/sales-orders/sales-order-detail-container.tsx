@@ -171,7 +171,7 @@ export function SalesOrderDetailContainer() {
               size="sm"
               nativeButton={false}
               render={
-                <Link href={`/sales/delivery-notes/new?soId=${id}`}>
+                <Link href={`/logistics/delivery-notes/new?soId=${id}`}>
                   <TruckIcon className="w-4 h-4 mr-2" />
                   Ship Goods (DN)
                 </Link>
@@ -298,7 +298,7 @@ export function SalesOrderDetailContainer() {
                       >
                         <div>
                           <Link
-                            href={`/sales/delivery-notes/${dn.id}`}
+                            href={`/logistics/delivery-notes/${dn.id}`}
                             className="font-mono text-primary hover:underline font-semibold"
                           >
                             {dn.number}

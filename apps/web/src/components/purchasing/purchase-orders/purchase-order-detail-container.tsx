@@ -169,7 +169,7 @@ export function PurchaseOrderDetailContainer() {
           )}
 
           {(isApproved || isPartial) && canReceive && (
-            <Button size="sm" nativeButton={false} render={<Link href={`/purchasing/goods-receipts/new?poId=${id}`}><ShoppingBagIcon className="w-4 h-4 mr-2" />Receive Items (GRN)</Link>} />
+            <Button size="sm" nativeButton={false} render={<Link href={`/logistics/goods-receipts/new?poId=${id}`}><ShoppingBagIcon className="w-4 h-4 mr-2" />Receive Items (GRN)</Link>} />
           )}
 
           {!['CANCELLED', 'DONE', 'PARTIAL'].includes(po.status) && canCancel && (

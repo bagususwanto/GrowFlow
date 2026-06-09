@@ -128,7 +128,7 @@ export function GoodsReceiptsTable() {
 
   const handleView = React.useCallback(
     (gr: { id: string }) => {
-      router.push(`/purchasing/goods-receipts/${gr.id}`);
+      router.push(`/logistics/goods-receipts/${gr.id}`);
     },
     [router],
   );

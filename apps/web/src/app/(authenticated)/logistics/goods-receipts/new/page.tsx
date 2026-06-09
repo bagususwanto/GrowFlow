@@ -10,7 +10,7 @@ export default function NewGoodsReceiptPage() {
   return (
     <div className="space-y-6 px-4 lg:px-6">
       <div className="flex items-center gap-3">
-        <BackButton fallbackUrl="/purchasing/goods-receipts" />
+        <BackButton fallbackUrl="/logistics/goods-receipts" />
         <div className="space-y-0.5">
           <h1 className="font-bold text-foreground text-2xl tracking-tight">Create Goods Receipt (GRN)</h1>
           <p className="text-muted-foreground text-sm">

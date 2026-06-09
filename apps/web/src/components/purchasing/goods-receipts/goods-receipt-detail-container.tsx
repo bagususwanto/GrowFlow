@@ -77,7 +77,7 @@ export function GoodsReceiptDetailContainer() {
             size="icon"
             nativeButton={false}
             render={
-              <Link href="/purchasing/goods-receipts" title="Back to Goods Receipts">
+              <Link href="/logistics/goods-receipts" title="Back to Goods Receipts">
                 <ChevronLeftIcon className="h-4 w-4" />
               </Link>
             }

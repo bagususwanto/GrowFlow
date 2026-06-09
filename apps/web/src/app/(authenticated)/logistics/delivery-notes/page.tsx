@@ -1,32 +1,32 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { GoodsReceiptsTable } from '@web/components/purchasing/goods-receipts/goods-receipts-table';
+import { Skeleton } from '@web/components/ui/skeleton';
+import { DeliveryNotesTable } from '@web/components/sales/delivery-notes/delivery-notes-table';
 import { Button } from '@web/components/ui/button';
 import { PlusIcon } from 'lucide-react';
-import { Skeleton } from '@web/components/ui/skeleton';
 
 export const metadata = {
-  title: 'Goods Receipts | GrowFlow',
-  description: 'Manage Goods Receipts (GRN).',
+  title: 'Delivery Notes | GrowFlow',
+  description: 'Manage Delivery Notes.',
 };
 
-export default function GoodsReceiptsPage() {
+export default function DeliveryNotesPage() {
   return (
     <div className="space-y-6 px-4 lg:px-6">
       <div className="flex sm:flex-row flex-col sm:justify-between sm:items-center gap-4">
         <div className="space-y-1">
-          <h1 className="font-bold text-foreground text-2xl tracking-tight">Goods Receipts (GRN)</h1>
+          <h1 className="font-bold text-foreground text-2xl tracking-tight">Delivery Notes</h1>
           <p className="text-muted-foreground text-sm">
-            Track incoming shipments, verify physical items and update inventory stock balances.
+            Manage delivery note documents for goods shipped to customers.
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button
             nativeButton={false}
             render={
-              <Link href="/purchasing/goods-receipts/new">
+              <Link href="/logistics/delivery-notes/new">
                 <PlusIcon className="mr-2 w-4 h-4" />
-                New Goods Receipt
+                New Delivery Note
               </Link>
             }
           />
@@ -34,9 +34,8 @@ export default function GoodsReceiptsPage() {
       </div>
 
       <Suspense fallback={<Skeleton className="w-full h-96" />}>
-        <GoodsReceiptsTable />
+        <DeliveryNotesTable />
       </Suspense>
     </div>
   );
 }
-

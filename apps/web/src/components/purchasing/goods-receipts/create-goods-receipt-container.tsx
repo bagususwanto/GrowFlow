@@ -146,7 +146,7 @@ export function CreateGoodsReceiptContainer() {
           })),
       });
       toast.success('Goods Receipt created successfully');
-      router.push(`/purchasing/goods-receipts/${result.id}`);
+      router.push(`/logistics/goods-receipts/${result.id}`);
     } catch (error) {
       const apiError = error as ApiError;
       toast.error(apiError.message || 'Failed to create Goods Receipt');

@@ -127,7 +127,7 @@ export function DeliveryNotesTable() {
 
   const handleView = React.useCallback(
     (dn: { id: string }) => {
-      router.push(`/sales/delivery-notes/${dn.id}`);
+      router.push(`/logistics/delivery-notes/${dn.id}`);
     },
     [router],
   );

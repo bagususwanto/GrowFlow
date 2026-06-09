@@ -41,11 +41,11 @@ export default function PurchasingOverviewPage() {
     {
       title: 'Goods Receipts',
       description: 'Log and track incoming items, verify shipments, and update inventory quantities.',
-      href: '/purchasing/goods-receipts',
+      href: '/logistics/goods-receipts',
       icon: <Boxes className="h-6 w-6 text-indigo-500" />,
       gradient: 'from-indigo-500/10 to-violet-500/10 dark:from-indigo-500/20 dark:to-violet-500/20',
       actionText: 'Goods Receipts',
-      quickActionHref: '/purchasing/goods-receipts/new',
+      quickActionHref: '/logistics/goods-receipts/new',
       quickActionText: 'Receive Goods',
       permission: 'read:goods-receipts',
       roles: ['superadmin', 'manager', 'warehouse', 'purchasing'],

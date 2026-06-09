@@ -82,13 +82,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       items: [
         {
           title: "Goods Receipts",
-          url: "/purchasing/goods-receipts",
+          url: "/logistics/goods-receipts",
           icon: <Boxes />,
           permission: "read:goods-receipts",
         },
         {
           title: "Delivery Notes",
-          url: "/sales/delivery-notes",
+          url: "/logistics/delivery-notes",
           icon: <Boxes />,
           permission: "read:delivery-notes",
         },

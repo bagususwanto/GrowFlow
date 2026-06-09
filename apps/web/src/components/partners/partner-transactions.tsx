@@ -152,7 +152,7 @@ export function PartnerTransactions({ partnerId, partnerType }: PartnerTransacti
               {grns.map((grn) => (
                 <TableRow key={grn.id} className="cursor-pointer hover:bg-muted/50">
                   <TableCell className="font-medium font-mono">
-                    <Link href={`/purchasing/goods-receipts/${grn.id}`} className="hover:underline text-primary">
+                    <Link href={`/logistics/goods-receipts/${grn.id}`} className="hover:underline text-primary">
                       {grn.number}
                     </Link>
                   </TableCell>
@@ -170,7 +170,7 @@ export function PartnerTransactions({ partnerId, partnerType }: PartnerTransacti
         </div>
         <div className="flex justify-end">
           <Link
-            href={`/purchasing/goods-receipts?supplierId=${partnerId}`}
+            href={`/logistics/goods-receipts?supplierId=${partnerId}`}
             className="text-xs text-primary flex items-center gap-1 hover:underline"
           >
             View all Goods Receipts
@@ -285,7 +285,7 @@ export function PartnerTransactions({ partnerId, partnerType }: PartnerTransacti
               {dns.map((dn) => (
                 <TableRow key={dn.id} className="cursor-pointer hover:bg-muted/50">
                   <TableCell className="font-medium font-mono">
-                    <Link href={`/sales/delivery-notes/${dn.id}`} className="hover:underline text-primary">
+                    <Link href={`/logistics/delivery-notes/${dn.id}`} className="hover:underline text-primary">
                       {dn.number}
                     </Link>
                   </TableCell>
@@ -302,7 +302,7 @@ export function PartnerTransactions({ partnerId, partnerType }: PartnerTransacti
         </div>
         <div className="flex justify-end">
           <Link
-            href={`/sales/delivery-notes?customerId=${partnerId}`}
+            href={`/logistics/delivery-notes?customerId=${partnerId}`}
             className="text-xs text-primary flex items-center gap-1 hover:underline"
           >
             View all Delivery Notes

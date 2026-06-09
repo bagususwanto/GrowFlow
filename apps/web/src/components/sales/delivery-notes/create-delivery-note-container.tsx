@@ -128,7 +128,7 @@ export function CreateDeliveryNoteContainer() {
           })),
       });
       toast.success('Delivery Note created successfully');
-      router.push(`/sales/delivery-notes/${result.id}`);
+      router.push(`/logistics/delivery-notes/${result.id}`);
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to create Delivery Note';
       toast.error(errorMsg);

@@ -439,7 +439,7 @@ export function VendorInvoiceDetailContainer() {
                 <span className="text-muted-foreground font-medium">Goods Receipt:</span>
                 {inv.goodsReceipt ? (
                   <Link
-                    href={`/purchasing/goods-receipts/${inv.goodsReceiptId}`}
+                    href={`/logistics/goods-receipts/${inv.goodsReceiptId}`}
                     className="font-mono text-xs font-semibold text-primary hover:underline flex items-center gap-0.5"
                   >
                     {inv.goodsReceipt.number}

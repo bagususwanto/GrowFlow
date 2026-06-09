@@ -46,7 +46,7 @@ export function SiteHeader() {
       currentPath += `/${segment}`
 
       const isLast = i === segments.length - 1
-      const noPageSegments = ["inventory", "purchasing", "relations", "administration", "sales", "accounting"]
+      const noPageSegments = ["inventory", "purchasing", "relations", "administration", "sales", "accounting", "logistics"]
       if (noPageSegments.includes(segment)) {
         const label = segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ")
         items.push({

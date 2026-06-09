@@ -29,11 +29,11 @@ export default function SalesOverviewPage() {
     {
       title: 'Delivery Notes',
       description: 'Generate customer shipment receipts, handle warehouse logistics, and confirm deliveries.',
-      href: '/sales/delivery-notes',
+      href: '/logistics/delivery-notes',
       icon: <Boxes className="h-6 w-6 text-orange-500" />,
       gradient: 'from-orange-500/10 to-rose-500/10 dark:from-orange-500/20 dark:to-rose-500/20',
       actionText: 'Delivery Notes',
-      quickActionHref: '/sales/delivery-notes/new',
+      quickActionHref: '/logistics/delivery-notes/new',
       quickActionText: 'Ship Order',
       permission: 'read:delivery-notes',
       roles: ['superadmin', 'manager', 'warehouse'],

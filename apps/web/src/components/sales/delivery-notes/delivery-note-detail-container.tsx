@@ -77,7 +77,7 @@ export function DeliveryNoteDetailContainer() {
             size="icon"
             nativeButton={false}
             render={
-              <Link href="/sales/delivery-notes" title="Back to Delivery Notes">
+              <Link href="/logistics/delivery-notes" title="Back to Delivery Notes">
                 <ChevronLeftIcon className="h-4 w-4" />
               </Link>
             }
