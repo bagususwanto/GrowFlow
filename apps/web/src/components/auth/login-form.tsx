@@ -44,7 +44,6 @@ export default function LoginForm() {
     try {
       await login(data);
       router.push('/dashboard');
-      router.refresh();
     } catch (err) {
       const apiError = err as ApiError;
       setError(apiError?.message || 'Gagal login. Periksa kembali email dan password Anda.');
