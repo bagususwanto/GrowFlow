@@ -16,6 +16,7 @@ dependencies:
   # State Management & Routing
   flutter_bloc: ^8.1.3
   go_router: ^14.0.0
+  equatable: ^2.0.5
   
   # Local Database (drift / sqlite)
   drift: ^2.14.0

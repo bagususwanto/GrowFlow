@@ -1,4 +1,4 @@
-import 'core/database/database.dart';
+import 'database/database.dart';
 
 // Abstract contract for Product data operations.
 // This allows swapping between Local (SQLite) and Remote (ERP API) implementations.
@@ -8,6 +8,9 @@ abstract class ProductRepository {
   Future<Product?> getProductByCode(String code);
   Future<void> saveProduct(Product product);
   Future<void> deleteProduct(String id);
+  
+  Future<List<Category>> getCategories();
+  Future<void> saveCategory(Category category);
 }
 
 // Abstract contract for Transaction and POS sales operations.

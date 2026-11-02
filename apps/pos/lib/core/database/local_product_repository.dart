@@ -32,4 +32,14 @@ class LocalProductRepository implements ProductRepository {
   Future<void> deleteProduct(String id) {
     return (_db.delete(_db.products)..where((tbl) => tbl.id.equals(id))).go();
   }
+
+  @override
+  Future<List<Category>> getCategories() {
+    return _db.select(_db.categories).get();
+  }
+
+  @override
+  Future<void> saveCategory(Category category) {
+    return _db.into(_db.categories).insertOnConflictUpdate(category);
+  }
 }
